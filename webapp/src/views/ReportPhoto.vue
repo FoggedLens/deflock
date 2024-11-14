@@ -64,7 +64,7 @@
         <v-card-actions>
           <span class="pl-4 text-grey-darken-1">Submitting as {{ user?.name }}</span>
           <v-spacer/>
-          <v-btn color="primary" @click="upload" :disabled="!canSubmit">Submit</v-btn>
+          <v-btn :loading="isSubmitting" color="primary" @click="upload" :disabled="!canSubmit">Submit</v-btn>
         </v-card-actions>
       </v-card>
 
@@ -97,6 +97,7 @@ const errorMessage = ref('');
 const areAllImagesGeotagged = ref(false);
 const showLoginDialog = ref(false); // TODO: changeme
 const presignedUrls = ref<string[]>([]);
+const isSubmitting = ref(false);
 
 // watch(isAuthenticated, async (isAuthenticated) => {
 //   if (isAuthenticated) {
@@ -109,7 +110,7 @@ const presignedUrls = ref<string[]>([]);
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8 MB
 
 const canSubmit = computed(() => {
-  return agree.value && files.value.length > 0 && areAllImagesGeotagged.value;
+  return agree.value && files.value.length > 0 && areAllImagesGeotagged.value && !isSubmitting.value;
 });
 
 const checkGeotagging = async () => {
@@ -138,7 +139,7 @@ const checkGeotagging = async () => {
   }
 
   // fetch presigned urls ahead of time to save time
-  getPresignedUrls(files.value.length, files.value[0].type, 'CHANGE_ME_PLEASE!!').then((urls) => {
+  getPresignedUrls(files.value.length, files.value[0].type, 'willfreeman').then((urls) => {
     presignedUrls.value = urls;
   });
 
@@ -172,15 +173,17 @@ async function upload() {
 
   files.value.forEach(async (file, index) => {
     const presignedUrl = presignedUrls.value[index];
+    isSubmitting.value = true;
     const response = await fetch(presignedUrl, {
       method: 'PUT',
       body: file,
     });
-
-    console.log(response);
+    isSubmitting.value = false;
 
     if (response.ok) {
       console.log('File uploaded successfully');
+      files.value = [];
+      areAllImagesGeotagged.value = false;
     } else {
       console.error('Failed to upload file');
     }
