@@ -6,7 +6,13 @@
 
       <v-row class="align-center">
         <v-col cols="12" sm="6">
-          <v-img cover ref="imageEl" :src="submission.publicUrl" @load="loadExif" />
+          <v-card flat v-if="isConverting">
+            <v-card-title>Converting from HEIC</v-card-title>
+            <v-card-text>
+              <v-progress-linear indeterminate color="primary"></v-progress-linear>
+            </v-card-text>
+          </v-card>
+          <v-img v-else cover ref="imageEl" :src="imageSrc"/>
         </v-col>
 
         <v-col cols="12" sm="6">
@@ -45,14 +51,20 @@
 
 <script setup lang="ts">
 import type { PropType, Ref } from 'vue';
-import { computed, defineProps, ref, defineEmits } from 'vue';
+import { computed, defineProps, ref, defineEmits, onMounted } from 'vue';
 import type { Submission } from '@/types';
 import ExifReader from 'exifreader';
+import heic2any from "heic2any";
 
 const emit = defineEmits(['cancel', 'delete']);
 
 const lat: Ref<number|null> = ref(null);
 const lng: Ref<number|null> = ref(null);
+const isHeic = computed(() => props.submission.objectKey.endsWith('.heic'));
+const pngSrc: Ref<string|undefined> = ref(undefined);
+const isConverting = computed(() => isHeic.value && !pngSrc.value);
+
+const imageSrc = computed(() => isHeic.value ? pngSrc.value : props.submission.publicUrl);
 
 const showInstructions = ref(false);
 
@@ -64,10 +76,29 @@ function deleteSubmission() {
   emit('delete', props.submission);
 }
 
-const loadExif = async (e: any) => {
+onMounted(() => {
+  loadExif()
+});
+
+const loadExif = async () => {
   const response = await fetch(props.submission.publicUrl);
   const arrayBuffer = await response.arrayBuffer();
   const tags = ExifReader.load(arrayBuffer);
+
+  if (isHeic.value) {
+    console.log('Converting HEIC to PNG');
+    heic2any({
+      blob: new Blob([arrayBuffer], { type: 'image/heic' }),
+    }).then((result: Blob | Blob[]) => {
+      if (Array.isArray(result)) {
+        pngSrc.value = URL.createObjectURL(result[0]);
+      } else {
+        pngSrc.value = URL.createObjectURL(result);
+      }
+    });
+  } else {
+    console.log('Image is not HEIC');
+  }
 
   if (tags.GPSLatitude && tags.GPSLongitude) {
     lat.value = parseFloat(tags.GPSLatitude.description);
