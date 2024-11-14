@@ -54,6 +54,21 @@ const apiService = axios.create({
   },
 });
 
+export const getUserSubmissions = async () => {
+  const response = await apiService.get("/user-submissions");
+  return response.data;
+}
+
+export const getPresignedUrls = async (count: number, contentType: string, author: string) => {
+  const response = await apiService.get(`/presigned-urls?count=${encodeURIComponent(count)}&contentType=${encodeURIComponent(contentType)}&author=${encodeURIComponent(author)}`);
+  return response.data;
+}
+
+export const deleteObject = async (objectKey: string) => {
+  console.log("deleting object", objectKey);
+  await apiService.post(`/delete-object`, { objectKey });
+}
+
 export const getALPRs = async (boundingBox: BoundingBox) => {
   const queryParams = new URLSearchParams({
     minLat: boundingBox.minLat.toString(),

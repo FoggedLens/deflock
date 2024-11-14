@@ -55,8 +55,23 @@ const router = createRouter({
       path: '/legal',
       name: 'legal',
       component: () => import('../views/LegalView.vue')
+    },
+    {
+      path: '/upload',
+      name: 'upload',
+      component: () => import('../views/ReportPhoto.vue')
+    },
+    {
+      path: '/dashboard',
+      name: 'review',
+      component: () => import('../views/Dashboard.vue')
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  console.log(`Navigating to ${to.fullPath} from ${from.fullPath}`);
+  next();
+});
 
 export default router

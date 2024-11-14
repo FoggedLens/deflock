@@ -20,4 +20,5 @@ libraryDependencies ++= Seq(
   "org.apache.pekko" %% "pekko-http-spray-json" % PekkoHttpVersion,
   "org.apache.pekko" %% "pekko-http-cors" % PekkoHttpVersion,
   "org.apache.pekko" %% "pekko-slf4j" % PekkoVersion,
+  "software.amazon.awssdk" % "s3" % "2.25.27",
 )

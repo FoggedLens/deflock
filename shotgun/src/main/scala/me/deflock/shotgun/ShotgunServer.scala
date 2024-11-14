@@ -12,6 +12,10 @@ import pekko.http.scaladsl.model._
 import pekko.http.scaladsl.server.Directives.{path, _}
 import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import org.apache.pekko.http.scaladsl.server.RejectionHandler
+import services.DeleteObjectRequest
+import services.DeleteObjectRequestJsonProtocol._
+import spray.json.DefaultJsonProtocol._
+import services.ImageSubmissionJsonProtocol._
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -28,6 +32,11 @@ object ShotgunServer {
 
     val client = new services.OverpassClient()
     val nominatim = new services.NominatimClient()
+    val awsClient = new services.AWSClient(
+      accessKeyId = sys.env("AWS_ACCESS_KEY_ID"),
+      secretAccessKey = sys.env("AWS_SECRET_ACCESS_KEY"),
+      region = "us-east-1"
+    )
 
     // CORS
     val allowedOrigins = List(
@@ -69,6 +78,32 @@ object ShotgunServer {
               onSuccess(nominatim.geocodePhrase(encodedQuery)) { json =>
                 complete(json)
               }
+            }
+          }
+        },
+        path("presigned-urls") {
+          get {
+            parameters("count".as[Int], "contentType".as[String], "author".as[String]) { (imageCount, contentType, author) =>
+              if (imageCount > 5)
+                complete(StatusCodes.BadRequest, "Cannot request more than 5 presigned URLs at a time")
+              else {
+                val urls = awsClient.getMultiplePutPresignedUrls("deflock-photo-uploads", imageCount, contentType, author, 5)
+                complete(urls)
+              }
+            }
+          }
+        },
+        path("user-submissions") {
+          get {
+            val submissions = awsClient.getAllObjects("deflock-photo-uploads")
+            complete(submissions)
+          }
+        },
+        path("delete-object") {
+          post {
+            entity(as[DeleteObjectRequest]) { request =>
+              val res = awsClient.deleteObject("deflock-photo-uploads", request.objectKey)
+              complete(res)
             }
           }
         },

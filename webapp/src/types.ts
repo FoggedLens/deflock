@@ -12,3 +12,10 @@ export interface WikidataItem {
   wikidata: string;
   exampleImage: string|undefined;
 }
+
+export interface Submission {
+  author: string,
+  bucketName: string,
+  objectKey: string,
+  publicUrl: string,
+}

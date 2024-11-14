@@ -1,15 +1,5 @@
 <template>
   <v-container max-width="1000">
-    <v-alert
-      variant="tonal"
-      type="info"
-      class="my-6"
-      title="Reporting Feature Coming Soon"
-    >
-      <p>
-        We're working on a feature that will allow you to report ALPRs directly on this site. In the meantime, you can follow the steps below to add the ALPR to OpenStreetMap.
-      </p>
-    </v-alert>
     <h2>How to Report an ALPR</h2>
     <p>
       If you've spotted an ALPR in your area, you can help us track it by reporting it to OpenStreetMap, where we source our information. Here's how you can do it:
