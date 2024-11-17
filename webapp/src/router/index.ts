@@ -1,17 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { useAuth0 } from '@auth0/auth0-vue';
+
+
+const routeGuard = (to: any, from: any, next: any) => {
+  const { isAuthenticated, loginWithRedirect } = useAuth0();
+
+  // code and state present when redirected from Auth0
+  if (isAuthenticated.value || (to.query.code && to.query.state)) {
+    next();
+  } else {
+    loginWithRedirect({
+      appState: { targetUrl: to.fullPath }
+    });
+  }
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  scrollBehavior(to, from, savedPosition) {
-    if (to.hash && !to.hash.startsWith('#map')) {
-      return {
-        el: to.hash,
-        behavior: 'smooth',
-      }
-    }
-    return { top: 0 }
-  },
   routes: [
     {
       path: '/',
@@ -21,9 +27,6 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
     },
     {
@@ -59,12 +62,14 @@ const router = createRouter({
     {
       path: '/upload',
       name: 'upload',
-      component: () => import('../views/ReportPhoto.vue')
+      component: () => import('../views/ReportPhoto.vue'),
+      beforeEnter: routeGuard
     },
     {
       path: '/dashboard',
       name: 'review',
-      component: () => import('../views/Dashboard.vue')
+      component: () => import('../views/Dashboard.vue'),
+      beforeEnter: routeGuard
     }
   ]
 })

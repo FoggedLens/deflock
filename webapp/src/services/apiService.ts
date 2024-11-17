@@ -1,4 +1,13 @@
 import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-vue";
+
+async function getAuthHeaders() {
+  const { getAccessTokenSilently } = useAuth0();
+  const token = await getAccessTokenSilently();
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
 
 export interface Cluster {
   id: string;
@@ -55,18 +64,21 @@ const apiService = axios.create({
 });
 
 export const getUserSubmissions = async () => {
-  const response = await apiService.get("/user-submissions");
+  const response = await apiService.get("/user-submissions", { headers: await getAuthHeaders() });
   return response.data;
 }
 
 export const getPresignedUrls = async (count: number, contentType: string, author: string) => {
-  const response = await apiService.get(`/presigned-urls?count=${encodeURIComponent(count)}&contentType=${encodeURIComponent(contentType)}&author=${encodeURIComponent(author)}`);
+  const response = await apiService.get(
+    `/presigned-urls?count=${encodeURIComponent(count)}&contentType=${encodeURIComponent(contentType)}&author=${encodeURIComponent(author)}`,
+    { headers: await getAuthHeaders() }
+  );
   return response.data;
 }
 
 export const deleteObject = async (objectKey: string) => {
   console.log("deleting object", objectKey);
-  await apiService.post(`/delete-object`, { objectKey });
+  await apiService.post(`/delete-object`, { objectKey }, { headers: await getAuthHeaders() });
 }
 
 export const getALPRs = async (boundingBox: BoundingBox) => {

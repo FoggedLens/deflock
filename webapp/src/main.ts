@@ -15,8 +15,9 @@ const auth0 = createAuth0({
   domain: "deflock.us.auth0.com",
   clientId: "IEBa7ckgWrMGErTWXA8Z9q91hre7uII2",
   authorizationParams: {
-    redirect_uri: 'http://localhost:5173/upload'
-  }
+    redirect_uri: window.location.origin,
+  },
+  cacheLocation: 'localstorage',
 })
 
 

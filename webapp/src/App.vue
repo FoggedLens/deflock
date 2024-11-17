@@ -3,6 +3,12 @@ import { RouterView } from 'vue-router'
 import { ref, watch } from 'vue'
 import { useTheme } from 'vuetify';
 
+import { useAuth0 } from '@auth0/auth0-vue';
+const { isAuthenticated, user, isLoading, loginWithRedirect, logout } = useAuth0();
+const logoutParams = {
+  returnTo: window.location.origin
+};
+
 const theme = useTheme();
 
 function toggleTheme() {
@@ -37,6 +43,7 @@ watch(() => theme.global.name.value, (newTheme) => {
     root.style.setProperty('--df-text-color', 'black');
   }
 });
+
 </script>
 
 <template>
@@ -52,6 +59,21 @@ watch(() => theme.global.name.value, (newTheme) => {
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
+
+      <v-btn variant="text" id="menu-activator">
+        <v-icon start>mdi-account</v-icon>{{ isAuthenticated ? user?.given_name : 'Log In' }}
+      </v-btn>
+
+      <v-menu activator="#menu-activator">
+        <v-list>
+          <v-list-item v-if="isAuthenticated" @click="logout({logoutParams})">
+            <v-list-item-title>Log Out</v-list-item-title>
+          </v-list-item>
+          <v-list-item v-else @click="loginWithRedirect">
+            <v-list-item-title>Log In</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
 
       <v-btn icon>
         <v-icon @click="toggleTheme">mdi-theme-light-dark</v-icon>
