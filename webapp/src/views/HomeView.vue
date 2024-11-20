@@ -17,6 +17,10 @@
       @ready="mapLoaded"
       :options="{ zoomControl: false, attributionControl: false }"
     >
+      <l-control position="bottomleft">
+        <ALPRCounter />
+      </l-control>
+
       <l-control position="topleft">
         <form @submit.prevent="onSearch">
           <v-text-field
@@ -78,6 +82,7 @@ import { useDisplay, useTheme } from 'vuetify';
 import DFMapMarker from '@/components/DFMapMarker.vue';
 import DFMarkerCluster from '@/components/DFMarkerCluster.vue';
 import NewVisitor from '@/components/NewVisitor.vue';
+import ALPRCounter from '@/components/ALPRCounter.vue';
 import type { ALPR } from '@/types';
 
 const DEFAULT_ZOOM = 12;
