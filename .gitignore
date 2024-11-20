@@ -36,5 +36,14 @@ terraform.tfstate.d/
 .terraform/
 .terraform.lock.hcl
 terraform.tfvars
+terraform.tfstate*
 
 .venv/
+
+# Lambda Python Stuff
+serverless/*/lambda.zip
+serverless/*/src/*
+!serverless/*/src/alpr_counts.py
+!serverless/*/src/requirements.txt
+
+# TODO: need a better way to handle python packages
