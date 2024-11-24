@@ -37,7 +37,7 @@
         surveillance:type=ALPR<br>
         camera:mount=pole<br>
         camera:type=fixed<br>
-        surveillance=traffic<br>
+        surveillance=public<br>
         surveillance:zone=traffic<br>
         brand=<span class="highlight">{{ selectedBrand.name }}</span><br>
         brand:wikidata=<span class="highlight">{{ selectedBrand.wikidata }}</span><br>
