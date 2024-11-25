@@ -1,0 +1,4 @@
+boto3
+requests
+scikit-learn
+numpy

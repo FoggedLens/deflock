@@ -44,6 +44,7 @@ terraform.tfstate*
 serverless/*/lambda.zip
 serverless/*/src/*
 !serverless/*/src/alpr_counts.py
+!serverless/*/src/alpr_clusters.py
 !serverless/*/src/requirements.txt
 
 # TODO: need a better way to handle python packages

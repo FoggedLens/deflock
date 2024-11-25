@@ -1,12 +1,3 @@
-locals {
-  alpr_counts_filename = "alpr-counts.json"
-}
-
-
-provider "aws" {
-  region = "us-east-1"
-}
-
 resource "aws_iam_role" "lambda_role" {
   name = "lambda_s3_write_role"
 
@@ -26,7 +17,7 @@ resource "aws_iam_role" "lambda_role" {
 
 resource "aws_iam_policy" "lambda_s3_write_policy" {
   name        = "lambda_s3_write_policy"
-  description = "Policy for Lambda to write to S3 bucket deflock-clusters"
+  description = "Policy for Lambda to write to S3 bucket ${var.deflock_stats_bucket}"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -37,7 +28,7 @@ resource "aws_iam_policy" "lambda_s3_write_policy" {
           "s3:PutObjectAcl"
         ]
         Effect   = "Allow"
-        Resource = "arn:aws:s3:::deflock-clusters/${local.alpr_counts_filename}"
+        Resource = "arn:aws:s3:::${var.deflock_stats_bucket}/${var.output_filename}"
       }
     ]
   })
@@ -51,43 +42,43 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_write_attachment" {
 resource "null_resource" "pip_install" {
   provisioner "local-exec" {
     command = <<EOT
-      cd ${path.module}/../serverless/alpr-counts/src
+      cd ${path.root}/../serverless/${var.module_name}/src
       pip3 install -r requirements.txt -t .
     EOT
   }
 
   triggers = {
     # Re-run the provisioner if the file changes
-    file_hash = "${filemd5("${path.module}/../serverless/alpr-counts/src/alpr_counts.py")}"
+    file_hash = "${filemd5("${path.root}/../serverless/${var.module_name}/src/${var.module_name}.py")}"
   }
 }
 
 data "archive_file" "python_lambda_package" {
   type        = "zip"
-  source_dir  = "${path.module}/../serverless/alpr-counts/src"
-  output_path = "${path.module}/../serverless/alpr-counts/lambda.zip"
+  source_dir  = "${path.root}/../serverless/${var.module_name}/src"
+  output_path = "${path.root}/../serverless/${var.module_name}/lambda.zip"
 
   depends_on = [ null_resource.pip_install ]
 }
 
 resource "aws_lambda_function" "overpass_lambda" {
   filename         = data.archive_file.python_lambda_package.output_path
-  function_name    = "alpr_counts"
+  function_name    = var.module_name
   role             = aws_iam_role.lambda_role.arn
-  handler          = "alpr_counts.lambda_handler"
+  handler          = "${var.module_name}.lambda_handler"
   runtime          = "python3.9"
   source_code_hash = data.archive_file.python_lambda_package.output_base64sha256
   timeout = 30
 }
 
 resource "aws_cloudwatch_event_rule" "lambda_rule" {
-  name        = "alpr_counts_rule"
-  description = "Rule to trigger alpr_counts lambda"
-  schedule_expression = "rate(60 minutes)"
+  name        = "${var.module_name}_rule"
+  description = "Rule to trigger ${var.module_name} lambda"
+  schedule_expression = var.rate
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target" {
-  target_id = "alpr_counts_target"
+  target_id = "${var.module_name}_target"
   rule      = aws_cloudwatch_event_rule.lambda_rule.name
   arn       = aws_lambda_function.overpass_lambda.arn
 }
