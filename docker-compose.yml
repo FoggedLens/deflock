@@ -1,9 +1,14 @@
-version: '3.8'
-
+---
 services:
   deflock:
     image: public.ecr.aws/w2o0b9g0/deflock.me:latest
     ports:
       - 8080:8080
-    #restart: always
+    restart: always
+    healthcheck:
+      test: curl --fail http://localhost:8080/api/healthcheck || exit 1
+      interval: 30s        # Time between health checks
+      timeout: 10s         # Time to wait for a response
+      retries: 3           # Number of retries before marking as unhealthy
+      start_period: 10s    # Time to wait before starting health checks
     stdin_open: true

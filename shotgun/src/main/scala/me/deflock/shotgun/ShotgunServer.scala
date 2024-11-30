@@ -78,6 +78,11 @@ object ShotgunServer {
               complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to Pekko HTTP</h1><p><b>Code: " + code.getOrElse("None") + "</b></p>"))
             }
           }
+        },
+        path("healthcheck") {
+          get {
+            complete(HttpResponse(StatusCodes.OK, entity = "Service is healthy"))
+          }
         }
       )
     }
