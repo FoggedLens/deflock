@@ -55,6 +55,11 @@ const router = createRouter({
       path: '/legal',
       name: 'legal',
       component: () => import('../views/LegalView.vue')
+    },
+    {
+      path: '/qr',
+      name: 'qr-landing',
+      component: () => import('../views/QRLandingView.vue')
     }
   ]
 })
