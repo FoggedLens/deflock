@@ -22,7 +22,7 @@
           <ul class="details-list">
             <li><strong>ID:</strong> {{ closestALPR.id }}</li>
             <li><strong>Location:</strong> {{ closestALPR.lat.toFixed(6) }}, {{ closestALPR.lon.toFixed(6) }}</li>
-            // Perhaps show cluster information here?
+            <!-- Perhaps show cluster information here? -->
           </ul>
           <v-btn @click="goToMap" color="primary">
             See More on the Map
