@@ -78,7 +78,9 @@ onMounted(getUserLocation);
 .qr-landing-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
 }
 </style>
