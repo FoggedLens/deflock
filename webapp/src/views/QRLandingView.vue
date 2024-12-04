@@ -159,8 +159,9 @@ interface GoToMapOptions {
   withCurrentLocation?: boolean;
 }
 
-function goToMap(options: GoToMapOptions = {}) {
+async function goToMap(options: GoToMapOptions = {}) {
   if (options.withCurrentLocation) {
+    await getUserLocation();
     if (userLocation.value) {
       const [lat, lon] = userLocation.value;
       router.push({ path: '/', hash: `#map=16/${lat.toFixed(6)}/${lon.toFixed(6)}` });
@@ -171,6 +172,4 @@ function goToMap(options: GoToMapOptions = {}) {
     router.push({ path: '/' });
   }
 }
-
-onMounted(getUserLocation);
 </script>
