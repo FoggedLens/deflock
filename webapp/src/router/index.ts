@@ -60,6 +60,11 @@ const router = createRouter({
       path: '/qr',
       name: 'qr-landing',
       component: () => import('../views/QRLandingView.vue')
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('../views/404.vue')
     }
   ]
 })
