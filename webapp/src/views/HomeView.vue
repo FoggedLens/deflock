@@ -256,7 +256,9 @@ onMounted(() => {
       };
     }
   } else {
-    center.value = { lat: 37.875190, lng: -122.279819 };
+    // show US map by default
+    zoom.value = 4;
+    center.value = { lat: 39.8283, lng: -98.5795 };
   }
 });
 
