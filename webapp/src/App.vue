@@ -2,6 +2,7 @@
 import { RouterView } from 'vue-router'
 import { ref, watch } from 'vue'
 import { useTheme } from 'vuetify';
+import { useRouter } from 'vue-router';
 
 import { useAuth0 } from '@auth0/auth0-vue';
 const { isAuthenticated, user, isLoading, loginWithRedirect, logout } = useAuth0();
@@ -10,6 +11,7 @@ const logoutParams = {
 };
 
 const theme = useTheme();
+const router = useRouter();
 
 function toggleTheme() {
   const newTheme = theme.global.name.value === 'dark' ? 'light' : 'dark';
@@ -55,7 +57,7 @@ watch(() => theme.global.name.value, (newTheme) => {
       <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
       <v-toolbar-title>
-        <v-img height="36" width="130" src="/deflock-logo.svg" />
+        <v-img style="cursor: pointer" height="36" width="130" src="/deflock-logo.svg" @click="router.push('/')" />
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -65,12 +67,17 @@ watch(() => theme.global.name.value, (newTheme) => {
       </v-btn>
 
       <v-menu activator="#menu-activator">
-        <v-list>
-          <v-list-item v-if="isAuthenticated" @click="logout({logoutParams})">
-            <v-list-item-title>Log Out</v-list-item-title>
+        <v-list v-if="isAuthenticated">
+          <v-list-item to="/upload">
+            <v-list-item-title><v-icon start>mdi-map-marker-plus</v-icon>Report</v-list-item-title>
           </v-list-item>
-          <v-list-item v-else @click="loginWithRedirect">
-            <v-list-item-title>Log In</v-list-item-title>
+          <v-list-item @click="logout({logoutParams})">
+            <v-list-item-title><v-icon start>mdi-logout</v-icon>Log Out</v-list-item-title>
+          </v-list-item>
+        </v-list>
+        <v-list v-else>
+          <v-list-item @click="loginWithRedirect">
+            <v-list-item-title><v-icon start>mdi-login</v-icon>Log In</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>

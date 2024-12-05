@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1>Review Submissions</h1>
+    <h2 class="text-center mb-4">Community Submissions</h2>
   
     <v-data-table
       :loading="isLoading"
@@ -8,6 +8,7 @@
       :items="submissions"
       :items-per-page="10"
       class="elevation-1"
+      no-data-text="Yay! No submissions to review."
     >
       <template #item.review="{ item }: { item: Submission }">
         <v-btn @click="reviewSubmission(item)" color="primary" variant="text">Review</v-btn>

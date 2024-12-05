@@ -63,7 +63,7 @@ const router = createRouter({
       path: '/upload',
       name: 'upload',
       component: () => import('../views/ReportPhoto.vue'),
-      beforeEnter: routeGuard
+      // beforeEnter: routeGuard
     },
     {
       path: '/dashboard',
