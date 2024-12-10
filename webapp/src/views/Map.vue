@@ -47,7 +47,7 @@
         :url="mapTileUrl"
         layer-type="base"
         name="OpenStreetMap"
-        :attribution="attribution"
+        attribution="&copy; <a target=&quot;_blank&quot; href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
       />
 
       <l-control position="bottomright">
@@ -93,7 +93,6 @@ const searchField: Ref<any|null> = ref(null);
 const searchQuery: Ref<string> = ref('');
 const router = useRouter();
 const { xs } = useDisplay();
-const attribution = '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 
 const canRefreshMarkers = computed(() => zoom.value >= MIN_ZOOM_FOR_REFRESH);
 const mapTileUrl = computed(() =>
