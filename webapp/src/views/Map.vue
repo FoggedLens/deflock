@@ -15,7 +15,7 @@
       :use-global-leaflet="false"
       @update:bounds="updateBounds"
       @ready="mapLoaded"
-      :options="{ zoomControl: false, attributionControl: false }"
+      :options="{ zoomControl: false }"
     >
       <l-control position="topleft">
         <form @submit.prevent="onSearch">
@@ -47,8 +47,9 @@
         :url="mapTileUrl"
         layer-type="base"
         name="OpenStreetMap"
+        :attribution="attribution"
       />
-      
+
       <l-control position="bottomright">
         <v-btn @click="goToUserLocation" icon class="mt-2">
           <v-icon x-large>mdi-crosshairs-gps</v-icon>
@@ -92,6 +93,7 @@ const searchField: Ref<any|null> = ref(null);
 const searchQuery: Ref<string> = ref('');
 const router = useRouter();
 const { xs } = useDisplay();
+const attribution = '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 
 const canRefreshMarkers = computed(() => zoom.value >= MIN_ZOOM_FOR_REFRESH);
 const mapTileUrl = computed(() =>
