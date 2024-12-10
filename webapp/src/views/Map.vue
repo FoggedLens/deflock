@@ -15,7 +15,7 @@
       :use-global-leaflet="false"
       @update:bounds="updateBounds"
       @ready="mapLoaded"
-      :options="{ zoomControl: false, attributionControl: false }"
+      :options="{ zoomControl: false }"
     >
       <l-control position="topleft">
         <form @submit.prevent="onSearch">
@@ -47,8 +47,9 @@
         :url="mapTileUrl"
         layer-type="base"
         name="OpenStreetMap"
+        attribution="&copy; <a target=&quot;_blank&quot; href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
       />
-      
+
       <l-control position="bottomright">
         <v-btn @click="goToUserLocation" icon class="mt-2">
           <v-icon x-large>mdi-crosshairs-gps</v-icon>
