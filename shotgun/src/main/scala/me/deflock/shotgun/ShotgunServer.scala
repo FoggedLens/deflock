@@ -14,6 +14,7 @@ import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import org.apache.pekko.http.scaladsl.server.RejectionHandler
 import services.DeleteObjectRequest
 import services.DeleteObjectRequestJsonProtocol._
+import services.JwtAuthenticator.{authenticated, hasPermissions}
 import spray.json.DefaultJsonProtocol._
 import services.ImageSubmissionJsonProtocol._
 
@@ -21,10 +22,13 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
+import org.slf4j.LoggerFactory
 
 object ShotgunServer {
 
   def main(args: Array[String]): Unit = {
+
+    val logger = LoggerFactory.getLogger(getClass)
 
     implicit val system: ActorSystem = ActorSystem("my-system")
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
@@ -82,35 +86,34 @@ object ShotgunServer {
           }
         },
         path("presigned-urls") {
-          get {
-            parameters("count".as[Int], "contentType".as[String], "author".as[String]) { (imageCount, contentType, author) =>
-              if (imageCount > 5)
-                complete(StatusCodes.BadRequest, "Cannot request more than 5 presigned URLs at a time")
-              else {
-                val urls = awsClient.getMultiplePutPresignedUrls("deflock-photo-uploads", imageCount, contentType, author, 5)
-                complete(urls)
+          hasPermissions(List("photo:upload")) { claim =>
+            get {
+              parameters("count".as[Int], "contentType".as[String], "author".as[String]) { (imageCount, contentType, author) =>
+                if (imageCount > 5)
+                  complete(StatusCodes.BadRequest, "Cannot request more than 5 presigned URLs at a time")
+                else {
+                  val urls = awsClient.getMultiplePutPresignedUrls("deflock-photo-uploads", imageCount, contentType, author, 5)
+                  complete(urls)
+                }
               }
             }
           }
         },
         path("user-submissions") {
-          get {
-            val submissions = awsClient.getAllObjects("deflock-photo-uploads")
-            complete(submissions)
-          }
-        },
-        path("delete-object") {
-          post {
-            entity(as[DeleteObjectRequest]) { request =>
-              val res = awsClient.deleteObject("deflock-photo-uploads", request.objectKey)
-              complete(res)
+          hasPermissions(List("photo:view")) { claim =>
+            get {
+              val submissions = awsClient.getAllObjects("deflock-photo-uploads")
+              complete(submissions)
             }
           }
         },
-        path("oauth2" / "callback") {
-          get {
-            parameters(Symbol("code").?) { (code) =>
-              complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to Pekko HTTP</h1><p><b>Code: " + code.getOrElse("None") + "</b></p>"))
+        path("delete-object") {
+          hasPermissions(List("photo:delete")) { claim =>
+            post {
+              entity(as[DeleteObjectRequest]) { request =>
+                val res = awsClient.deleteObject("deflock-photo-uploads", request.objectKey)
+                complete(res)
+              }
             }
           }
         }

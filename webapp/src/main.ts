@@ -16,6 +16,7 @@ const auth0 = createAuth0({
   clientId: "IEBa7ckgWrMGErTWXA8Z9q91hre7uII2",
   authorizationParams: {
     redirect_uri: window.location.origin,
+    audience: "https://deflock.me/api",
   },
   cacheLocation: 'localstorage',
 })
