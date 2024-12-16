@@ -39,8 +39,8 @@
         camera:type=fixed<br>
         surveillance=public<br>
         surveillance:zone=traffic<br>
-        brand=<span class="highlight">{{ selectedBrand.name }}</span><br>
-        brand:wikidata=<span class="highlight">{{ selectedBrand.wikidata }}</span><br>
+        manufacturer=<span class="highlight">{{ selectedBrand.name }}</span><br>
+        manufacturer:wikidata=<span class="highlight">{{ selectedBrand.wikidata }}</span><br>
       </DFCode>
 
       <h5 class="text-center mt-4">and if operator is known</h5>
