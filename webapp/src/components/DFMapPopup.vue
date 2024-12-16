@@ -15,7 +15,10 @@
       </v-list-item>
       <v-list-item>
         <v-icon start>mdi-domain</v-icon> <b>
-          <span v-if="alpr.tags.brand">
+          <span v-if="alpr.tags.manufacturer">
+            {{ alpr.tags.manufacturer }}
+          </span>
+          <span v-else-if="alpr.tags.brand">
             {{ alpr.tags.brand }}
           </span>
           <span v-else>
