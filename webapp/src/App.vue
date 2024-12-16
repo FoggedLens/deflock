@@ -25,7 +25,7 @@ const metaItems = [
   { title: 'Discord', icon: 'mdi-chat-processing-outline', href: 'https://discord.gg/aV7v4R3sKT'},
   { title: 'Contact', icon: 'mdi-email-outline', to: '/contact' },
   { title: 'GitHub', icon: 'mdi-github', href: 'https://github.com/frillweeman/deflock'},
-  { title: 'Donate', icon: 'mdi-heart', href: 'https://github.com/sponsors/frillweeman'},
+  { title: 'Donate', icon: 'mdi-heart', to: '/donate'},
 ];
 const drawer = ref(false)
 

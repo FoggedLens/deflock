@@ -12,3 +12,5 @@ services:
       retries: 3           # Number of retries before marking as unhealthy
       start_period: 10s    # Time to wait before starting health checks
     stdin_open: true
+    environment:
+      - GITHUB_TOKEN

@@ -68,6 +68,11 @@ const router = createRouter({
       component: () => import('../views/QRLandingView.vue')
     },
     {
+      path: '/donate',
+      name: 'donate',
+      component: () => import('../views/Donate.vue')
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('../views/404.vue')

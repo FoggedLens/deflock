@@ -65,6 +65,11 @@ export const getALPRs = async (boundingBox: BoundingBox) => {
   return response.data;
 }
 
+export const getSponsors = async () => {
+  const response = await apiService.get("/sponsors/github");
+  return response.data;
+}
+
 export const getALPRCounts = async () => {
   const s3Url = "https://deflock-clusters.s3.us-east-1.amazonaws.com/alpr-counts.json";
   const response = await apiService.get(s3Url);

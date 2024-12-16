@@ -17,8 +17,11 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
+import org.slf4j.LoggerFactory
 
 object ShotgunServer {
+
+  val logger = LoggerFactory.getLogger(getClass)
 
   def main(args: Array[String]): Unit = {
 
@@ -28,6 +31,7 @@ object ShotgunServer {
 
     val client = new services.OverpassClient()
     val nominatim = new services.NominatimClient()
+    val githubClient = new services.GithubClient()
 
     // CORS
     val allowedOrigins = List(
@@ -69,6 +73,13 @@ object ShotgunServer {
               onSuccess(nominatim.geocodePhrase(encodedQuery)) { json =>
                 complete(json)
               }
+            }
+          }
+        },
+        path("sponsors" / "github") {
+          get {
+            onSuccess(githubClient.getSponsors("frillweeman")) { json =>
+              complete(json)
             }
           }
         },

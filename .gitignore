@@ -49,3 +49,5 @@ serverless/*/src/*
 !serverless/*/src/requirements.txt
 
 # TODO: need a better way to handle python packages
+
+.env

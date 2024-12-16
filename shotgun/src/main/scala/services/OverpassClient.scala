@@ -6,7 +6,6 @@ import pekko.http.scaladsl.Http
 import pekko.http.scaladsl.model._
 import pekko.http.scaladsl.unmarshalling.Unmarshal
 import spray.json._
-import DefaultJsonProtocol._
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
 case class BoundingBox(minLat: Double, minLng: Double, maxLat: Double, maxLng: Double)
