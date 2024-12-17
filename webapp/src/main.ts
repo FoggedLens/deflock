@@ -3,6 +3,7 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import { createHead } from '@unhead/vue'
 
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
@@ -19,7 +20,7 @@ const vuetify = createVuetify({
 })
 
 const app = createApp(App)
-
+app.use(createHead())
 app.use(router)
 app.use(vuetify)
 

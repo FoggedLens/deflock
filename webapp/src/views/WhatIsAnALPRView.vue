@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="1000">
+  <v-container class="info-section" max-width="1000">
     <p>
       <v-img max-height="450" width="100%" cover src="/flock-camera.jpeg" />
     </p>
@@ -12,31 +12,11 @@
     <p>For a detailed explanation of how ALPRs are a threat to privacy, see this <a href="https://www.aclu.org/issues/privacy-technology/you-are-being-tracked" target="_blank">ACLU article</a> as well as this <a href="https://sls.eff.org/technologies/automated-license-plate-readers-alprs" target="_blank">EFF article</a> on ALPRs.</p>
 
     <h2>Why Should You Be Concerned</h2>
-    <p>
-      ALPRs can invade your privacy and violate civil liberties in several key ways:
+    <p class="mb-4">
+      ALPRs invade your privacy and violate your civil liberties. Here's how:
     </p>
 
-    <div class="ml-4">
-      <h3>Mass Surveillance</h3>
-      <p>Your daily movements are tracked and logged, often indefinitely. This creates a detailed record of your daily activities. This information can be used to infer personal details about your life.</p>
-
-      <h3>Data Sharing</h3>
-      <p>ALPR data is often shared with other agencies, including federal law enforcement. This can lead to the creation of a massive database of innocent people's movements.</p>
-
-      <h3>Chilling Effect on Freedoms</h3>
-      <p>The knowledge that you are being watched can have a chilling effect on your freedom of speech and association. People may avoid attending protests or political events for fear of being tracked.</p>
-
-      <h3>Potential for Abuse</h3>
-      <p>Law enforcement officers or other individuals with access could misuse this data, for example, tracking ex-partners, political rivals, or targeting specific communities without oversight.</p>
-
-      <h4 class="mt-4">Examples of Abuse</h4>
-      <ul>
-        <li><a target="_blank" href="https://www.kwch.com/2022/10/31/kechi-police-lieutenant-arrested-using-police-technology-stalk-wife/">Kechi police lieutenant arrested for using police technology to stalk wife</a></li>
-        <li><a target="_blank" href="https://www.kwch.com/2022/11/04/kechi-police-lieutenants-arrest-puts-flock-technology-under-scrutiny/">Kechi police lieutenant&apos;s arrest puts Flock technology under scrutiny</a></li>
-        <li><a target="_blank" href="https://www.koat.com/article/espanola-police-license-plate-stolen-cover-traffic-stop/45361740">License plate cover leads to traffic stop mishap</a></li>
-        <li><a href="https://apnews.com/article/handcuffed-black-girls-colorado-settlement-a7a695839b8841e56b7db0d103cc5ed1">Family of Black girls handcuffed by Colorado police, held at gunpoint reach $1.9 million settlement</a></li>
-      </ul>
-    </div>
+    <dangers />
 
     <h2 id="not-alpr" :class="{ highlighted: route.hash === '#not-alpr' }">What They Look Like</h2>
     <v-carousel class="my-4" hide-delimiters>
@@ -87,6 +67,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
+import Dangers from '@/components/Dangers.vue';
 const route = useRoute();
 
 const flockImageCount = 6;
@@ -133,5 +114,9 @@ li {
   background-color: yellow;
   padding: 0.5rem;
   border-radius: 0.25rem;
+}
+
+.info-section {
+  background: var(--df-page-background-color);
 }
 </style>

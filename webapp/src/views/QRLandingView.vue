@@ -5,7 +5,7 @@
         <v-col cols="12" md="8" class="text-center">
           <h1 class="display-1 px-8">You're Being Tracked by an ALPR!</h1>
           <ALPRCounter class="mt-4" />
-          <p class="subtitle-1 px-8 mt-6 mb-12">
+          <p class="subtitle-1 px-8 mt-6 mb-12 bigger">
             Automated License Plate Readers (ALPRs) are monitoring your every move. Learn more about how they work and how you can protect your privacy.
           </p>
           <v-btn color="rgb(18, 151, 195)" large @click="goToMap({ withCurrentLocation: true })">
@@ -16,43 +16,53 @@
       </v-row>
     </v-container>
 
-    <!-- Information Section -->
-    <v-container class="info-section py-10">
-      <v-row>
-        <v-col cols="12" md="4" class="text-center">
-          <v-card outlined>
-            <v-card-title class="headline">
-              <v-icon x-large class="mr-2">mdi-shield-alert</v-icon>
-              Privacy Violations
-            </v-card-title>
-            <v-card-text>
-              ALPRs track your movements and store your data for long periods of time, creating a detailed record of your location history. They surveil mostly innocent people while claiming to target criminals.
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="4" class="text-center">
-          <v-card outlined>
-            <v-card-title class="headline">
-              <v-icon x-large class="mr-2">mdi-alert-circle</v-icon>
-              Risk of Misuse
-            </v-card-title>
-            <v-card-text>
-              Data from ALPRs has led to <a target="_blank" href="https://www.newsobserver.com/news/state/north-carolina/article287381160.html">wrongful arrests</a>, profiling, and <a target="_blank" href="https://www.kwch.com/2022/10/31/kechi-police-lieutenant-arrested-using-police-technology-stalk-wife/">stalking ex-partners</a> by police officers.
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="4" class="text-center">
-          <v-card outlined>
-            <v-card-title class="headline">
-              <v-icon x-large class="mr-2">mdi-handcuffs</v-icon>
-              Limited Benefits
-            </v-card-title>
-            <v-card-text>
-              There's no substantial evidence that ALPRs effectively prevent crime, despite <a target="_blank" href="https://www.404media.co/researcher-who-oversaw-flock-surveillance-study-now-has-concerns-about-it/">Flock's unethical attempts</a> to prove otherwise.
-            </v-card-text>
-          </v-card>
-        </v-col>
+    <!-- Dangers Section -->
+    <v-container class="py-10 text-center info-section">
+    <h2 class="display-2 mb-4">The Dangers of ALPRs</h2>
+    <p class="subtitle-1 px-8">
+      ALPRs are a threat to your privacy and civil liberties. They can be used to track your movements, profile you, and even stalk you. Learn more about the dangers of ALPRs and how you can protect yourself.
+    </p>
+      
+     <v-row class="align-center mt-4">
+       <v-col cols="12" md="4" class="text-center">
+         <v-card>
+           <v-card-title class="headline">
+             <v-icon x-large class="mr-2">mdi-shield-alert</v-icon>
+             Privacy Violations
+           </v-card-title>
+           <v-card-text>
+             ALPRs track your movements and store your data for long periods of time, creating a detailed record of your location history. They surveil mostly innocent people while claiming to target criminals.
+           </v-card-text>
+         </v-card>
+       </v-col>
+       <v-col cols="12" md="4" class="text-center">
+         <v-card>
+           <v-card-title class="headline">
+             <v-icon x-large class="mr-2">mdi-alert-circle</v-icon>
+             Risk of Misuse
+           </v-card-title>
+           <v-card-text>
+             Data from ALPRs has led to <a target="_blank" href="https://www.newsobserver.com/news/state/north-carolina/article287381160.html">wrongful arrests</a>, profiling, and <a target="_blank" href="https://www.kwch.com/2022/10/31/kechi-police-lieutenant-arrested-using-police-technology-stalk-wife/">stalking ex-partners</a> by police officers.
+           </v-card-text>
+         </v-card>
+       </v-col>
+       <v-col cols="12" md="4" class="text-center">
+         <v-card>
+           <v-card-title class="headline">
+             <v-icon x-large class="mr-2">mdi-handcuffs</v-icon>
+             Limited Benefits
+           </v-card-title>
+           <v-card-text>
+             There's no substantial evidence that ALPRs effectively prevent crime, despite <a target="_blank" href="https://www.404media.co/researcher-who-oversaw-flock-surveillance-study-now-has-concerns-about-it/">Flock's unethical attempts</a> to prove otherwise.
+           </v-card-text>
+         </v-card>
+       </v-col>
       </v-row>
+
+      <v-btn class="mt-8" color="rgb(18, 151, 195)" large to="/dangers">
+        See All Dangers
+        <v-icon end>mdi-shield-alert</v-icon>
+      </v-btn>
     </v-container>
 
     <!-- Map Section -->
@@ -63,14 +73,6 @@
         <v-icon end>mdi-map</v-icon>
       </v-btn>
     </v-container>
-
-    <v-container>
-    <v-footer class="text-center">
-      <span class="attribution">
-        Maps ©&nbsp;<a target="_blank" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>&nbsp;contributors.
-      </span>
-    </v-footer>
-   </v-container>
 </template>
 
 <style>
@@ -123,6 +125,10 @@
   .map-section > * {
     position: relative;
     z-index: 2;
+}
+
+.bigger {
+  font-size: 1.1rem;
 }
 </style>
 

@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="1000">
+  <v-container class="info-section" max-width="1000">
     <h1>Known Operators</h1>
     <p>
       We regularly scrape Flock's site for cities/counties that have Flock ALPRs. Here is our current list of jurisdictions we've scraped that have ALPRs. Not every Flock operator has opted in to sharing their usage with Flock, so this list is <i>not exhaustive</i>. 
@@ -124,5 +124,9 @@ code {
   padding: 0.15rem;
   border-radius: 0.25rem;
   font-weight: bold;
+}
+
+.info-section {
+  background: var(--df-page-background-color);
 }
 </style>

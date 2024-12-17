@@ -15,6 +15,7 @@ const items = [
   { title: 'Home', icon: 'mdi-home', to: '/' },
   { title: 'Map', icon: 'mdi-map', to: '/map' },
   { title: 'What is an ALPR?', icon: 'mdi-cctv', to: '/what-is-an-alpr' },
+  { title: 'Dangers of ALPRs', icon: 'mdi-shield-alert', to: '/dangers' },
   { title: 'Report an ALPR', icon: 'mdi-map-marker-plus', to: '/report' },
   { title: 'Known Operators', icon: 'mdi-police-badge', to: '/operators' },
   // { title: 'About', icon: 'mdi-information', to: '/about' },

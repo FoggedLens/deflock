@@ -6,6 +6,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="DeFlock" />
     <meta property="og:description" content="Your car is being tracked. See where license plate readers are, avoid them, and report new ones. Protect your privacy at Deflock.me." />
@@ -14,16 +17,6 @@
     <meta property="og:type" content="website" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
     <title>DeFlock - ALPR Database</title>
-    <script>
-      // Analytics in prod
-      if (window.location.hostname !== 'localhost') {
-        var plausibleScript = document.createElement('script');
-        plausibleScript.src = 'https://plausible.io/js/script.file-downloads.outbound-links.js';
-        plausibleScript.defer = true;
-        plausibleScript.setAttribute('data-domain', 'deflock.me');
-        document.head.appendChild(plausibleScript);
-      }
-    </script>
   </head>
   <body>
     <div id="app"></div>

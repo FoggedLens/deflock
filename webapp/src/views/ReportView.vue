@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="1000">
+  <v-container class="info-section" max-width="1000">
     <v-alert
       variant="tonal"
       type="info"
@@ -117,5 +117,9 @@ code {
   padding: 0.15rem;
   border-radius: 0.25rem;
   font-weight: bold;
+}
+
+.info-section {
+  background: var(--df-page-background-color);
 }
 </style>

@@ -21,3 +21,12 @@ a:hover {
 .leaflet-bar a {
   color: var(--df-text-color) !important;
 }
+
+p {
+  font-family: "PT Serif", serif;
+  /* font-size: 1.1em; */
+}
+
+.serif {
+  font-family: "PT Serif", serif;
+}
