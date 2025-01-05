@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="mb-16">
     <h1 class="text-center mt-4">Report a New ALPR</h1>
 
     <p>
@@ -66,7 +66,11 @@
           value="4"
           editable
         >
-          <v-img max-width="450" class="my-8" src="/adjust-angle.png" />
+          <v-img
+            max-width="450"
+            class="my-8"
+            src="/adjust-angle.png"
+          />
           <p>
             If you know the direction that the ALPR is facing, you can use the up and down arrows to set the direction it faces.
           </p>
@@ -80,7 +84,7 @@
           editable
         >
           <p>
-            Once you've added the ALPR to the map, click the <strong>Save</strong> button in the top right corner of the editor. You'll be asked to provide a brief description of your changes. Once you've submitted your changes, the ALPR will be added to OpenStreetMap.
+            Once you've added the ALPR to the map, click the <strong>Save</strong> button in the top left corner of the editor. You'll be asked to provide a brief description of your changes. Once you've submitted your changes, the ALPR will be added to OpenStreetMap.
           </p>
           <v-alert
             variant="tonal"
@@ -89,7 +93,7 @@
             title="How Long Will It Take?"
           >
             <p>
-              We pull data from OpenStreetMap <i>hourly</i>, so it may take up to an hour for your changes to appear on this site. Rest assured that your changes will be reflected here soon. As we continue to scale, we hope to reduce this delay.
+              We pull data from OpenStreetMap <i>daily</i>, so it may take up to 24 hours for your changes to appear on this site. Rest assured that your changes will be reflected here soon. As we continue to scale, we hope to reduce this delay.
             </p>
           </v-alert>
         </v-stepper-vertical-item>
@@ -104,40 +108,27 @@
           <p>
             Download our <a href="/deflock-poster.pdf" target="_blank">ALPR sign</a> and hang it near the ALPR to help raise awareness about the device. Be sure to follow all local laws and regulations when hanging signs.
           </p>
-
-          <template v-slot:next>
-            <v-btn
-              color="primary"
-              disabled
-            >
-              Next
-            </v-btn>
-          </template>
         </v-stepper-vertical-item>
       </template>
     </v-stepper-vertical>
-
-    <h2 class="text-center">Edit an Existing ALPR</h2>
-    <p class="mb-16">
-      If you find an ALPR that's missing information and would like to update it, you can click the <b>View on OSM</b> button to edit it in the OpenStreetMap editor.
-    </p>
   </v-container>
+
   <Footer />
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, watch } from 'vue';
 import OSMTagSelector from '@/components/OSMTagSelector.vue';
+import { VStepperVerticalItem, VStepperVertical } from 'vuetify/labs/components';
 import Footer from '@/components/layout/Footer.vue';
-import { ref } from 'vue';
-import { VStepperVertical, VStepperVerticalItem } from 'vuetify/labs/VStepperVertical';
 
-const step = ref(1);
+const step = ref(parseInt(localStorage.getItem('currentStep') || '1'));
+
+onMounted(() => {
+  step.value = parseInt(localStorage.getItem('currentStep') || '1');
+});
+
+watch(step, (newStep) => {
+  localStorage.setItem('currentStep', newStep.toString());
+});
 </script>
-
-<style scoped>
-@import url('@/assets/typography.css');
-
-.transparent {
-  background-color: transparent !important;
-}
-</style>

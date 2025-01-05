@@ -1,44 +1,5 @@
 <template>
   <v-container class="info-section" max-width="1000">
-    <h1>Known Operators</h1>
-    <p>
-      We regularly scrape Flock's site for cities/counties that have Flock ALPRs. Here is our current list of jurisdictions we've scraped that have ALPRs. Not every Flock operator has opted in to sharing their usage with Flock, so this list is <i>not exhaustive</i>. 
-    </p>
-
-    <v-card class="my-4">
-      <v-card-text>
-        <v-select
-          v-model="selectedState"
-          :items="distinctStates"
-          label="Filter by State"
-          outlined
-          clearable
-        />
-
-        <v-data-table
-          v-model:page="page"
-          :loading="isLoading"
-          :headers="headers"
-          :items="filteredCities"
-          :items-per-page="8"
-          :sort-by="[ { key: 'state', order: 'asc' } ]"
-        >
-          <template v-slot:item.numCameras="i: any">
-            <span v-if="i.item.numCameras">{{ i.item.numCameras }}</span>
-            <span v-else>N/A</span>
-          </template>
-
-          <template v-slot:item.transparencyReportUrl="i: any">
-            <v-btn variant="text" :href="i.item.transparencyReportUrl" target="_blank" :disabled="!i.item.transparencyReportUrl">
-              <v-icon start>mdi-eye</v-icon>
-              <span v-if="i.item.transparencyReportUrl"> View</span>
-              <span v-else> N/A</span>
-            </v-btn>
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
-
     <h2 id="community-datasets">Community Datasets</h2>
     <p>
       Here are some datasets that have been shared with us by the community through various collection methods (FOIA requests, scraping, wardriving, etc.). If you have a dataset you'd like to share, please reach out to us <router-link to="/contact">here</router-link>.

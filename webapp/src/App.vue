@@ -17,7 +17,8 @@ const items = [
   { title: 'Map', icon: 'mdi-map', to: '/map' },
   { title: 'What is an ALPR?', icon: 'mdi-cctv', to: '/what-is-an-alpr' },
   { title: 'Report an ALPR', icon: 'mdi-map-marker-plus', to: '/report' },
-  { title: 'Known Operators', icon: 'mdi-police-badge', to: '/operators' },
+  { title: 'Wardriving', icon: 'mdi-car-connected', to: '/wardriving' },
+  // { title: 'Known Operators', icon: 'mdi-police-badge', to: '/operators' },
   // { title: 'About', icon: 'mdi-information', to: '/about' },
   // { title: 'Feature Roadmap', icon: 'mdi-road-variant', to: '/roadmap' },
 ]

@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, computed } from 'vue';
+import { computed } from 'vue';
 import type { PropType } from 'vue';
 import type { ALPR } from '@/types';
 import { VIcon, VList, VSheet, VListItem, VBtn } from 'vuetify/components';
