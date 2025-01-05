@@ -57,7 +57,7 @@
         <div>
           <p>&copy; {{ currentYear }} DeFlock. All Rights Reserved</p>
           <p>Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" style="color: unset; font-weight: normal;">OpenStreetMap contributors</a></p>
-          <p class="mt-4">v1.0.1</p>
+          <p class="mt-4">v1.0.2</p>
         </div>
         </v-col>
       </v-row>
