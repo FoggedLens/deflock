@@ -39,6 +39,21 @@
     <p class="px-6">
       ALPRs are a threat to your privacy and civil liberties. They can be used to track your movements and profile you, and even stalk you. Learn more about the dangers of ALPRs and how you can protect yourself.
     </p>
+
+    <v-alert
+      class="mt-4 text-left"
+      variant="tonal"
+      type="error"
+      icon="mdi-alert"
+      title="BREAKING: Anyone Can Access Motorola ALPR Data"
+    >
+    <p class="mt-2">
+      Recent security research has revealed that anyone can access live data from Motorola ALPRs by simply visiting a URL. This data includes <b>license plate numbers, make, model, color, and timestamps</b> as well as <b>still images</b> and a <b>live video feed</b>.
+    </p>
+    <p class="mt-2">
+      Watch Matt Brown's <a target="_blank" href="https://youtu.be/0dUnY1641WM">YouTube video</a> on the topic or <a target="_blank" href="https://github.com/frillweeman/alprleaks">run the script yourself</a> to see how dangerous this vulnerability is.
+    </p>
+    </v-alert>
     
     <v-row class="align-center mt-4">
       <v-col cols="12" md="4" class="text-center">

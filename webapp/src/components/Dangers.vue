@@ -31,6 +31,23 @@
 
     <v-expansion-panel>
       <v-expansion-panel-title class="font-weight-bold">
+        ALPRs Are a Major Security Risk
+      </v-expansion-panel-title>
+      <v-expansion-panel-text>
+        <p>
+          Companies that make ALPRs have a history of poor security practices, which can lead to data breaches and unauthorized access to sensitive information. For example:
+        </p>
+
+        <ul>
+          <li>
+            In January 2025, Motorola Solutions' ALPR system was <a href="https://youtu.be/0dUnY1641WM" target="_blank">found to have a critical security flaw</a> that allowed anyone to access live data from their cameras. Data includes <b>license plate numbers, make, model, color, and timestamps</b>. A <b>live feed</b> of both cameras (color and infrared) was also available to stream using a web browser.
+          </li>
+        </ul>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+
+    <v-expansion-panel>
+      <v-expansion-panel-title class="font-weight-bold">
         ALPRs Are Dragnet Surveillance
       </v-expansion-panel-title>
       <v-expansion-panel-text>
@@ -50,6 +67,34 @@
           </li>
           <li>
             <a href="https://transparency.flocksafety.com/vallejo-ca-pd" target="_blank">Vallejo, CA Transparency Portal</a>
+          </li>
+        </ul>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+
+    <v-expansion-panel>
+      <v-expansion-panel-title class="font-weight-bold">
+        ALPRs Are Abused
+      </v-expansion-panel-title>
+      <v-expansion-panel-text>
+        <p>
+          There are many documented cases where police have knowingly used ALPRs to commit crimes and put people in danger. These examples illustrate that it can be difficult to put meaningful restrictions in place that prevent ALPRs from being used for nefarious purposes. It's often only after harm is done that an officer is caught and punished, if at all.
+        </p>
+        <ul>
+          <li>
+            <a href="https://inewsource.org/2022/01/06/police-share-license-plate-data/" target="_blank">Police in San Diego County breaking the law sharing drivers' data</a>
+          </li>
+          <li>
+            <a href="https://www.kwch.com/2022/10/31/kechi-police-lieutenant-arrested-using-police-technology-stalk-wife/" target="_blank">A police officer used Flock Safety ALPRs to stalk his estranged wife in Kechi, KS</a>
+          </li>
+          <li>
+            <a href="https://apnews.com/general-news-699236946e3140659fff8a2362e16f43" target="_blank">A police officer accepted a bribe to run a woman's license plate in Georgia</a>
+          </li>
+          <li>
+            <a href="https://apnews.com/general-news-699236946e3140659fff8a2362e16f43" target="_blank">A police officer used ALPRs to stalk his ex-girlfriend in Ohio</a>
+          </li>
+          <li>
+            <a href="https://information.auditor.ca.gov/pdfs/reports/2019-118.pdf" target="_blank">California agencies keeping data longer than necessary and sharing it with unauthorized agencies</a>
           </li>
         </ul>
       </v-expansion-panel-text>
@@ -120,34 +165,6 @@
             <a href="https://www.nwpb.org/2022/12/22/new-report-finds-data-sharing-with-federal-immigration-agencies-might-violate-washington-law/" target="_blank">New report finds data sharing with federal immigration agencies might violate Washington law</a>
           </li>
 
-        </ul>
-      </v-expansion-panel-text>
-    </v-expansion-panel>
-
-    <v-expansion-panel>
-      <v-expansion-panel-title class="font-weight-bold">
-        ALPRs Are Abused
-      </v-expansion-panel-title>
-      <v-expansion-panel-text>
-        <p>
-          There are many documented cases where police have knowingly used ALPRs to commit crimes and put people in danger. These examples illustrate that it can be difficult to put meaningful restrictions in place that prevent ALPRs from being used for nefarious purposes. It's often only after harm is done that an officer is caught and punished, if at all.
-        </p>
-        <ul>
-          <li>
-            <a href="https://inewsource.org/2022/01/06/police-share-license-plate-data/" target="_blank">Police in San Diego County breaking the law sharing drivers' data</a>
-          </li>
-          <li>
-            <a href="https://www.kwch.com/2022/10/31/kechi-police-lieutenant-arrested-using-police-technology-stalk-wife/" target="_blank">A police officer used Flock Safety ALPRs to stalk his estranged wife in Kechi, KS</a>
-          </li>
-          <li>
-            <a href="https://apnews.com/general-news-699236946e3140659fff8a2362e16f43" target="_blank">A police officer accepted a bribe to run a woman's license plate in Georgia</a>
-          </li>
-          <li>
-            <a href="https://apnews.com/general-news-699236946e3140659fff8a2362e16f43" target="_blank">A police officer used ALPRs to stalk his ex-girlfriend in Ohio</a>
-          </li>
-          <li>
-            <a href="https://information.auditor.ca.gov/pdfs/reports/2019-118.pdf" target="_blank">California agencies keeping data longer than necessary and sharing it with unauthorized agencies</a>
-          </li>
         </ul>
       </v-expansion-panel-text>
     </v-expansion-panel>
