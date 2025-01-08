@@ -1,7 +1,7 @@
 <template>
   <v-container class="mb-16">
     <h1>Privacy Policy</h1>
-    <p>Effective Date: <b>1/24/2025</b></p>
+    <p>Effective Date: <b>1/4/2025</b></p>
 
     <p>
       At DeFlock, we respect your privacy. This privacy policy outlines our approach to user privacy and how information may be handled when using our platform.
