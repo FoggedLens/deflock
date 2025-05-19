@@ -1,7 +1,7 @@
 <template>
   <NewVisitor />
   <div class="map-container" @keyup="handleKeyUp">
-    <leaflet-map
+    <map-libre-map
       v-if="center"
       v-model:center="center"
       v-model:zoom="zoom"
@@ -39,7 +39,7 @@
       <template v-slot:bottomright>
         <v-fab icon="mdi-crosshairs-gps" @click="goToUserLocation" />
       </template>
-    </leaflet-map>
+    </map-libre-map>
     <div v-else class="loader">
       <span class="mb-4 text-grey">Loading Map</span>
       <v-progress-circular indeterminate color="primary" />
@@ -61,7 +61,9 @@ import L from 'leaflet';
 globalThis.L = L;
 import 'leaflet/dist/leaflet.css'
 import LeafletMap from '@/components/LeafletMap.vue';
+import MapLibreMap from '@/components/MapLibreMap.vue';
 import NewVisitor from '@/components/NewVisitor.vue';
+import { LngLatBounds } from 'maplibre-gl';
 
 const DEFAULT_ZOOM = 12;
 
@@ -121,7 +123,7 @@ function goToUserLocation() {
     });
 }
 
-function updateBounds(newBounds: any) {
+function updateBounds(newBounds: LngLatBounds) {
   updateURL();
   
   const newBoundingBox = new BoundingBox({
@@ -141,7 +143,7 @@ function updateURL() {
   }
 
   const currentRoute = router.currentRoute.value;
-  const newHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
+  const newHash = `#map=${zoom.value.toFixed(2)}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
 
   router.replace({
     path: currentRoute.path,
