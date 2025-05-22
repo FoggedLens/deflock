@@ -66,9 +66,9 @@ const alprBrands: WikidataItem[] = [
     exampleImage: '/alprs/motorola-4.jpg',
   },
   {
-    name: 'Genetec', // TODO: fix me
+    name: 'Genetec',
     nickname: 'Genetec',
-    wikidata: 'XXX', // TOOD: fix me
+    wikidata: 'Q30295174',
     exampleImage: '/alprs/genetec-3.webp',
   },
   {
