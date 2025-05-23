@@ -15,3 +15,8 @@ module "alpr_clusters" {
   deflock_cdn_bucket = var.deflock_cdn_bucket
   rate = "rate(1 hour)"
 }
+
+module "operator_info" {
+  module_name = "operator_info"
+  source = "./modules/operator_info"
+}
