@@ -83,7 +83,7 @@ const cardinalDirection = computed(() => {
 );
 
 function degreesToCardinal(degrees: number): string {
-  const cardinals = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NE'];
+  const cardinals = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
   return 'Faces ' + cardinals[Math.round(degrees / 45) % 8];
 }
 
