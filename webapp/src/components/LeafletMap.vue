@@ -62,7 +62,7 @@ let currentLocationLayer: FeatureGroup;
 
 // Marker Creation Utilities
 function createSVGMarkers(alpr: ALPR): string {
-  const orientationValues = (alpr.tags.direction || alpr.tags['camera:direction'] || '')
+  const orientationValues = (alpr.tags['camera:direction'] || alpr.tags.direction || '')
     .split(';')
     .map(val => /^\d+$/.test(val) ? parseInt(val) : cardinalToDegrees(val.trim()));
 
@@ -89,13 +89,21 @@ function createSVGMarkers(alpr: ALPR): string {
 function cardinalToDegrees(cardinal: string): number {
   const cardinalMap: Record<string, number> = {
     N: 0,
+    NNE: 22.5,
     NE: 45,
+    ENE: 67.5,
     E: 90,
-    SE: 135,
+    ESE: 112.5,
+    SE: 135.5,
+    SSE: 157.5,
     S: 180,
+    SSW: 202.5,
     SW: 225,
+    WSW: 247.5,
     W: 270,
+    WNW: 292.5,
     NW: 315,
+    NNW: 337.5
   };
   return cardinalMap[cardinal] ?? cardinal;
 }
