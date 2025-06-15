@@ -7,6 +7,10 @@
       <slot name="topleft"></slot>
     </div>
 
+    <div class="topright">
+      <slot name="topright"></slot>
+    </div>
+
     <div class="bottomright">
       <slot name="bottomright"></slot>
     </div>
@@ -295,6 +299,13 @@ function registerMapEvents() {
   position: absolute;
   top: 10px;
   left: 10px;
+  z-index: 1000;
+}
+
+.topright {
+  position: absolute;
+  top: 60px;
+  right: 10px;
   z-index: 1000;
 }
 

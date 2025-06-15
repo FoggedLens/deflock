@@ -1,29 +1,35 @@
 <script setup lang="ts">
 import { RouterView, useRouter } from 'vue-router'
 import { computed, ref, watch } from 'vue'
-import { useTheme } from 'vuetify';
+import { useTheme, useDisplay } from 'vuetify';
 
 const theme = useTheme();
 const router = useRouter();
 const isDark = computed(() => theme.name.value === 'dark');
 const isFullscreen = computed(() => router.currentRoute.value?.query.fullscreen === 'true');
+const isMobile = useDisplay().mobile;
 
 function toggleTheme() {
   const newTheme = theme.global.name.value === 'dark' ? 'light' : 'dark';
   theme.global.name.value = newTheme;
 }
 
-const items = [
+const items = computed(() => ([
   { title: 'Home', icon: 'mdi-home', to: '/' },
   { title: 'Map', icon: 'mdi-map', to: '/map' },
   { title: 'What are ALPRs', icon: 'mdi-cctv', to: '/what-is-an-alpr' },
-  { title: 'Report an ALPR', icon: 'mdi-map-marker-plus', to: '/report' },
+  {
+    title: 'Report an ALPR',
+    icon: 'mdi-map-marker-plus',
+    to: isMobile.value ? '/report' : undefined,
+    href: isMobile.value ? undefined : 'https://deflock-editor.netlify.app',
+  },
   { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
   { title: 'Wardriving', icon: 'mdi-car-connected', to: '/wardriving' },
   // { title: 'Known Operators', icon: 'mdi-police-badge', to: '/operators' },
   // { title: 'About', icon: 'mdi-information', to: '/about' },
   // { title: 'Feature Roadmap', icon: 'mdi-road-variant', to: '/roadmap' },
-]
+]));
 
 const metaItems = [
   { title: 'Discord', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg', href: 'https://discord.gg/aV7v4R3sKT'},
@@ -58,8 +64,6 @@ watch(() => theme.global.name.value, (newTheme) => {
           <v-img style="cursor: pointer" height="36" width="130" src="/deflock-logo.svg" @click="router.push('/')" />
         </v-toolbar-title>
 
-        <v-spacer></v-spacer>
-
         <!-- <v-btn icon>
           <v-icon @click="toggleTheme">mdi-theme-light-dark</v-icon>
         </v-btn> -->
@@ -75,6 +79,8 @@ watch(() => theme.global.name.value, (newTheme) => {
             :key="item.title"
             link
             :to="item.to"
+            :href="item.href"
+            :target="{ '_blank': item.href }"
           ><v-icon start>{{ item.icon }}</v-icon>{{ item.title }}</v-list-item>
           
           <v-divider />
