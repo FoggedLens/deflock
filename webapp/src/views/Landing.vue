@@ -37,7 +37,7 @@
 
     <h2 class="display-2 mb-4">The Dangers of ALPRs</h2>
     <p class="px-6">
-      ALPRs are a threat to your privacy and civil liberties. They can be used to track your movements and profile you, and even stalk you. Learn more about the dangers of ALPRs and how you can protect yourself.
+      ALPRs are a threat to your privacy and civil liberties. They're regularly used to track everyone's movements without a warrant, probable cause, or reasonable suspicion. Law enforcement agencies use them for various purposes, no matter how unethical, including <a target="_blank" href="https://www.404media.co/ice-taps-into-nationwide-ai-enabled-camera-network-data-shows/">ICE raids</a> and <a target="_blank" href="https://www.404media.co/a-texas-cop-searched-license-plate-cameras-nationwide-for-a-woman-who-got-an-abortion/">tracking abortion seekers</a> across state lines.
     </p>
     
     <v-row class="align-center mt-4">

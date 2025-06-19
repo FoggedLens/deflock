@@ -74,7 +74,7 @@ const currentYear = new Date().getFullYear();
 
 const internalLinks = [
   { title: 'About', to: '/about', icon: 'mdi-information' },
-  { title: 'Privacy Policy', to: '/privacy', icon: 'mdi-shield' },
+  { title: 'Privacy Policy', to: '/privacy', icon: 'mdi-shield-lock' },
   { title: 'Terms of Service', to: '/terms', icon: 'mdi-file-document' },
   { title: 'Contact', to: '/contact', icon: 'mdi-email' },
 ];

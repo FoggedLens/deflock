@@ -82,7 +82,9 @@
         </p>
         <ul>
           <li>
-            <a href="https://inewsource.org/2022/01/06/police-share-license-plate-data/" target="_blank">Police in San Diego County breaking the law sharing drivers' data</a>
+            <a href="https://www.404media.co/a-texas-cop-searched-license-plate-cameras-nationwide-for-a-woman-who-got-an-abortion/" target="_blank">
+              Texas police used Flock ALPRs to track an abortion seeker across state lines
+            </a>
           </li>
           <li>
             <a href="https://www.kwch.com/2022/10/31/kechi-police-lieutenant-arrested-using-police-technology-stalk-wife/" target="_blank">A police officer used Flock Safety ALPRs to stalk his estranged wife in Kechi, KS</a>
@@ -95,6 +97,9 @@
           </li>
           <li>
             <a href="https://information.auditor.ca.gov/pdfs/reports/2019-118.pdf" target="_blank">California agencies keeping data longer than necessary and sharing it with unauthorized agencies</a>
+          </li>
+          <li>
+            <a href="https://inewsource.org/2022/01/06/police-share-license-plate-data/" target="_blank">Police in San Diego County breaking the law sharing drivers' data</a>
           </li>
         </ul>
       </v-expansion-panel-text>
@@ -155,6 +160,11 @@
           Police agencies frequently share ALPR data with ICE, putting undocumented people at risk, even in states where this is legally prohibited:
         </p>
         <ul>
+          <li>
+            <a href="https://www.404media.co/ice-taps-into-nationwide-ai-enabled-camera-network-data-shows/" target="_blank">
+              ICE Taps Into Flock's Nationwide Camera Network, Data Shows
+            </a>
+          </li>
           <li>
             <a href="https://www.latimes.com/business/technology/story/2020-12-21/pasadena-long-beach-police-ice-automated-license-plate-reader-data" target="_blank">Police in Pasadena, Long Beach pledged not to send license plate data to ICE. They shared it anyway.</a>
           </li>
