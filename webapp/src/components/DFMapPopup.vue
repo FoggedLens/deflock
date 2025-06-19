@@ -71,7 +71,7 @@ const props = defineProps({
 const isFaceRecognition = computed(() => props.alpr.tags.brand === 'Avigilon');
 
 const cardinalDirection = computed(() => {
-  const direction =  props.alpr.tags["camera:direction"] || props.alpr.tags.direction;
+  const direction = props.alpr.tags.direction || props.alpr.tags["camera:direction"];
   if (direction === undefined) {
     return 'Unspecified Direction';
   } else if (direction.includes(';')) {
@@ -83,8 +83,8 @@ const cardinalDirection = computed(() => {
 );
 
 function degreesToCardinal(degrees: number): string {
-  const cardinals = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
-  return 'Faces ' + cardinals[Math.round(degrees / 22.5) % 16];
+  const cardinals = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NE'];
+  return 'Faces ' + cardinals[Math.round(degrees / 45) % 8];
 }
 
 function osmNodeLink(id: string): string {
