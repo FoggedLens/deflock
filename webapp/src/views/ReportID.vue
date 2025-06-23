@@ -60,7 +60,7 @@
           </p>
           <v-img max-width="450" src="/edit-map.png" class="my-8" />
           <p class="mt-16 mb-8">
-            To add the ALPR, click the <strong>Point</strong> button in the top left corner of the editor, then click on the location of the ALPR on the map. In the popup that appears, paste one of the following sets of tags based on the brand of the ALPR:
+            To add the ALPR, click the <strong>Point</strong> button at the top center of the editor, then click on the location of the ALPR on the map. In the popup that appears, paste one of the following sets of tags based on the brand of the ALPR:
           </p>
 
           <v-divider class="my-4"><span class="serif text-grey-darken-2">Choose a Manufacturer</span></v-divider>
@@ -109,7 +109,7 @@
           editable
         >
           <p>
-            Once you've added the ALPR to the map, click the <strong>Save</strong> button in the top left corner of the editor. You'll be asked to provide a brief description of your changes. Once you've submitted your changes, the ALPR will be added to OpenStreetMap.
+            Once you've added the ALPR to the map, click the <strong>Save</strong> button in the top right corner of the editor. You'll be asked to provide a brief description of your changes. Once you've submitted your changes, the ALPR will be added to OpenStreetMap.
           </p>
           <v-alert
             variant="tonal"
