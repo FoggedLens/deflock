@@ -30,14 +30,14 @@
 
     <h2 class="mb-4">What is an ALPR</h2>
     <p class="text-left px-6">
-      Automated License Plate Readers (ALPRs) are cameras that capture images of all passing license plates, storing details like the car's location, date, and time. These cameras collect data on millions of vehicles—regardless of whether the driver is suspected of a crime. While these systems can be useful for tracking stolen cars or wanted individuals, they are mostly used to track the movements of innocent people.
+      Automated License Plate Readers (ALPRs) are AI-powered cameras that capture and analyze images of all passing vehicles, storing details like your car's location, date, and time. They also capture your car's make, model, color, and identifying features such as dents, roof racks, and bumper stickers, <a href="https://www.flocksafety.com/products/license-plate-readers#:~:text=No%20Plate%3F%20No%20Problem" target="_blank">often turning these into searchable data points</a>. These cameras collect data on millions of vehicles—regardless of whether the driver is suspected of a crime. While these systems can be useful for tracking stolen cars or wanted individuals, they are mostly used to track the movements of innocent people.
     </p>
 
     <v-divider class="my-8" />
 
     <h2 class="display-2 mb-4">The Dangers of ALPRs</h2>
     <p class="px-6">
-      ALPRs are a threat to your privacy and civil liberties. They're regularly used to track everyone's movements without a warrant, probable cause, or reasonable suspicion. Law enforcement agencies use them for various purposes, including <a target="_blank" href="https://www.404media.co/ice-taps-into-nationwide-ai-enabled-camera-network-data-shows/">ICE raids</a> and <a target="_blank" href="https://www.404media.co/a-texas-cop-searched-license-plate-cameras-nationwide-for-a-woman-who-got-an-abortion/">tracking abortion seekers</a> across state lines.
+      ALPRs are a serious risk to your privacy and civil liberties. These systems continuously record people's movements, often without a warrant, probable cause, or even reasonable suspicion. Your driving history is rarely confined to the town or city where the cameras are installed. It's typically shared with <router-link to="/what-is-an-alpr#faq-transparency">thousands of other agencies nationwide (secretly)</router-link>. Once the data is out of your community, you have no control over how it's used or what rules apply. And once this kind of tracking infrastructure exists, there are no guarantees it will only be used against criminals.
     </p>
     <p class="px-6 pt-6">
       Learn more about how Flock, the most popular ALPR vendor<sup>1</sup>, is being used in your community on the independent site:
@@ -47,7 +47,7 @@
       </a>.
     </p>
     <footer class="serif text-grey-darken-2 mt-4">
-      <small><sup>[1]</sup> This claim is based on an OSM Overpass API query conducted on 7/21/2025, which compared nodes tagged as manufactured or branded as Flock to the total count of ALPRs, revealing that Flock accounts for significantly over 50% of the share.</small>
+      <small><sup>[1]</sup> This claim is based on an OSM Overpass API query conducted on 7/21/2025</small>
     </footer>
     
     <v-row class="align-center mt-4">

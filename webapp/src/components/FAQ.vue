@@ -66,6 +66,34 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
 
+    <v-expansion-panel id="faq-transparency">
+      <v-expansion-panel-title class="font-weight-bold">
+        Do Flock's transparency portals give a full picture of who has access to the data?
+      </v-expansion-panel-title>
+      <v-expansion-panel-text>
+        <p>
+          Absolutely not. Flock's transparency portals are <i>notoriously incomplete</i> and often <i>misleading</i>. They allow law enforcement agencies to cherry-pick what information is included or excluded, leading to significant underreporting of the number of organizations with access to the data.
+        </p>
+        <p>
+          Take Boulder, Colorado for example. Their <a href="https://transparency.flocksafety.com/boulder-co-pd" target="_blank">transparency portal</a> lists around 90 agencies with access to their ALPR data. However, <a href="https://www.muckrock.com/foi/boulder-172/boulder-alpr-audits-187797/" target="_blank">a public records request</a> revealed that <b>over  6,000 agencies</b> actually had access. This discrepancy highlights the lack of transparency and accountability in Flock's reporting.
+        </p>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+
+    <v-expansion-panel>
+      <v-expansion-panel-title class="font-weight-bold">
+        Can Flock be trusted to keep our data safe?
+      </v-expansion-panel-title>
+      <v-expansion-panel-text>
+        <p>
+          Absolutely not. Flock has been caught <i>several times</i> lying on the record. For example, their CEO was interviewed by Denver 9News, and <a href="https://youtu.be/aMfO7D-f7U0?si=23FNwA91zVTwxb02&t=898" target="_blank">he claimed that Flock had no federal contracts.</a> However, a couple weeks later, <a href="https://www.9news.com/article/news/local/flock-federal-immigration-agents-access-tracking-data/73-a8aee742-56d4-4a57-b5bb-0373286dfef8" target="_blank">9News discovered</a> that Border Patrol actually <i>did</i> have access to search Flock's systems. Flock described the data sharing agreement as "one-to-one", meaning an agency would have to accept the data sharing request from Border Patrol.
+        </p>
+        <p>
+          Doubtful of this claim, we filed <a href="https://www.muckrock.com/foi/boulder-172/boulder-alpr-audits-187797/" target="_blank">a public records request</a> with the Boulder Police Department in Colorado, and we found that "U.S. Border Patrol" was searching over 6,000 agencies, consistent with the number of agencies on the national network at the time. Either every agency on the national network happily accepted Border Patrol's request to their data, or Flock was lying on the record yet again.
+        </p>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+
     <v-expansion-panel>
       <v-expansion-panel-title class="font-weight-bold">
         How can I get these cameras out of my city/town?
@@ -87,7 +115,7 @@
 
 <script setup lang="ts">
 import QuotedSource from '@/components/QuotedSource.vue';
-import { computed } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 const props = defineProps({
   showAll: {
@@ -96,7 +124,39 @@ const props = defineProps({
   }
 });
 
-const modelValue = computed(() => props.showAll ? [0,1,2,3,4,5] : []);
+// Map hash values to panel indices
+const hashToPanelIndex: Record<string, number> = {
+  '#faq-transparency': 4,
+  // Add more mappings here if you add more panel hashes
+};
+
+const modelValue = ref(props.showAll ? [0,1,2,3,4,5,6] : []);
+
+function updatePanelFromHash() {
+  const hash = window.location.hash;
+  if (props.showAll) {
+    modelValue.value = [0,1,2,3,4,5,6];
+    return;
+  }
+  if (hashToPanelIndex.hasOwnProperty(hash)) {
+    modelValue.value = [hashToPanelIndex[hash]];
+  } else {
+    modelValue.value = [];
+  }
+}
+
+onMounted(() => {
+  updatePanelFromHash();
+  window.addEventListener('hashchange', updatePanelFromHash);
+});
+
+watch(() => props.showAll, (val) => {
+  if (val) {
+    modelValue.value = [0,1,2,3,4,5,6];
+  } else {
+    updatePanelFromHash();
+  }
+});
 </script>
 
 <style scoped>
