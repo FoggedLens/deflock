@@ -268,6 +268,10 @@ function initializeMap() {
   map.addLayer(clusterLayer);
   registerMapEvents();
 
+  if (props.geojson) {
+    updateGeoJson(props.geojson);
+  }
+
   if (props.alprs.length) {
     updateMarkers(props.alprs);
   } else {
@@ -299,8 +303,7 @@ function updateMarkers(newAlprs: ALPR[]): void {
   clusterLayer.addLayer(circlesLayer);
 }
 
-function updateGeoJson(newGeoJson: GeoJSON.GeoJsonObject): void {
-  // Clear existing GeoJSON layers
+function updateGeoJson(newGeoJson: GeoJSON.GeoJsonObject | null): void {
   map.eachLayer((layer) => {
     if (layer instanceof L.GeoJSON) {
       map.removeLayer(layer);
@@ -410,9 +413,7 @@ onMounted(() => {
   }, { deep: true });
 
   watch(() => props.geojson, (newGeoJson) => {
-    if (newGeoJson) {
-      updateGeoJson(newGeoJson);
-    }
+    updateGeoJson(newGeoJson);
   }, { deep: true });
 
   watch(() => props.currentLocation, () => {

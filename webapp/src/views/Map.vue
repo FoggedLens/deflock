@@ -104,10 +104,11 @@ function onSearch() {
         return;
       }
       const { lat, lon: lng } = result;
-      center.value = { lat, lng };
+      center.value = { lat: parseFloat(lat), lng: parseFloat(lng) };
       zoom.value = DEFAULT_ZOOM;
       geojson.value = result.geojson;
       searchQuery.value = '';
+      updateURL();
     });
 }
 
@@ -117,6 +118,7 @@ function goToUserLocation() {
       center.value = cl;
       setTimeout(() => {
         zoom.value = DEFAULT_ZOOM;
+        updateURL();
       }, 10);
     })
     .catch(error => {
@@ -142,9 +144,11 @@ function updateURL() {
   if (!center.value) {
     return;
   }
-
+  
   const currentRoute = router.currentRoute.value;
-  const newHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
+  const geojsonBase64 = geojson.value ? btoa(JSON.stringify(geojson.value)) : null;
+  
+  const newHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}/${geojsonBase64}`;
 
   router.replace({
     path: currentRoute.path,
@@ -166,13 +170,15 @@ onMounted(() => {
   const hash = router.currentRoute.value.hash;
   if (hash) {
     const parts = hash.split('/');
-    if (parts.length === 3 && parts[0].startsWith('#map')) {
+    if (parts.length === 4 && parts[0].startsWith('#map')) {
       const zoomLevelString = parts[0].replace('#map=', '');
       zoom.value = parseInt(zoomLevelString, 10);
       center.value = {
         lat: parseFloat(parts[1]),
         lng: parseFloat(parts[2]),
       };
+      let newGeoJsonValue = parts[3] ? JSON.parse(atob(parts[3])) : null;
+      geojson.value = newGeoJsonValue;
     }
   } else {
     // show US map by default
