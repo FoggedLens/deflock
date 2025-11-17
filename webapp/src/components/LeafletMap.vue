@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, h, createApp, watch, ref, type PropType, type Ref } from 'vue';
 import L, { type LatLngTuple, type FeatureGroup, type MarkerClusterGroup, type Marker, type CircleMarker } from 'leaflet';
-import type { ALPR, GeoJSONData } from '@/types';
+import type { ALPR } from '@/types';
 import DFMapPopup from './DFMapPopup.vue';
 import { createVuetify } from 'vuetify'
 import { useRoute } from 'vue-router';
@@ -113,7 +113,7 @@ const props = defineProps({
     default: () => [],
   },
   geojson: {
-    type : Object as PropType<GeoJSONData | null>,
+    type : Object as PropType<GeoJSON.GeoJsonObject | null>,
     default: null,
   },
   currentLocation: {
@@ -299,7 +299,7 @@ function updateMarkers(newAlprs: ALPR[]): void {
   clusterLayer.addLayer(circlesLayer);
 }
 
-function updateGeoJson(newGeoJson: GeoJSONData): void {
+function updateGeoJson(newGeoJson: GeoJSON.GeoJsonObject): void {
   // Clear existing GeoJSON layers
   map.eachLayer((layer) => {
     if (layer instanceof L.GeoJSON) {
