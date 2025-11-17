@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, h, createApp, watch, ref, type PropType, type Ref } from 'vue';
 import L, { type LatLngTuple, type FeatureGroup, type MarkerClusterGroup, type Marker, type CircleMarker } from 'leaflet';
-import type { ALPR } from '@/types';
+import type { ALPR, GeoJSONData } from '@/types';
 import DFMapPopup from './DFMapPopup.vue';
 import { createVuetify } from 'vuetify'
 import { useRoute } from 'vue-router';
@@ -111,6 +111,10 @@ const props = defineProps({
   alprs: {
     type: Array as PropType<ALPR[]>,
     default: () => [],
+  },
+  geojson: {
+    type : Object as PropType<GeoJSONData | null>,
+    default: null,
   },
   currentLocation: {
     type: Object as PropType<[number, number] | null>,
@@ -295,6 +299,27 @@ function updateMarkers(newAlprs: ALPR[]): void {
   clusterLayer.addLayer(circlesLayer);
 }
 
+function updateGeoJson(newGeoJson: GeoJSONData): void {
+  // Clear existing GeoJSON layers
+  map.eachLayer((layer) => {
+    if (layer instanceof L.GeoJSON) {
+      map.removeLayer(layer);
+    }
+  });
+
+  if (newGeoJson) {
+    const geoJsonLayer = L.geoJSON(newGeoJson, {
+      style: {
+        color: '#3388ff',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.2,
+      },
+    });
+    geoJsonLayer.addTo(map);
+  }
+}
+
 function updateCurrentLocation(): void {
   currentLocationLayer.clearLayers();
 
@@ -370,7 +395,7 @@ onMounted(() => {
   });
 
   watch(() => props.zoom, (newZoom: number) => {
-    if (!isInternalUpdate.value) {
+      if (!isInternalUpdate.value) {
       isInternalUpdate.value = true;
       currentZoom.value = newZoom;
       map.setZoom(newZoom);
@@ -382,6 +407,12 @@ onMounted(() => {
 
   watch(() => props.alprs, (newAlprs) => {
     updateMarkers(newAlprs);
+  }, { deep: true });
+
+  watch(() => props.geojson, (newGeoJson) => {
+    if (newGeoJson) {
+      updateGeoJson(newGeoJson);
+    }
   }, { deep: true });
 
   watch(() => props.currentLocation, () => {

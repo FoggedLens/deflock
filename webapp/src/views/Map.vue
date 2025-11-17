@@ -8,6 +8,7 @@
       :current-location="currentLocation"
       @update:bounds="updateBounds"
       :alprs
+      :geojson
     >
       <!-- SEARCH -->
       <template v-slot:topleft>
@@ -54,6 +55,7 @@ import { useRouter } from 'vue-router'
 import type { Ref } from 'vue';
 import { BoundingBox } from '@/services/apiService';
 import { geocodeQuery } from '@/services/apiService';
+import type { GeoJSONData } from '@/types';
 import { useDisplay, useTheme } from 'vuetify';
 import { useGlobalStore } from '@/stores/global';
 import { useTilesStore } from '@/stores/tiles';
@@ -70,6 +72,7 @@ const center: Ref<any|null> = ref(null);
 const bounds: Ref<BoundingBox|null> = ref(null);
 const searchField: Ref<any|null> = ref(null);
 const searchQuery: Ref<string> = ref('');
+const geojson: Ref<GeoJSONData> = ref(null);
 const tilesStore = useTilesStore();
 
 const { fetchVisibleTiles } = tilesStore;
@@ -104,6 +107,7 @@ function onSearch() {
       const { lat, lon: lng } = result;
       center.value = { lat, lng };
       zoom.value = DEFAULT_ZOOM;
+      geojson.value = result.geojson as GeoJSONData;
       searchQuery.value = '';
     });
 }

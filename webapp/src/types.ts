@@ -12,3 +12,8 @@ export interface WikidataItem {
   wikidata?: string;
   exampleImage: string|undefined;
 }
+
+export interface GeoJSONData {
+  type: string;
+  coordinates: number[][];
+}
