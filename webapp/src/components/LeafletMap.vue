@@ -112,6 +112,10 @@ const props = defineProps({
     type: Array as PropType<ALPR[]>,
     default: () => [],
   },
+  geojson: {
+    type : Object as PropType<GeoJSON.GeoJsonObject | null>,
+    default: null,
+  },
   currentLocation: {
     type: Object as PropType<[number, number] | null>,
     default: null,
@@ -264,6 +268,10 @@ function initializeMap() {
   map.addLayer(clusterLayer);
   registerMapEvents();
 
+  if (props.geojson) {
+    updateGeoJson(props.geojson);
+  }
+
   if (props.alprs.length) {
     updateMarkers(props.alprs);
   } else {
@@ -293,6 +301,26 @@ function updateMarkers(newAlprs: ALPR[]): void {
   // Update cluster layer
   clusterLayer.clearLayers();
   clusterLayer.addLayer(circlesLayer);
+}
+
+function updateGeoJson(newGeoJson: GeoJSON.GeoJsonObject | null): void {
+  map.eachLayer((layer) => {
+    if (layer instanceof L.GeoJSON) {
+      map.removeLayer(layer);
+    }
+  });
+
+  if (newGeoJson) {
+    const geoJsonLayer = L.geoJSON(newGeoJson, {
+      style: {
+        color: '#3388ff',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.2,
+      },
+    });
+    geoJsonLayer.addTo(map);
+  }
 }
 
 function updateCurrentLocation(): void {
@@ -370,7 +398,7 @@ onMounted(() => {
   });
 
   watch(() => props.zoom, (newZoom: number) => {
-    if (!isInternalUpdate.value) {
+      if (!isInternalUpdate.value) {
       isInternalUpdate.value = true;
       currentZoom.value = newZoom;
       map.setZoom(newZoom);
@@ -382,6 +410,10 @@ onMounted(() => {
 
   watch(() => props.alprs, (newAlprs) => {
     updateMarkers(newAlprs);
+  }, { deep: true });
+
+  watch(() => props.geojson, (newGeoJson) => {
+    updateGeoJson(newGeoJson);
   }, { deep: true });
 
   watch(() => props.currentLocation, () => {

@@ -31,7 +31,7 @@ class NominatimClient(implicit val system: ActorSystem, implicit val executionCo
       case _ =>
         println(s"Cache miss for $query")
         val request = HttpRequest(
-          uri = s"$baseUrl?q=$query&format=json",
+          uri = s"$baseUrl?q=$query&polygon_geojson&format=json",
           headers = List(headers.`User-Agent`("DeFlock/1.0"))
         )
 
