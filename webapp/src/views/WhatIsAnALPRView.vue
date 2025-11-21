@@ -2,13 +2,31 @@
 <DefaultLayout>
   <template #header>
     <Hero
+      title="What are ALPRs?"
       image-url="/flock-camera.jpeg"
-      :opacity="0"
+      :opacity="0.5"
     />
   </template>
   
   <v-container>
-    <h1 class="mt-0">What are ALPRs?</h1>
+    <div class="video-responsive text-center">
+      <iframe
+        width="560"
+        max-width="100%"
+        height="315"
+        src="https://www.youtube-nocookie.com/embed/vWj26RIlN_I?si=l4A3SK9oAYiJW5k3"
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      />
+
+      <p class="text-caption text-center mt-3 px-4" style="opacity: 0.8; font-style: italic;">
+        Video explanation of modern LPRs by Christophe
+      </p>
+    </div>
+
     <p>
       Automated License Plate Readers (ALPRs or LPRs) are AI-powered cameras that capture and analyze images of <b>all passing vehicles</b>, storing details like your car's <b>location, date, and time</b>. They also capture your car's <b>make, model, color</b>, and <b>identifying features</b> such as dents, roof racks, and bumper stickers, often turning these into <b>searchable data points</b>.
     </p>
@@ -98,5 +116,11 @@ h1, h2 {
 
 .fade-enter, .fade-leave-to {
   opacity: 0;
+}
+
+iframe[src*=youtube] {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
 }
 </style>
