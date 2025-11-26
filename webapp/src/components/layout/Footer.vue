@@ -19,7 +19,7 @@
               slim
             >
                 <v-list-item-title class="d-flex align-center">
-                <v-icon class="custom-icon" start :icon="link.icon" />
+                <v-icon class="custom-icon" start :icon="link.icon" :alt="link.alt" />
                 {{ link.title }}
                 </v-list-item-title>
             </v-list-item>
@@ -41,7 +41,7 @@
             >
               <v-list-item-title class="d-flex align-center justify-start">
                 <v-icon start v-if="link.icon" class="custom-icon" :icon="link.icon"></v-icon>
-                <img v-else-if="link.customIcon" class="mr-2 custom-icon" width="24" height="24" :src="isDark ? link.customIconDark : link.customIcon" />
+                <img v-else-if="link.customIcon" class="mr-2 custom-icon" width="24" height="24" :src="isDark ? link.customIconDark : link.customIcon" :alt="link.alt" />
                 {{ link.title }}
               </v-list-item-title>
             </v-list-item>
@@ -73,17 +73,17 @@ const isDark = computed(() => theme.name.value === 'dark');
 const currentYear = new Date().getFullYear();
 
 const internalLinks = [
-  { title: 'About', to: '/about', icon: 'mdi-information' },
-  { title: 'Privacy Policy', to: '/privacy', icon: 'mdi-shield-lock' },
-  { title: 'Terms of Service', to: '/terms', icon: 'mdi-file-document' },
-  { title: 'Press', to: '/press', icon: 'mdi-newspaper' },
-  { title: 'Contact', to: '/contact', icon: 'mdi-email' },
+  { title: 'About', to: '/about', icon: 'mdi-information', alt: 'About' },
+  { title: 'Privacy Policy', to: '/privacy', icon: 'mdi-shield-lock', alt: 'Privacy Policy' },
+  { title: 'Terms of Service', to: '/terms', icon: 'mdi-file-document', alt: 'Terms of Service' },
+  { title: 'Press', to: '/press', icon: 'mdi-newspaper', alt: 'Press' },
+  { title: 'Contact', to: '/contact', icon: 'mdi-email', alt: 'Contact' },
 ];
 
 const externalLinks = [
-  { title: 'Discord', href: 'https://discord.gg/aV7v4R3sKT', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg' },
-  { title: 'Donate', to: '/donate', icon: 'mdi-heart' },
-  { title: 'GitHub', href: 'https://github.com/FoggedLens/deflock', icon: 'mdi-github' },
+  { title: 'Discord', href: 'https://discord.gg/aV7v4R3sKT', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg', alt: 'Discord Logo' },
+  { title: 'Donate', to: '/donate', icon: 'mdi-heart', alt: 'Donate' },
+  { title: 'GitHub', href: 'https://github.com/FoggedLens/deflock', icon: 'mdi-github', alt: 'GitHub Logo' },
 ]
 </script>
 

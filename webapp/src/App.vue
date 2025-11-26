@@ -83,8 +83,8 @@ watch(() => theme.global.name.value, (newTheme) => {
         <!-- Logo -->
         <v-toolbar-title style="flex: unset;">
           <div style="display: flex; align-items: center; cursor: pointer;" @click="router.push('/')">
-            <v-img height="36" width="36" src="/favicons/apple-icon-144x144.png" />
-            <v-img style="margin-left: 8px;" height="36" width="130" src="/deflock-logo.svg" />
+            <v-img height="36" width="36" alt="DeFlock Icon" src="/favicons/apple-icon-144x144.png" />
+            <v-img style="margin-left: 8px;" height="36" width="130" alt="DeFlock Logo" src="/deflock-logo.svg" />
           </div>
         </v-toolbar-title>
 

@@ -97,7 +97,7 @@
 
     <v-btn class="my-4" color="rgb(18, 151, 195)" large to="/what-is-an-alpr">
       <v-icon start>mdi-book-open-page-variant</v-icon>
-      Read More
+      Learn about ALPRs
     </v-btn>
 
     <v-divider class="my-8" />
