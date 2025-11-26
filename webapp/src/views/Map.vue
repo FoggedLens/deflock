@@ -148,7 +148,9 @@ function updateURL() {
   const currentRoute = router.currentRoute.value;
   const geojsonBase64 = geojson.value ? btoa(JSON.stringify(geojson.value)) : null;
   
-  const newHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}/${geojsonBase64}`;
+  const newHash = geojsonBase64 ? 
+    `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}/${geojsonBase64}` : 
+    `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
 
   router.replace({
     path: currentRoute.path,
@@ -167,17 +169,27 @@ function updateMarkers() {
 }
 
 onMounted(() => {
+  // Expected hash format like #map=<ZOOM_LEVEL:int>/<LATITUDE:float>/<LONGITUDE:float>/<GEOJSON:base64>
   const hash = router.currentRoute.value.hash;
   if (hash) {
     const parts = hash.split('/');
-    if (parts.length === 4 && parts[0].startsWith('#map')) {
+    if (parts.length >= 3 && parts[0].startsWith('#map')) {
       const zoomLevelString = parts[0].replace('#map=', '');
       zoom.value = parseInt(zoomLevelString, 10);
       center.value = {
         lat: parseFloat(parts[1]),
         lng: parseFloat(parts[2]),
       };
-      let newGeoJsonValue = parts[3] ? JSON.parse(atob(parts[3])) : null;
+      let newGeoJsonValue = null;
+      if (parts.length >= 4 && parts[3]) {
+        try {
+          newGeoJsonValue = JSON.parse(atob(parts[3]));
+        } catch (e) {
+          // Handle malformed base64 or JSON gracefully
+          newGeoJsonValue = null;
+          console.error("Failed to parse geojson from URL hash:", e);
+        }
+      }
       geojson.value = newGeoJsonValue;
     }
   } else {
