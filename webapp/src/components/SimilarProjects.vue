@@ -119,9 +119,9 @@ const similarProjects: SimilarProject[] = [
     imageUrl: "/similar-projects/alprwatch.webp"
   },
   {
-    name: "ALPR Watch | Utilities",
-    description: "Map of 811 dig requests from Flock Safety, often a sign of a Flock camera.",
-    url: "https://alprwatch.org/flock/utilities/",
+    name: "ALPR Watch | Suspected ALPR locations",
+    description: "Map of locations where ALPR may be, based on 811 locate requests, FOIA, and other sources.",
+    url: "https://alprwatch.org/flock/suspected-locations/",
     imageUrl: "/similar-projects/flockutil.webp"
   },
   {
