@@ -148,7 +148,7 @@
 
 <style>
 .hero-section {
-  background: url('/hero.jpg') no-repeat center center;
+  background: url('/hero.webp') no-repeat center center;
   background-size: cover;
   color: white;
   padding: 60px 0 50px 0 !important;
