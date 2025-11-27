@@ -57,6 +57,10 @@ _Likely to change soon._
 
 ### Running Backend
 
+#### Prerequisites
+* JDK 11
+* SBT
+
 1. `cd shotgun`
 2. `sbt run`
 
