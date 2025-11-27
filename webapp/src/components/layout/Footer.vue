@@ -9,14 +9,16 @@
         
         <!-- Internal Links -->
         <v-col cols="7" sm="3">
-          <v-list density="compact">
-            <v-list-subheader>Info</v-list-subheader>
+          <v-list-subheader id="footer-info-heading">Info</v-list-subheader>
+          <v-list density="compact" aria-labelledby="footer-info-heading" role="list">
             <v-list-item
               v-for="link in internalLinks"
               :key="link.title"
               link
               :to="link.to"
               slim
+              role="listitem"
+              :aria-label="link.alt"
             >
                 <v-list-item-title class="d-flex align-center">
                 <v-icon class="custom-icon" start :icon="link.icon" :alt="link.alt" />
@@ -28,8 +30,8 @@
 
         <!-- External Links -->
         <v-col cols="5" sm="3">
-          <v-list density="compact">
-            <v-list-subheader>Get Involved</v-list-subheader>
+          <v-list-subheader id="footer-involved-heading">Get Involved</v-list-subheader>
+          <v-list density="compact" aria-labelledby="footer-involved-heading" role="list">
             <v-list-item
               v-for="link in externalLinks"
               :key="link.title"
@@ -38,6 +40,7 @@
               :href="link.href"
               :to="link.to"
               :target="link.href ? '_blank' : undefined"
+              role="listitem"
             >
               <v-list-item-title class="d-flex align-center justify-start">
                 <v-icon start v-if="link.icon" class="custom-icon" :icon="link.icon"></v-icon>
