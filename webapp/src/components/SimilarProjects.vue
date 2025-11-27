@@ -59,7 +59,7 @@
           </div>
 
           <!-- Project Content -->
-          <v-card-title class="text-h6 font-weight-bold pa-4 pb-2">
+          <v-card-title class="text-subtitle-1 font-weight-bold pa-4 pb-0 text-center">
             {{ project.name }}
           </v-card-title>
           
@@ -113,16 +113,16 @@ const similarProjects: SimilarProject[] = [
     imageUrl: "/similar-projects/eof.webp"
   },
   {
-    name: "ALPR Watch | Flock",
+    name: "ALPR Watch | Suspected Locations",
+    description: "Map of locations where ALPRs may be, based on 811 locate requests, FOIA, and other sources.",
+    url: "https://alprwatch.org/flock/suspected-locations/",
+    imageUrl: "/similar-projects/flockutil.webp"
+  },
+  {
+    name: "ALPR Watch | Recents",
     description: "Explore recently added Flock cameras in the US.",
     url: "https://alprwatch.org/flock/map",
     imageUrl: "/similar-projects/alprwatch.webp"
-  },
-  {
-    name: "ALPR Watch | Utilities",
-    description: "Map of 811 dig requests from Flock Safety, often a sign of a Flock camera.",
-    url: "https://alprwatch.org/flock/utilities/",
-    imageUrl: "/similar-projects/flockutil.webp"
   },
   {
     name: "Atlas of Surveillance",
