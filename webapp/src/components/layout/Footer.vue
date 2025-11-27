@@ -9,15 +9,14 @@
         
         <!-- Internal Links -->
         <v-col cols="7" sm="3">
-          <v-list-subheader id="footer-info-heading">Info</v-list-subheader>
+          <v-list-subheader class="font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-info-heading">Info</v-list-subheader>
           <v-list density="compact" aria-labelledby="footer-info-heading" role="list">
-            <v-list-item
+            <v-list-item role="listitem"
               v-for="link in internalLinks"
               :key="link.title"
               link
               :to="link.to"
               slim
-              role="listitem"
               :aria-label="link.alt"
             >
                 <v-list-item-title class="d-flex align-center">
@@ -30,7 +29,7 @@
 
         <!-- External Links -->
         <v-col cols="5" sm="3">
-          <v-list-subheader id="footer-involved-heading">Get Involved</v-list-subheader>
+          <v-list-subheader class="font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-involved-heading">Get Involved</v-list-subheader>
           <v-list density="compact" aria-labelledby="footer-involved-heading" role="list">
             <v-list-item
               v-for="link in externalLinks"
@@ -57,7 +56,7 @@
           cols="12"
           sm="6"
         >
-          <div class="copyright">
+          <div class="copyright" :class="isDark ? 'text-grey-lighten-5' : 'text-black'">
             <p>&copy; {{ currentYear }} DeFlock. All Rights Reserved</p>
             <p>Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" style="color: unset; font-weight: normal;">OpenStreetMap contributors</a></p>
             <p class="mt-4">v1.1.0</p>
