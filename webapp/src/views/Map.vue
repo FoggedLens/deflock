@@ -107,8 +107,8 @@ function onSearch() {
       center.value = { lat: parseFloat(lat), lng: parseFloat(lng) };
       zoom.value = DEFAULT_ZOOM;
       geojson.value = result.geojson;
-      searchQuery.value = '';
       updateURL();
+      searchQuery.value = '';
     });
 }
 
@@ -146,10 +146,11 @@ function updateURL() {
   }
   
   const currentRoute = router.currentRoute.value;
-  const geojsonBase64 = geojson.value ? btoa(JSON.stringify(geojson.value)) : null;
+  // URL encode searchQuery.value
+  const encodedSearchValue = searchQuery.value ? encodeURIComponent(searchQuery.value) : null;
   
-  const newHash = geojsonBase64 ? 
-    `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}/${geojsonBase64}` : 
+  const newHash = encodedSearchValue ? 
+    `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}/${encodedSearchValue}` : 
     `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
 
   router.replace({
@@ -169,7 +170,7 @@ function updateMarkers() {
 }
 
 onMounted(() => {
-  // Expected hash format like #map=<ZOOM_LEVEL:int>/<LATITUDE:float>/<LONGITUDE:float>/<GEOJSON:base64>
+  // Expected hash format like #map=<ZOOM_LEVEL:int>/<LATITUDE:float>/<LONGITUDE:float>/<QUERY:text>
   const hash = router.currentRoute.value.hash;
   if (hash) {
     const parts = hash.split('/');
@@ -180,17 +181,10 @@ onMounted(() => {
         lat: parseFloat(parts[1]),
         lng: parseFloat(parts[2]),
       };
-      let newGeoJsonValue = null;
       if (parts.length >= 4 && parts[3]) {
-        try {
-          newGeoJsonValue = JSON.parse(atob(parts[3]));
-        } catch (e) {
-          // Handle malformed base64 or JSON gracefully
-          newGeoJsonValue = null;
-          console.error("Failed to parse geojson from URL hash:", e);
-        }
+        searchQuery.value = parts[3];
+        onSearch()
       }
-      geojson.value = newGeoJsonValue;
     }
   } else {
     // show US map by default
