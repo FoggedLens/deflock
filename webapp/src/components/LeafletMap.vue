@@ -130,7 +130,7 @@ let currentLocationLayer: FeatureGroup;
 function createSVGMarkers(alpr: ALPR): string {
   const orientationValues = (alpr.tags['camera:direction'] || alpr.tags.direction || '')
     .split(';')
-    .map(val => /^\d+$/.test(val) ? parseInt(val) : cardinalToDegrees(val.trim()));
+    .map(val => parseDirectionValue(val.trim()));
 
   const fovPath = `
       <path class="someSVGpath" d="M215.248,221.461L99.696,43.732C144.935,16.031 198.536,0 256,0C313.464,0 367.065,16.031 412.304,43.732L296.752,221.461C287.138,209.593 272.448,202.001 256,202.001C239.552,202.001 224.862,209.593 215.248,221.461Z" style="fill:rgb(87,87,87);fill-opacity:0.46;"/>
@@ -152,6 +152,56 @@ function createSVGMarkers(alpr: ALPR): string {
     `;
 }
 
+function parseDirectionValue(value: string): number {
+  if (!value) return 0;
+  
+  // Check if it's a range (contains '-' but not at the start)
+  if (value.includes('-') && value.indexOf('-') > 0) {
+    const parts = value.split('-');
+    if (parts.length === 2) {
+      const start = parseDirectionSingle(parts[0].trim());
+      const end = parseDirectionSingle(parts[1].trim());
+      return calculateMidpointAngle(start, end);
+    }
+  }
+  
+  // Single value
+  return parseDirectionSingle(value);
+}
+
+function parseDirectionSingle(value: string): number {
+  // Try parsing as number first
+  if (/^\d+(\.\d+)?$/.test(value)) {
+    return parseFloat(value);
+  }
+  
+  // Try cardinal direction
+  return cardinalToDegrees(value);
+}
+
+function calculateMidpointAngle(start: number, end: number): number {
+  // Normalize angles to 0-360 range
+  start = ((start % 360) + 360) % 360;
+  end = ((end % 360) + 360) % 360;
+  
+  // Calculate the difference and handle wrap-around
+  let diff = end - start;
+  if (diff < 0) {
+    diff += 360;
+  }
+  
+  // If the difference is greater than 180, go the other way around
+  if (diff > 180) {
+    diff = diff - 360;
+  }
+  
+  // Calculate midpoint
+  let midpoint = start + diff / 2;
+  
+  // Normalize result to 0-360 range
+  return ((midpoint % 360) + 360) % 360;
+}
+
 function cardinalToDegrees(cardinal: string): number {
   const cardinalMap: Record<string, number> = {
     N: 0,
@@ -160,7 +210,7 @@ function cardinalToDegrees(cardinal: string): number {
     ENE: 67.5,
     E: 90,
     ESE: 112.5,
-    SE: 135.5,
+    SE: 135,
     SSE: 157.5,
     S: 180,
     SSW: 202.5,
@@ -171,7 +221,9 @@ function cardinalToDegrees(cardinal: string): number {
     NW: 315,
     NNW: 337.5
   };
-  return cardinalMap[cardinal] ?? cardinal;
+  
+  const upperCardinal = cardinal.toUpperCase();
+  return cardinalMap[upperCardinal] ?? parseFloat(cardinal) ?? 0;
 }
 
 function createMarker(alpr: ALPR): Marker | CircleMarker {
