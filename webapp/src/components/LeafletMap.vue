@@ -14,8 +14,10 @@
         <v-card variant="elevated">
           <v-card-text class="py-0">
             <div class="d-flex align-center justify-space-between">
-              <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
-              <span class="text-caption mr-2">Grouping</span>
+              <span>
+                <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
+                <span class="text-caption mr-2">Grouping</span>
+              </span>
               <v-switch
                 v-model="clusteringEnabled"
                 :disabled="currentZoom < 12"
@@ -32,8 +34,10 @@
         <v-card v-if="geojson" variant="elevated">
           <v-card-text class="py-0">
             <div class="d-flex align-center justify-space-between">
-              <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
-              <span class="text-caption mr-2">City Boundaries</span>
+              <span>
+                <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
+                <span class="text-caption mr-2">City Boundaries</span>
+              </span>
               <v-switch
                 v-model="cityBoundariesVisible"
                 hide-details
@@ -438,6 +442,7 @@ onMounted(() => {
 
   watch(() => props.geojson, (newGeoJson) => {
     updateGeoJson(newGeoJson);
+    cityBoundariesVisible.value = true;
   }, { deep: true });
 
   // Watch for city boundaries visibility changes
