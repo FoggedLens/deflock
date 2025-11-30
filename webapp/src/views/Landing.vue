@@ -10,7 +10,7 @@
           
           <!-- Featured On Section -->
           <v-container class="featured-on-section my-8">
-            <h4 class="mb-4" style="opacity: 0.8">Featured On</h4>
+            <h2 class="mb-4 text-h5 font-weight-black" style="opacity: 0.8">Featured On</h2>
             <v-row justify="center" align-items="center">
               <v-card v-for="site in featuredOn" flat target="_blank" :href="site.url" class="mx-4" :width="site.wide ? 200 : 100" height="50" style="background: rgba(0,0,0,0)">
                 <v-img contain :src="site.logo" :alt="site.name" class="featured-logo" style="display: flex; align-items: center; height: 100%;" />
