@@ -56,6 +56,10 @@ See photos of common ALPRs and learn about their capabilities.
 
 ### Running Backend
 
+#### Prerequisites
+* JDK 11
+* SBT
+
 1. `cd shotgun`
 2. `sbt run`
 

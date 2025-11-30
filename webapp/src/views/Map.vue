@@ -8,6 +8,7 @@
       :current-location="currentLocation"
       @update:bounds="updateBounds"
       :alprs
+      :geojson
     >
       <!-- SEARCH -->
       <template v-slot:topleft>
@@ -23,11 +24,11 @@
             variant="solo"
             clearable
             hide-details
-            v-model="searchQuery"
+            v-model="searchInput"
             type="search"
           >
             <template v-slot:append-inner>
-              <v-btn :disabled="!searchQuery" variant="text" flat color="#0080BC" @click="onSearch">
+              <v-btn :disabled="!searchInput" variant="text" flat color="#0080BC" @click="onSearch">
                 Go<v-icon end>mdi-chevron-right</v-icon>
               </v-btn>
             </template>
@@ -69,7 +70,9 @@ const zoom: Ref<number> = ref(DEFAULT_ZOOM);
 const center: Ref<any|null> = ref(null);
 const bounds: Ref<BoundingBox|null> = ref(null);
 const searchField: Ref<any|null> = ref(null);
-const searchQuery: Ref<string> = ref('');
+const searchInput: Ref<string> = ref(''); // For the text input field
+const searchQuery: Ref<string> = ref(''); // For URL and boundaries (persistent)
+const geojson: Ref<GeoJSON.GeoJsonObject | null> = ref(null);
 const tilesStore = useTilesStore();
 
 const { fetchVisibleTiles } = tilesStore;
@@ -92,19 +95,48 @@ function handleKeyUp(event: KeyboardEvent) {
 
 function onSearch() {
   searchField.value?.blur();
-  if (!searchQuery.value) {
+  if (!searchInput.value) {
     return;
   }
-  geocodeQuery(searchQuery.value, center.value)
+  geocodeQuery(searchInput.value, center.value)
     .then((result: any) => {
       if (!result) {
         alert('No results found');
         return;
       }
       const { lat, lon: lng } = result;
-      center.value = { lat, lng };
-      zoom.value = DEFAULT_ZOOM;
-      searchQuery.value = '';
+      center.value = { lat: parseFloat(lat), lng: parseFloat(lng) };
+      
+      // If we have GeoJSON with bounds, zoom to fit the bounds
+      if (result.geojson) {
+        geojson.value = result.geojson;
+        
+        // Calculate bounds from GeoJSON to zoom to fit
+        const geoJsonLayer = L.geoJSON(result.geojson);
+        const bounds = geoJsonLayer.getBounds();
+        
+        setTimeout(() => {
+          const latDiff = bounds.getNorth() - bounds.getSouth();
+          const lngDiff = bounds.getEast() - bounds.getWest();
+          const maxDiff = Math.max(latDiff, lngDiff);
+          
+          // Rough zoom calculation based on bounds size
+          if (maxDiff > 10) zoom.value = 6;
+          else if (maxDiff > 5) zoom.value = 7;
+          else if (maxDiff > 2) zoom.value = 8;
+          else if (maxDiff > 1) zoom.value = 9;
+          else if (maxDiff > 0.5) zoom.value = 10;
+          else if (maxDiff > 0.2) zoom.value = 11;
+          else zoom.value = DEFAULT_ZOOM;
+        }, 100);
+      } else {
+        // No bounds, just use default zoom
+        zoom.value = DEFAULT_ZOOM;
+      }
+      
+      searchQuery.value = searchInput.value; // Store the successful search query
+      updateURL();
+      searchInput.value = ''; // Clear the input field
     });
 }
 
@@ -114,6 +146,7 @@ function goToUserLocation() {
       center.value = cl;
       setTimeout(() => {
         zoom.value = DEFAULT_ZOOM;
+        updateURL();
       }, 10);
     })
     .catch(error => {
@@ -139,9 +172,14 @@ function updateURL() {
   if (!center.value) {
     return;
   }
-
+  
   const currentRoute = router.currentRoute.value;
-  const newHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
+  // URL encode searchQuery.value
+  const encodedSearchValue = searchQuery.value ? encodeURIComponent(searchQuery.value) : null;
+  
+  const baseHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
+  const maybeSuffix = encodedSearchValue ? `/${encodedSearchValue}` : '';
+  const newHash = baseHash + maybeSuffix;
 
   router.replace({
     path: currentRoute.path,
@@ -160,16 +198,22 @@ function updateMarkers() {
 }
 
 onMounted(() => {
+  // Expected hash format like #map=<ZOOM_LEVEL:int>/<LATITUDE:float>/<LONGITUDE:float>/<QUERY:text>
   const hash = router.currentRoute.value.hash;
   if (hash) {
     const parts = hash.split('/');
-    if (parts.length === 3 && parts[0].startsWith('#map')) {
+    if (parts.length >= 3 && parts[0].startsWith('#map')) {
       const zoomLevelString = parts[0].replace('#map=', '');
       zoom.value = parseInt(zoomLevelString, 10);
       center.value = {
         lat: parseFloat(parts[1]),
         lng: parseFloat(parts[2]),
       };
+      if (parts.length >= 4 && parts[3]) {
+        searchQuery.value = decodeURIComponent(parts[3]);
+        searchInput.value = searchQuery.value; // Populate input field with URL search query
+        onSearch()
+      }
     }
   } else {
     // show US map by default

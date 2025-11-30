@@ -8,23 +8,47 @@
     </div>
 
     <div class="topright">
-      <!-- Clustering Toggle Switch -->
-      <v-card v-if="!isFullScreen" variant="elevated">
-        <v-card-text class="py-0">
-          <div class="d-flex align-center">
-            <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
-            <span class="text-caption mr-2">Grouping</span>
-            <v-switch
-              v-model="clusteringEnabled"
-              :disabled="currentZoom < 12"
-              hide-details
-              density="compact"
-              color="primary"
-              class="mx-1"
-            />
-          </div>
-        </v-card-text>
-      </v-card>
+      <!-- Controls -->
+      <div v-if="!isFullScreen" class="d-flex flex-column ga-2">
+        <!-- Clustering Toggle Switch -->
+        <v-card variant="elevated">
+          <v-card-text class="py-0">
+            <div class="d-flex align-center justify-space-between">
+              <span>
+                <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
+                <span class="text-caption mr-2">Grouping</span>
+              </span>
+              <v-switch
+                v-model="clusteringEnabled"
+                :disabled="currentZoom < 12"
+                hide-details
+                density="compact"
+                color="primary"
+                class="mx-1"
+              />
+            </div>
+          </v-card-text>
+        </v-card>
+        
+        <!-- City Boundaries Toggle Switch -->
+        <v-card v-if="geojson" variant="elevated">
+          <v-card-text class="py-0">
+            <div class="d-flex align-center justify-space-between">
+              <span>
+                <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
+                <span class="text-caption mr-2">City Boundaries</span>
+              </span>
+              <v-switch
+                v-model="cityBoundariesVisible"
+                hide-details
+                density="compact"
+                color="primary"
+                class="mx-1"
+              />
+            </div>
+          </v-card-text>
+        </v-card>
+      </div>
     </div>
 
     <div class="bottomright">
@@ -84,6 +108,9 @@ const clusteringEnabled = ref(true);
 const currentZoom = ref(0);
 const zoomWarningDismissed = ref(false);
 
+// City Boundaries Control
+const cityBoundariesVisible = ref(true);
+
 // Computed property to determine if clustering should be active based on zoom and user preference
 const shouldCluster = computed(() => {
   // Force clustering ON when zoomed out (below zoom 12) regardless of user preference
@@ -111,6 +138,10 @@ const props = defineProps({
   alprs: {
     type: Array as PropType<ALPR[]>,
     default: () => [],
+  },
+  geojson: {
+    type : Object as PropType<GeoJSON.GeoJsonObject | null>,
+    default: null,
   },
   currentLocation: {
     type: Object as PropType<[number, number] | null>,
@@ -316,6 +347,10 @@ function initializeMap() {
   map.addLayer(clusterLayer);
   registerMapEvents();
 
+  if (props.geojson) {
+    updateGeoJson(props.geojson);
+  }
+
   if (props.alprs.length) {
     updateMarkers(props.alprs);
   } else {
@@ -345,6 +380,27 @@ function updateMarkers(newAlprs: ALPR[]): void {
   // Update cluster layer
   clusterLayer.clearLayers();
   clusterLayer.addLayer(circlesLayer);
+}
+
+function updateGeoJson(newGeoJson: GeoJSON.GeoJsonObject | null): void {
+  map.eachLayer((layer) => {
+    if (layer instanceof L.GeoJSON) {
+      map.removeLayer(layer);
+    }
+  });
+
+  if (newGeoJson && cityBoundariesVisible.value) {
+    const geoJsonLayer = L.geoJSON(newGeoJson, {
+      style: {
+        color: '#3388ff',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.2,
+      },
+      interactive: false, // Make unclickable
+    });
+    geoJsonLayer.addTo(map);
+  }
 }
 
 function updateCurrentLocation(): void {
@@ -435,6 +491,16 @@ onMounted(() => {
   watch(() => props.alprs, (newAlprs) => {
     updateMarkers(newAlprs);
   }, { deep: true });
+
+  watch(() => props.geojson, (newGeoJson) => {
+    updateGeoJson(newGeoJson);
+    cityBoundariesVisible.value = true;
+  }, { deep: true });
+
+  // Watch for city boundaries visibility changes
+  watch(() => cityBoundariesVisible.value, () => {
+    updateGeoJson(props.geojson);
+  });
 
   watch(() => props.currentLocation, () => {
     updateCurrentLocation();
