@@ -422,7 +422,7 @@ onMounted(() => {
   });
 
   watch(() => props.zoom, (newZoom: number) => {
-      if (!isInternalUpdate.value) {
+    if (!isInternalUpdate.value) {
       isInternalUpdate.value = true;
       currentZoom.value = newZoom;
       map.setZoom(newZoom);

@@ -177,9 +177,9 @@ function updateURL() {
   // URL encode searchQuery.value
   const encodedSearchValue = searchQuery.value ? encodeURIComponent(searchQuery.value) : null;
   
-  const newHash = encodedSearchValue ? 
-    `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}/${encodedSearchValue}` : 
-    `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
+  const baseHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
+  const maybeSuffix = encodedSearchValue ? `/${encodedSearchValue}` : '';
+  const newHash = baseHash + maybeSuffix;
 
   router.replace({
     path: currentRoute.path,
