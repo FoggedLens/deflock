@@ -8,23 +8,43 @@
     </div>
 
     <div class="topright">
-      <!-- Clustering Toggle Switch -->
-      <v-card v-if="!isFullScreen" variant="elevated">
-        <v-card-text class="py-0">
-          <div class="d-flex align-center">
-            <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
-            <span class="text-caption mr-2">Grouping</span>
-            <v-switch
-              v-model="clusteringEnabled"
-              :disabled="currentZoom < 12"
-              hide-details
-              density="compact"
-              color="primary"
-              class="mx-1"
-            />
-          </div>
-        </v-card-text>
-      </v-card>
+      <!-- Controls -->
+      <div v-if="!isFullScreen" class="d-flex flex-column ga-2">
+        <!-- Clustering Toggle Switch -->
+        <v-card variant="elevated">
+          <v-card-text class="py-0">
+            <div class="d-flex align-center justify-space-between">
+              <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
+              <span class="text-caption mr-2">Grouping</span>
+              <v-switch
+                v-model="clusteringEnabled"
+                :disabled="currentZoom < 12"
+                hide-details
+                density="compact"
+                color="primary"
+                class="mx-1"
+              />
+            </div>
+          </v-card-text>
+        </v-card>
+        
+        <!-- City Boundaries Toggle Switch -->
+        <v-card v-if="geojson" variant="elevated">
+          <v-card-text class="py-0">
+            <div class="d-flex align-center justify-space-between">
+              <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
+              <span class="text-caption mr-2">City Boundaries</span>
+              <v-switch
+                v-model="cityBoundariesVisible"
+                hide-details
+                density="compact"
+                color="primary"
+                class="mx-1"
+              />
+            </div>
+          </v-card-text>
+        </v-card>
+      </div>
     </div>
 
     <div class="bottomright">
@@ -83,6 +103,9 @@ const isFullScreen = computed(() => route.query.fullscreen === 'true');
 const clusteringEnabled = ref(true);
 const currentZoom = ref(0);
 const zoomWarningDismissed = ref(false);
+
+// City Boundaries Control
+const cityBoundariesVisible = ref(true);
 
 // Computed property to determine if clustering should be active based on zoom and user preference
 const shouldCluster = computed(() => {
@@ -310,7 +333,7 @@ function updateGeoJson(newGeoJson: GeoJSON.GeoJsonObject | null): void {
     }
   });
 
-  if (newGeoJson) {
+  if (newGeoJson && cityBoundariesVisible.value) {
     const geoJsonLayer = L.geoJSON(newGeoJson, {
       style: {
         color: '#3388ff',
@@ -318,6 +341,7 @@ function updateGeoJson(newGeoJson: GeoJSON.GeoJsonObject | null): void {
         opacity: 1,
         fillOpacity: 0.2,
       },
+      interactive: false, // Make unclickable
     });
     geoJsonLayer.addTo(map);
   }
@@ -415,6 +439,11 @@ onMounted(() => {
   watch(() => props.geojson, (newGeoJson) => {
     updateGeoJson(newGeoJson);
   }, { deep: true });
+
+  // Watch for city boundaries visibility changes
+  watch(() => cityBoundariesVisible.value, () => {
+    updateGeoJson(props.geojson);
+  });
 
   watch(() => props.currentLocation, () => {
     updateCurrentLocation();

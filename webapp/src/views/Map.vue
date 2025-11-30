@@ -24,11 +24,11 @@
             variant="solo"
             clearable
             hide-details
-            v-model="searchQuery"
+            v-model="searchInput"
             type="search"
           >
             <template v-slot:append-inner>
-              <v-btn :disabled="!searchQuery" variant="text" flat color="#0080BC" @click="onSearch">
+              <v-btn :disabled="!searchInput" variant="text" flat color="#0080BC" @click="onSearch">
                 Go<v-icon end>mdi-chevron-right</v-icon>
               </v-btn>
             </template>
@@ -70,7 +70,8 @@ const zoom: Ref<number> = ref(DEFAULT_ZOOM);
 const center: Ref<any|null> = ref(null);
 const bounds: Ref<BoundingBox|null> = ref(null);
 const searchField: Ref<any|null> = ref(null);
-const searchQuery: Ref<string> = ref('');
+const searchInput: Ref<string> = ref(''); // For the text input field
+const searchQuery: Ref<string> = ref(''); // For URL and boundaries (persistent)
 const geojson: Ref<GeoJSON.GeoJsonObject | null> = ref(null);
 const tilesStore = useTilesStore();
 
@@ -94,10 +95,10 @@ function handleKeyUp(event: KeyboardEvent) {
 
 function onSearch() {
   searchField.value?.blur();
-  if (!searchQuery.value) {
+  if (!searchInput.value) {
     return;
   }
-  geocodeQuery(searchQuery.value, center.value)
+  geocodeQuery(searchInput.value, center.value)
     .then((result: any) => {
       if (!result) {
         alert('No results found');
@@ -105,10 +106,37 @@ function onSearch() {
       }
       const { lat, lon: lng } = result;
       center.value = { lat: parseFloat(lat), lng: parseFloat(lng) };
-      zoom.value = DEFAULT_ZOOM;
-      geojson.value = result.geojson;
+      
+      // If we have GeoJSON with bounds, zoom to fit the bounds
+      if (result.geojson) {
+        geojson.value = result.geojson;
+        
+        // Calculate bounds from GeoJSON to zoom to fit
+        const geoJsonLayer = L.geoJSON(result.geojson);
+        const bounds = geoJsonLayer.getBounds();
+        
+        setTimeout(() => {
+          const latDiff = bounds.getNorth() - bounds.getSouth();
+          const lngDiff = bounds.getEast() - bounds.getWest();
+          const maxDiff = Math.max(latDiff, lngDiff);
+          
+          // Rough zoom calculation based on bounds size
+          if (maxDiff > 10) zoom.value = 6;
+          else if (maxDiff > 5) zoom.value = 7;
+          else if (maxDiff > 2) zoom.value = 8;
+          else if (maxDiff > 1) zoom.value = 9;
+          else if (maxDiff > 0.5) zoom.value = 10;
+          else if (maxDiff > 0.2) zoom.value = 11;
+          else zoom.value = DEFAULT_ZOOM;
+        }, 100);
+      } else {
+        // No bounds, just use default zoom
+        zoom.value = DEFAULT_ZOOM;
+      }
+      
+      searchQuery.value = searchInput.value; // Store the successful search query
       updateURL();
-      searchQuery.value = '';
+      searchInput.value = ''; // Clear the input field
     });
 }
 
@@ -182,7 +210,8 @@ onMounted(() => {
         lng: parseFloat(parts[2]),
       };
       if (parts.length >= 4 && parts[3]) {
-        searchQuery.value = parts[3];
+        searchQuery.value = decodeURIComponent(parts[3]);
+        searchInput.value = searchQuery.value; // Populate input field with URL search query
         onSearch()
       }
     }
