@@ -78,6 +78,7 @@ watch(() => theme.global.name.value, (newTheme) => {
           variant="text" 
           @click.stop="drawer = !drawer"
           class="d-md-none"
+          aria-label="Toggle Navigation Drawer"
         ></v-app-bar-nav-icon>
 
         <!-- Logo -->
@@ -176,7 +177,7 @@ watch(() => theme.global.name.value, (newTheme) => {
         <v-spacer class="d-md-none" />
 
         <v-btn icon>
-          <v-icon @click="toggleTheme">mdi-theme-light-dark</v-icon>
+          <v-icon @click="toggleTheme" aria-label="Toggle Theme">mdi-theme-light-dark</v-icon>
         </v-btn>
       </v-app-bar>
 
@@ -185,42 +186,61 @@ watch(() => theme.global.name.value, (newTheme) => {
         v-model="drawer"
         temporary
         class="d-md-none"
+        aria-label="Navigation Drawer"
       >
-        <v-list nav>
+        <v-list nav aria-label="Main Navigation">
           <v-list-item
             v-for="item in items"
             :key="item.title"
             link
             :to="item.to"
-          ><v-icon start>{{ item.icon }}</v-icon>{{ item.title }}</v-list-item>
+            role="option"
+          >
+            <v-icon start>{{ item.icon }}</v-icon>
+            {{ item.title }}
+          </v-list-item>
+        </v-list>
 
-          <v-divider />
+        <v-divider class="my-2" aria-hidden="true" role="presentation" />
 
-          <v-list-subheader>Contribute</v-list-subheader>
+        <v-list-subheader class="px-4">Contribute</v-list-subheader>
+        <v-list nav aria-label="Contribute Links">
           <v-list-item
             v-for="item in contributeItems"
             :key="item.title"
             link
             :to="item.to"
+            role="option"
           >
             <v-icon v-if="item.icon" start>{{ item.icon }}</v-icon>
-              <span style="vertical-align: middle;">{{ item.title }}</span>
+            <span style="vertical-align: middle;">{{ item.title }}</span>
           </v-list-item>
+        </v-list>
           
-          <v-divider />
+        <v-divider class="my-2" aria-hidden="true" role="presentation" />
           
-          <v-list-subheader>Get Involved</v-list-subheader>
+        <v-list-subheader class="px-4">Get Involved</v-list-subheader>
+        <v-list nav aria-label="Meta Links">
           <v-list-item
             v-for="item in metaItems"
             :key="item.title"
             link
             :to="item.to"
             :href="item.href"
-            :target="{ '_blank': item.href }"
+            :target="item.href ? '_blank' : undefined"
+            role="option"
           >
             <v-icon v-if="item.icon" start>{{ item.icon }}</v-icon>
-              <v-img v-else-if="item.customIcon" class="mr-2 custom-icon" contain width="24" height="24" :src="isDark ? item.customIconDark : item.customIcon" style="vertical-align: middle;" />
-              <span style="vertical-align: middle;">{{ item.title }}</span>
+            <v-img
+              v-else-if="item.customIcon"
+              class="mr-2 custom-icon"
+              contain
+              width="24"
+              height="24"
+              :src="isDark ? item.customIconDark : item.customIcon"
+              style="vertical-align: middle;"
+            />
+            <span style="vertical-align: middle;">{{ item.title }}</span>
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
