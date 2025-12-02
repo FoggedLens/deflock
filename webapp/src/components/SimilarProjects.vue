@@ -137,10 +137,10 @@ const similarProjects: SimilarProject[] = [
     imageUrl: "/similar-projects/plate-privacy.webp"
   },
   {
-  name: "Eyes Off Indiana",
-  description: "Nonpartisan nonprofit working to pass statewide rules regulating ALPR use in Indiana.",
-  url: "https://eyesoffindiana.org",
-  imageUrl: "/similar-projects/eyesoffindiana.webp"
+    name: "Eyes Off Indiana",
+    description: "Nonpartisan nonprofit working to pass statewide rules regulating ALPR use in Indiana.",
+    url: "https://eyesoffindiana.org",
+    imageUrl: "/similar-projects/eyesoffindiana.webp"
   }
 ]
 </script>
