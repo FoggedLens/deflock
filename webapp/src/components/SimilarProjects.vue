@@ -135,6 +135,12 @@ const similarProjects: SimilarProject[] = [
     description: "The Institute for Justice's site analyzing ALPR usage patterns in the US.",
     url: "https://plateprivacy.com",
     imageUrl: "/similar-projects/plate-privacy.webp"
+  },
+  {
+  name: "Eyes Off Indiana",
+  description: "Nonpartisan nonprofit working to pass statewide rules regulating ALPR use in Indiana.",
+  url: "https://eyesoffindiana.org",
+  imageUrl: "/similar-projects/eyesoffindiana.webp"
   }
 ]
 </script>
