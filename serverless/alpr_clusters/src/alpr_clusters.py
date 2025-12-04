@@ -36,6 +36,9 @@ WHITELISTED_TAGS = [
     "direction",
     "brand",
     "camera:direction",
+    "surveillance:brand",
+    "surveillance:operator",
+    "surveillance:manufacturer"
 ]
 
 def get_all_nodes():

@@ -22,13 +22,6 @@
             {{ abbreviatedOperator }}
           </span>
         </b>
-
-        <!-- TODO: add transparency portal link if exists -->
-        <!-- <template v-slot:append>
-          <v-btn icon size="small" variant="text" :href="transparencyLink" target="_blank" color="primary">
-            <v-icon icon="mdi-open-in-new"></v-icon>
-          </v-btn>
-        </template> -->
       </v-list-item>
 
       <v-divider class="my-2" />
@@ -70,13 +63,12 @@ const props = defineProps({
 });
 
 const manufacturer = computed(() => (
-  props.alpr.tags.manufacturer || props.alpr.tags.brand || 'Unknown'
+  props.alpr.tags.manufacturer || 
+    props.alpr.tags['surveillance:manufacturer'] || 
+    props.alpr.tags.brand || 
+    props.alpr.tags['surveillance:brand'] ||
+    'Unknown'
 ));
-
-const transparencyLink = computed(() => {
-  // XXX: eventually get this from /api/operator-info?wikidata=Q1234
-  return `https://transparency.flocksafety.com/boulder-co-pd`;
-});
 
 const imageUrl: ComputedRef<string|undefined> = computed(() => {
   const mft2Url: Record<string, string> = {
@@ -91,7 +83,12 @@ const imageUrl: ComputedRef<string|undefined> = computed(() => {
 });
 
 const abbreviatedOperator = computed(() => {
-  if (props.alpr.tags.operator === undefined) {
+  const operatorTagKeys = [
+    "operator",
+    "surveillance:operator"
+  ]
+  const operatorTagKey = operatorTagKeys.find(key => props.alpr.tags[key] !== undefined);
+  if (!operatorTagKey) {
     return 'Unknown';
   }
 
@@ -99,7 +96,6 @@ const abbreviatedOperator = computed(() => {
     "Police Department": "PD",
     "Sheriff's Office": "SO",
     "Sheriffs Office": "SO",
-    // TODO: maybe include HOAs
   };
 
   const operator = props.alpr.tags.operator;
