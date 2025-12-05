@@ -10,11 +10,11 @@ module "alpr_counts" {
   sns_topic_arn        = aws_sns_topic.lambda_alarms.arn
 }
 
-module "alpr_clusters" {
-  module_name          = "alpr_clusters"
-  source               = "./modules/alpr_clusters"
+module "alpr_cache" {
+  module_name          = "alpr_cache"
+  source               = "./modules/alpr_cache"
   deflock_cdn_bucket   = var.deflock_cdn_bucket
-  rate                 = "rate(1 hour)"
+  rate                 = "rate(30 minutes)"
   sns_topic_arn        = aws_sns_topic.lambda_alarms.arn
 }
 
