@@ -1,9 +1,14 @@
 # Stage 1: Build the frontend
-FROM docker.io/node:18 AS frontend-build
+FROM docker.io/node:22 AS frontend-build
 WORKDIR /app/frontend
 COPY webapp/package*.json ./
 RUN npm install
-COPY webapp ./
+COPY webapp/tsconfig*.json ./
+COPY webapp/env.d.ts ./
+COPY webapp/vite.config.ts ./
+COPY webapp/index.html ./
+COPY webapp/public ./public/
+COPY webapp/src ./src/
 RUN npm run build
 
 # Stage 2: Build the Scala app

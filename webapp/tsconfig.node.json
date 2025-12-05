@@ -11,9 +11,11 @@
     "composite": true,
     "noEmit": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
     "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "types": ["node"]
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "skipLibCheck": true
   }
 }
