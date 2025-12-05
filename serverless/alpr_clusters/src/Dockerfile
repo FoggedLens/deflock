@@ -1,5 +1,5 @@
-# Use the official AWS Lambda Python 3.9 base image
-FROM amazon/aws-lambda-python:3.9
+# Use the official AWS Lambda Python 3.14 base image
+FROM amazon/aws-lambda-python:3.14-x86_64
 
 # Copy function code
 COPY alpr_clusters.py ${LAMBDA_TASK_ROOT}
