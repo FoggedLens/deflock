@@ -102,36 +102,19 @@
 
     <v-divider class="my-8" />
 
-    <!-- Flock Investigation Resources -->
+    <!-- What is Flock -->
     <div class="flock-resources-section my-8">
-      <h3 class="mb-4">Investigate Flock in Your Community</h3>
-      <p class="mb-6 px-6">
-        <a target="_blank" href="https://en.wikipedia.org/wiki/Flock_Safety">Flock Safety</a> is the most popular ALPR vendor. These independent resources help you understand how Flock cameras are being deployed and used:
+      <h2 class="mb-4">What is Flock?</h2>
+      <p class="px-6 text-left">
+        <a target="_blank" href="https://consumerrights.wiki/w/Flock_Safety">Flock Safety</a> is one of the largest ALPR vendors in the United States. Their cameras are installed for <b>police departments, businesses, and HOAs</b>. Captured vehicle data is uploaded to Flock's cloud system, where participating agencies can <b>search and share information across jurisdictions</b>.
       </p>
-      
-      <div class="text-center">
-        <v-btn 
-          href="https://eyesonflock.com" 
-          target="_blank" 
-          variant="outlined" 
-          color="primary" 
-          class="mx-2 mb-2"
-        >
-          Eyes on Flock
-          <v-icon end>mdi-open-in-new</v-icon>
-        </v-btn>
-        
-        <v-btn 
-          href="https://haveibeenflocked.com" 
-          target="_blank" 
-          variant="outlined" 
-          color="primary" 
-          class="mx-2 mb-2"
-        >
-          Have I Been Flocked?
-          <v-icon end>mdi-open-in-new</v-icon>
-        </v-btn>
-      </div>
+
+      <p class="text-left px-6">Flock is <b>not the only ALPR vendor</b>, and other vendors still participate in similar practices. See this list of <router-link to="/identify">other common ALPR vendors</router-link>.</p>
+
+      <v-btn class="mt-4" variant="outlined" color="rgb(18, 151, 195)" to="/what-is-an-alpr#similar">
+        Learn more about Flock
+        <v-icon end>mdi-arrow-right</v-icon>
+      </v-btn>
     </div>
   </v-container>
   
@@ -224,7 +207,6 @@
 }
 
 .flock-resources-section {
-  max-width: 800px;
   margin: 0 auto;
 }
 
