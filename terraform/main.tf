@@ -14,7 +14,7 @@ module "alpr_cache" {
   module_name          = "alpr_cache"
   source               = "./modules/alpr_cache"
   deflock_cdn_bucket   = var.deflock_cdn_bucket
-  rate                 = "rate(30 minutes)"
+  rate                 = "rate(1 hour)"
   sns_topic_arn        = aws_sns_topic.lambda_alarms.arn
 }
 
