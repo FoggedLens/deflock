@@ -233,28 +233,28 @@ function calculateMidpointAngle(start: number, end: number): number {
   return ((midpoint % 360) + 360) % 360;
 }
 
+const CARDINAL_DIRECTIONS: Record<string, number> = {
+  N: 0,
+  NNE: 22.5,
+  NE: 45,
+  ENE: 67.5,
+  E: 90,
+  ESE: 112.5,
+  SE: 135,
+  SSE: 157.5,
+  S: 180,
+  SSW: 202.5,
+  SW: 225,
+  WSW: 247.5,
+  W: 270,
+  WNW: 292.5,
+  NW: 315,
+  NNW: 337.5
+};
+
 function cardinalToDegrees(cardinal: string): number {
-  const cardinalMap: Record<string, number> = {
-    N: 0,
-    NNE: 22.5,
-    NE: 45,
-    ENE: 67.5,
-    E: 90,
-    ESE: 112.5,
-    SE: 135,
-    SSE: 157.5,
-    S: 180,
-    SSW: 202.5,
-    SW: 225,
-    WSW: 247.5,
-    W: 270,
-    WNW: 292.5,
-    NW: 315,
-    NNW: 337.5
-  };
-  
   const upperCardinal = cardinal.toUpperCase();
-  return cardinalMap[upperCardinal] ?? parseFloat(cardinal) ?? 0;
+  return CARDINAL_DIRECTIONS[upperCardinal] ?? parseFloat(cardinal) ?? 0;
 }
 
 function createMarker(alpr: ALPR): Marker | CircleMarker {
@@ -313,8 +313,27 @@ function bindPopup(marker: L.CircleMarker | L.Marker, alpr: ALPR): L.CircleMarke
 }
 
 function hasPlottableOrientation(orientationDegrees: string) {
-  // OSM tags are strings, and some have multiple values (e.g. '0;90')
-  return orientationDegrees && !isNaN(parseInt(orientationDegrees));
+  if (!orientationDegrees) return false;
+  
+  // Split by semicolon to handle multiple values (e.g. '0;90')
+  const values = orientationDegrees.split(';');
+  
+  return values.some(value => {
+    const trimmed = value.trim();
+    
+    // Check if it's a range (contains '-' but not at the start)
+    if (trimmed.includes('-') && trimmed.indexOf('-') > 0) {
+      return true; // Ranges are plottable
+    }
+    
+    // Check if it's a numeric value
+    if (/^\d+(\.\d+)?$/.test(trimmed)) {
+      return true;
+    }
+    
+    // Check if it's a valid cardinal direction
+    return CARDINAL_DIRECTIONS.hasOwnProperty(trimmed.toUpperCase());
+  });
 }
 
 // Map State Management
