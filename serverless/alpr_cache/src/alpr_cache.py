@@ -38,7 +38,8 @@ WHITELISTED_TAGS = [
     "camera:direction",
     "surveillance:brand",
     "surveillance:operator",
-    "surveillance:manufacturer"
+    "surveillance:manufacturer",
+    "wikimedia_commons"
 ]
 
 def get_all_nodes():
