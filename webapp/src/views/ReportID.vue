@@ -13,7 +13,13 @@
       Editing the Map
     </h1>
 
-    <v-stepper-vertical color="rgb(18, 151, 195)" v-model="step" flat non-linear class="my-8" edit-icon="mdi-home">
+    <v-stepper-vertical 
+      color="rgb(18, 151, 195)" 
+      v-model="step" 
+      flat 
+      non-linear 
+      class="my-8"
+    >
       <template v-slot:default="{ step }: { step: any }">
         <v-stepper-vertical-item
           class="transparent"
@@ -22,6 +28,11 @@
           value="1"
           editable
         >
+          <template v-slot:icon="{ hasCompleted, step: targetStep }">
+            <v-icon>
+              <component :is="getStepperIcon(hasCompleted, targetStep)" />
+            </v-icon>
+          </template>
           <p>
             <a href="https://www.openstreetmap.org/user/new" target="_blank">Sign up for an OpenStreetMap account</a> in order to submit changes.
           </p>
@@ -34,6 +45,11 @@
           value="2"
           editable
         >
+          <template v-slot:icon="{ hasCompleted, step: targetStep }">
+            <v-icon>
+              <component :is="getStepperIcon(hasCompleted, targetStep)" />
+            </v-icon>
+          </template>
           <p>
             <a href="https://www.openstreetmap.org" target="_blank">Launch OpenStreetMap</a> and search for the location of the ALPR. You can use the search bar at the top of the page to find the location.
           </p>
@@ -46,6 +62,11 @@
           value="3"
           editable
         >
+          <template v-slot:icon="{ hasCompleted, step: targetStep }">
+            <v-icon>
+              <component :is="getStepperIcon(hasCompleted, targetStep)" />
+            </v-icon>
+          </template>
           <p>
             Once you've found the location of the ALPR, click the <strong>Edit</strong> button in the top left corner of the page. This will open the OpenStreetMap editor, where you can add the ALPR to the map.
           </p>
@@ -53,9 +74,14 @@
 
           <v-alert
             variant="tonal"
-            type="warning"
+            color="warning"
             class="mt-16 mb-6"
           >
+            <template #prepend>
+              <v-icon>
+                <AlertCircleIcon />
+              </v-icon>
+            </template>
             <p>
               Add cameras as <strong>standalone points only</strong>! Do not connect them to roads, buildings, or other objects. Place the point exactly where the camera is physically located, but keep it as an independent point on the map.
             </p>
@@ -84,6 +110,11 @@
           value="4"
           editable
         >
+          <template v-slot:icon="{ hasCompleted, step: targetStep }">
+            <v-icon>
+              <component :is="getStepperIcon(hasCompleted, targetStep)" />
+            </v-icon>
+          </template>
           <v-img
             max-width="450"
             class="my-8"
@@ -110,15 +141,25 @@
           value="5"
           editable
         >
+          <template v-slot:icon="{ hasCompleted, step: targetStep }">
+            <v-icon>
+              <component :is="getStepperIcon(hasCompleted, targetStep)" />
+            </v-icon>
+          </template>
           <p>
             Once you've added the ALPR to the map, click the <strong>Save</strong> button in the top right corner of the editor. You'll be asked to provide a brief description of your changes. Once you've submitted your changes, the ALPR will be added to OpenStreetMap.
           </p>
           <v-alert
             variant="tonal"
-            type="info"
+            color="info"
             class="my-6"
             title="How Long Will It Take?"
           >
+            <template #prepend>
+              <v-icon>
+                <AlertCircleIcon />
+              </v-icon>
+            </template>
             <p>
               We pull data from OpenStreetMap <i>hourly</i>, so it may take up to an hour for your changes to appear on this site. Rest assured that your changes will be reflected here soon. As we continue to scale, we hope to reduce this delay.
             </p>
@@ -133,11 +174,26 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, h } from 'vue';
 import OSMTagSelector from '@/components/OSMTagSelector.vue';
 import { VStepperVerticalItem, VStepperVertical } from 'vuetify/labs/components';
 
+import PendingIcon from '@iconify-vue/mdi/timer-sand';
+import CompleteIcon from '@iconify-vue/mdi/check';
+import AlertCircleIcon from '@iconify-vue/mdi/alert-circle';
+
 const step = ref(parseInt(localStorage.getItem('currentStep') || '1'));
+
+// Reusable stepper icon template function
+const getStepperIcon = (hasCompleted: boolean, targetStep: number) => {
+  if (step.value === targetStep) {
+    return h(PendingIcon);
+  } else if (hasCompleted) {
+    return h(CompleteIcon);
+  } else {
+    return h('span', { style: 'font-style: normal;' }, targetStep.toString());
+  }
+};
 
 onMounted(() => {
   step.value = parseInt(localStorage.getItem('currentStep') || '1');

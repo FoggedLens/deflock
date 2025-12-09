@@ -1,7 +1,9 @@
 <template>
   <div style="position: relative">
     <v-btn v-if="showCopyButton" color="white" @click="copyToClipboard" icon variant="plain" flat class="copy-button">
-      <v-icon class="copy-icon-with-shadow">mdi-content-copy</v-icon>
+      <v-icon class="copy-icon-with-shadow">
+        <CopyIcon />
+      </v-icon>
     </v-btn>
     <code ref="codeContent">
       <slot></slot>
@@ -13,7 +15,9 @@
           variant="text"
           @click="snackbarOpen = false"
         >
-          <v-icon>mdi-close</v-icon>
+          <v-icon>
+            <CloseIcon />
+          </v-icon>
         </v-btn>
       </template>
     </v-snackbar>
@@ -22,6 +26,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+
+import CloseIcon from '@iconify-vue/mdi/close';
+import CopyIcon from '@iconify-vue/mdi/content-copy';
 
 defineProps({
   showCopyButton: {

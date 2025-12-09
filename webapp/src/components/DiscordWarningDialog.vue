@@ -3,7 +3,9 @@
     <v-card class="discord-warning-card">
       <v-card-text>
         <div class="discord-warning-content">
-          <v-icon color="warning" size="28" class="mb-2">mdi-alert</v-icon>
+          <v-icon color="warning" size="28" class="mb-2">
+            <AlertIcon />
+          </v-icon>
           <p class="mb-3 text-body-1">
             <strong>You're about to join Discord</strong>
           </p>
@@ -17,7 +19,9 @@
       </v-card-text>
       <v-card-actions class="justify-end pt-0">
         <v-btn color="primary" @click="proceed" class="mr-2" rounded>
-          <v-icon start>mdi-arrow-right</v-icon>
+          <v-icon start>
+            <ArrowRightIcon />
+          </v-icon>
           Proceed
         </v-btn>
         <v-btn variant="text" @click="cancel" rounded>
@@ -29,6 +33,9 @@
 </template>
 
 <script setup lang="ts">
+import AlertIcon from '@iconify-vue/mdi/alert';
+import ArrowRightIcon from '@iconify-vue/mdi/arrow-right';
+
 const props = defineProps<{ modelValue: boolean; discordUrl: string }>();
 const emit = defineEmits(['update:modelValue', 'proceed']);
 

@@ -22,7 +22,9 @@
         >
         <v-card class="toc-sidebar" elevation="1" sticky>
           <v-card-title class="text-h6 py-3">
-            <v-icon start>mdi-format-list-bulleted</v-icon>
+            <v-icon start>
+              <ListBulletedIcon />
+            </v-icon>
             Table of Contents
           </v-card-title>
           <v-divider />
@@ -108,6 +110,8 @@
 import { ref, onMounted, nextTick, watch } from 'vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
+
+import ListBulletedIcon from '@iconify-vue/mdi/format-list-bulleted';
 
 interface CMSResponse {
   data: {

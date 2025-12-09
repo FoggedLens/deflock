@@ -20,7 +20,7 @@
   
           <v-btn size="large" color="rgb(18, 151, 195)" large @click="goToMap({ withCurrentLocation: true })">
             Explore the Map
-            <v-icon end>mdi-map</v-icon>
+            <v-icon end><MapIcon /></v-icon>
           </v-btn>
         </v-col>
       </v-row>
@@ -59,7 +59,7 @@
       <v-col cols="12" md="4" class="text-center">
         <v-card>
           <v-card-title class="headline">
-            <v-icon x-large class="mr-2">mdi-shield-alert</v-icon>
+            <v-icon x-large class="mr-2"><ShieldAlertIcon /></v-icon>
             Privacy Violations
           </v-card-title>
           <v-card-text>
@@ -70,7 +70,7 @@
       <v-col cols="12" md="4" class="text-center">
         <v-card>
           <v-card-title class="headline">
-            <v-icon x-large class="mr-2">mdi-robber</v-icon>
+            <v-icon x-large class="mr-2"><RobberIcon /></v-icon>
             Risk of Misuse
           </v-card-title>
           <v-card-text>
@@ -81,7 +81,7 @@
       <v-col cols="12" md="4" class="text-center">
         <v-card>
           <v-card-title class="headline">
-            <v-icon x-large class="mr-2">mdi-handcuffs</v-icon>
+            <v-icon x-large class="mr-2"><HandcuffsIcon /></v-icon>
             Limited Benefits
           </v-card-title>
           <v-card-text>
@@ -96,7 +96,7 @@
     </p>
 
     <v-btn class="my-4" color="rgb(18, 151, 195)" large to="/what-is-an-alpr">
-      <v-icon start>mdi-book-open-page-variant</v-icon>
+      <v-icon start><BookOpenPageVariantIcon /></v-icon>
       Learn about ALPRs
     </v-btn>
 
@@ -113,7 +113,7 @@
 
       <v-btn class="mt-4" variant="outlined" color="rgb(18, 151, 195)" to="/what-is-an-alpr#similar">
         Learn more about Flock
-        <v-icon end>mdi-arrow-right</v-icon>
+        <v-icon end><ArrowRightIcon /></v-icon>
       </v-btn>
     </div>
   </v-container>
@@ -123,11 +123,67 @@
     <h2 class="display-2 mb-4">Explore ALPR Locations Near You</h2>
     <v-btn color="white" large @click="goToMap({ withCurrentLocation: true })">
       View the Map
-      <v-icon end>mdi-map</v-icon>
+      <v-icon end><MapIcon /></v-icon>
     </v-btn>
   </v-container>
 </DefaultLayout>
 </template>
+
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import ALPRCounter from '@/components/ALPRCounter.vue';
+import { useGlobalStore } from '@/stores/global';
+import DefaultLayout from '@/layouts/DefaultLayout.vue';
+
+import MapIcon from '@iconify-vue/mdi/map';
+import ShieldAlertIcon from '@iconify-vue/mdi/shield-alert';
+import RobberIcon from '@iconify-vue/mdi/robber';
+import HandcuffsIcon from '@iconify-vue/mdi/handcuffs';
+import BookOpenPageVariantIcon from '@iconify-vue/mdi/book-open-page-variant';
+import ArrowRightIcon from '@iconify-vue/mdi/arrow-right';
+
+const router = useRouter();
+const { setCurrentLocation } = useGlobalStore();
+
+interface GoToMapOptions {
+  withCurrentLocation?: boolean;
+}
+
+const featuredOn = [
+{
+  name: 'Forbes',
+  logo: '/white-logos/forbes.svg',
+  url: 'https://www.forbes.com/sites/larsdaniel/2024/11/26/think-youre-not-being-watched-deflock-says-think-again/',
+},
+{
+  name: '404 Media',
+  logo: '/white-logos/404media.svg',
+  url: 'https://www.404media.co/the-open-source-project-deflock-is-mapping-license-plate-surveillance-cameras-all-over-the-world/',
+},
+{
+  name: 'LA Times',
+  logo: '/white-logos/latimes.svg',
+  url: 'https://www.latimes.com/california/story/2024-11-14/are-there-automated-license-plate-readers-in-your-city-theres-an-open-source-program-for-that',
+  wide: true,
+}
+];
+
+async function goToMap(options: GoToMapOptions = {}) {
+  if (options.withCurrentLocation) {
+    setCurrentLocation()
+    .then((currentLocation) => {
+      const [lat, lon] = currentLocation;
+      router.push({ path: '/map', hash: `#map=12/${lat.toFixed(6)}/${lon.toFixed(6)}` });
+    })
+    .catch(() => {
+      router.push({ path: '/map' });
+    });
+  } else {
+    router.push({ path: '/map' });
+  }
+}
+</script>
+
 
 <style>
 .hero-section {
@@ -215,52 +271,3 @@
   text-decoration: none !important;
 }
 </style>
-
-
-<script setup lang="ts">
-import { useRouter } from 'vue-router';
-import ALPRCounter from '@/components/ALPRCounter.vue';
-import { useGlobalStore } from '@/stores/global';
-import DefaultLayout from '@/layouts/DefaultLayout.vue';
-
-const router = useRouter();
-const { setCurrentLocation } = useGlobalStore();
-
-interface GoToMapOptions {
-  withCurrentLocation?: boolean;
-}
-
-const featuredOn = [
-{
-  name: 'Forbes',
-  logo: '/white-logos/forbes.svg',
-  url: 'https://www.forbes.com/sites/larsdaniel/2024/11/26/think-youre-not-being-watched-deflock-says-think-again/',
-},
-{
-  name: '404 Media',
-  logo: '/white-logos/404media.svg',
-  url: 'https://www.404media.co/the-open-source-project-deflock-is-mapping-license-plate-surveillance-cameras-all-over-the-world/',
-},
-{
-  name: 'LA Times',
-  logo: '/white-logos/latimes.svg',
-  url: 'https://www.latimes.com/california/story/2024-11-14/are-there-automated-license-plate-readers-in-your-city-theres-an-open-source-program-for-that',
-  wide: true,
-}
-];
-
-async function goToMap(options: GoToMapOptions = {}) {
-  if (options.withCurrentLocation) {
-    setCurrentLocation()
-    .then((currentLocation) => {
-      const [lat, lon] = currentLocation;
-      router.push({ path: '/map', hash: `#map=12/${lat.toFixed(6)}/${lon.toFixed(6)}` });
-    })
-    .catch(() => {
-      router.push({ path: '/map' });
-    });
-  } else {
-    router.push({ path: '/map' });
-  }
-}
-</script>

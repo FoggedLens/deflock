@@ -143,10 +143,14 @@
             size="x-large" 
             color="primary" 
             to="/report"
-            prepend-icon="mdi-map-marker-plus"
             variant="elevated"
             class="mr-4"
           >
+            <template #prepend>
+              <v-icon>
+                <MapMarkerPlusIcon />
+              </v-icon>
+            </template>
             Add to Map
           </v-btn>
         </v-card-text>
@@ -159,6 +163,8 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
+
+import MapMarkerPlusIcon from '@iconify-vue/mdi/map-marker-plus';
 
 function openImageInNewTab(url: string) {
   window.open(url, '_blank');

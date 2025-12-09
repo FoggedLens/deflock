@@ -25,11 +25,12 @@
             >
               <v-card-item class="text-center pa-6">
                 <v-icon
-                  icon="mdi-camera"
                   size="48"
                   color="primary"
                   class="mb-4"
-                ></v-icon>
+                >
+                  <CameraIcon />
+                </v-icon>
                 <v-card-title class="text-h5 font-weight-bold card-title-wrap">
                   Report a Camera
                 </v-card-title>
@@ -41,7 +42,7 @@
                 <v-btn
                   color="primary"
                   size="large"
-                  append-icon="mdi-arrow-right"
+                  :append-icon="ArrowRightIcon"
                 >
                   Start Report
                 </v-btn>
@@ -61,11 +62,12 @@
             >
               <v-card-item class="text-center pa-6">
                 <v-icon
-                  :icon="showContactOptions ? 'mdi-message-text' : 'mdi-message-text'"
                   size="48"
                   color="secondary"
                   class="mb-4"
-                ></v-icon>
+                >
+                  <MessageTextIcon />
+                </v-icon>
                 <v-card-title class="text-h5 font-weight-bold card-title-wrap">
                   {{ showContactOptions ? 'Get in Touch' : 'General Inquiry' }}
                 </v-card-title>
@@ -78,7 +80,7 @@
                   <v-btn
                     color="secondary"
                     size="large"
-                    append-icon="mdi-arrow-right"
+                    :append-icon="ArrowRightIcon"
                   >
                     Contact Options
                   </v-btn>
@@ -133,10 +135,13 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import { useTheme } from 'vuetify';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
+
+import CameraIcon from '@iconify-vue/mdi/camera';
+import ArrowRightIcon from '@iconify-vue/mdi/arrow-right';
+import MessageTextIcon from '@iconify-vue/mdi/message-text';
 
 const theme = useTheme();
-const isDark = computed(() => theme.name.value === 'dark');
 const showContactOptions = ref(false);
 </script>
  

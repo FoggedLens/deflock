@@ -18,7 +18,6 @@
             :density="xs ? 'compact' : 'default'"
             class="map-search"
             ref="searchField"
-            prepend-inner-icon="mdi-magnify"
             placeholder="Search for a location"
             single-line
             variant="solo"
@@ -27,9 +26,12 @@
             v-model="searchInput"
             type="search"
           >
+            <template v-slot:prepend-inner>
+              <v-icon><MagnifyIcon /></v-icon>
+            </template>
             <template v-slot:append-inner>
               <v-btn :disabled="!searchInput" variant="text" flat color="#0080BC" @click="onSearch">
-                Go<v-icon end>mdi-chevron-right</v-icon>
+                Go<v-icon end><ChevronRightIcon /></v-icon>
               </v-btn>
             </template>
           </v-text-field>
@@ -38,7 +40,9 @@
 
       <!-- CURRENT LOCATION -->
       <template v-slot:bottomright>
-        <v-fab icon="mdi-crosshairs-gps" @click="goToUserLocation" />
+        <v-fab icon @click="goToUserLocation">
+          <v-icon><CrosshairsGpsIcon /></v-icon>
+        </v-fab>
       </template>
     </leaflet-map>
     <div v-else class="loader">
@@ -63,6 +67,11 @@ globalThis.L = L;
 import 'leaflet/dist/leaflet.css'
 import LeafletMap from '@/components/LeafletMap.vue';
 import NewVisitor from '@/components/NewVisitor.vue';
+
+// Icons
+import MagnifyIcon from '@iconify-vue/mdi/magnify';
+import ChevronRightIcon from '@iconify-vue/mdi/chevron-right';
+import CrosshairsGpsIcon from '@iconify-vue/mdi/crosshairs-gps';
 
 const DEFAULT_ZOOM = 12;
 

@@ -20,10 +20,14 @@
                   size="large"
                   color="black"
                   class="download-btn ios-btn"
-                  prepend-icon="mdi-apple"
                   :href="appLinks.ios"
                   target="_blank"
                 >
+                  <template #prepend>
+                    <v-icon>
+                      <AppleIcon />
+                    </v-icon>
+                  </template>
                   Download for iOS
                 </v-btn>
                 <v-btn
@@ -31,10 +35,14 @@
                   variant="outlined"
                   color="black"
                   class="download-btn android-btn"
-                  prepend-icon="mdi-google-play"
                   :href="appLinks.android"
                   target="_blank"
                 >
+                  <template #prepend>
+                    <v-icon>
+                      <GooglePlayIcon />
+                    </v-icon>
+                  </template>
                   Get on Android
                 </v-btn>
 
@@ -43,11 +51,17 @@
                   variant="tonal"
                   color="white"
                   to="/app/docs"
-                  prepend-icon="mdi-book-open-variant"
                   class="download-btn mt-8"
                 >
+                  <template #prepend>
+                    <v-icon>
+                      <BookOpenIcon />
+                    </v-icon>
+                  </template>
                   Read the User Guide
-                  <v-icon icon="mdi-open-in-new" size="small" class="ml-1" />
+                  <v-icon size="small" class="ml-1">
+                    <OpenInNewIcon />
+                  </v-icon>
                 </v-btn>
               </div>
             </div>
@@ -80,7 +94,9 @@
             <v-card class="feature-card" elevation="4">
               <v-card-text class="text-center pa-8">
                 <div class="feature-icon mb-6">
-                  <v-icon :icon="feature.icon" size="48" :color="feature.color" />
+                  <v-icon size="48" :color="feature.color">
+                    <component :is="feature.icon" />
+                  </v-icon>
                 </div>
                 <h3 class="feature-title mb-3">{{ feature.title }}</h3>
                 <p class="feature-description">{{ feature.description }}</p>
@@ -119,17 +135,6 @@
               </div>
             </v-col>
           </v-row>
-          <!-- <div class="screenshots-toggle" style="text-align:center; margin-top:32px;">
-            <v-btn
-              variant="tonal"
-              color="primary"
-              @click="showAllScreenshots = !showAllScreenshots"
-              rounded
-              size="large"
-            >
-              {{ showAllScreenshots ? 'Show Less' : 'Show More Screenshots' }}
-            </v-btn>
-          </div> -->
         </div>
       </v-container>
     </section>
@@ -169,7 +174,9 @@
               >
                 <v-card-text class="pa-8">
                   <h3 class="principle-title mb-3">
-                    <v-icon icon="mdi-lock" color="primary" class="me-3" />
+                    <v-icon color="primary" class="me-3">
+                      <LockIcon />
+                    </v-icon>
                     {{ principle.title }}
                   </h3>
                   <p class="principle-description mb-0">
@@ -196,10 +203,14 @@
               size="x-large"
               color="primary"
               class="cta-btn ios-cta"
-              prepend-icon="mdi-apple"
               :href="appLinks.ios"
               target="_blank"
             >
+              <template #prepend>
+                <v-icon>
+                  <AppleIcon />
+                </v-icon>
+              </template>
               Download for iPhone
             </v-btn>
             <v-btn
@@ -207,10 +218,14 @@
               variant="outlined"
               color="primary"
               class="cta-btn android-cta"
-              prepend-icon="mdi-google-play"
               :href="appLinks.android"
               target="_blank"
             >
+              <template #prepend>
+                <v-icon>
+                  <GooglePlayIcon />
+                </v-icon>
+              </template>
               Get on Android
             </v-btn>
           </div>
@@ -226,11 +241,20 @@
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import { ref, computed } from 'vue';
 
+import AppleIcon from '@iconify-vue/mdi/apple';
+import GooglePlayIcon from '@iconify-vue/mdi/google-play';
+import BookOpenIcon from '@iconify-vue/mdi/book-open-variant';
+import OpenInNewIcon from '@iconify-vue/mdi/open-in-new';
+import MapSearchIcon from '@iconify-vue/mdi/map-search';
+import CameraPlusIcon from '@iconify-vue/mdi/camera-plus';
+import AccountGroupIcon from '@iconify-vue/mdi/account-group';
+import LockIcon from '@iconify-vue/mdi/lock';
+
 interface Feature {
   id: number;
   title: string;
   description: string;
-  icon: string;
+  icon: any;
   color: string;
 }
 
@@ -245,12 +269,6 @@ interface Statistic {
   id: number;
   number: string;
   label: string;
-}
-
-interface PrivacyFeature {
-  id: number;
-  text: string;
-  icon: string;
 }
 
 interface PrivacyPrinciple {
@@ -270,21 +288,21 @@ const features: Feature[] = [
     id: 1,
     title: 'Discover ALPRs',
     description: 'Find automatic license plate readers in your neighborhood with our comprehensive database.',
-    icon: 'mdi-map-search',
+    icon: MapSearchIcon,
     color: 'primary'
   },
   {
     id: 2,
     title: 'Report New Cameras',
     description: 'Easily report new ALPR installations you discover to help grow the community database.',
-    icon: 'mdi-camera-plus',
+    icon: CameraPlusIcon,
     color: 'success'
   },
   {
     id: 3,
     title: 'Community Driven',
     description: 'Join a community of privacy advocates working together to map surveillance.',
-    icon: 'mdi-account-group',
+    icon: AccountGroupIcon,
     color: 'info'
   },
 ];
@@ -330,31 +348,6 @@ const statistics: Statistic[] = [
   },
 ];
 
-// Privacy features
-const privacyFeatures: PrivacyFeature[] = [
-  {
-    id: 1,
-    text: 'No personal data collection',
-    icon: 'mdi-check-circle'
-  },
-  {
-    id: 2,
-    text: 'No advertising or tracking',
-    icon: 'mdi-check-circle'
-  },
-  {
-    id: 3,
-    text: 'Open source transparency',
-    icon: 'mdi-check-circle'
-  },
-  {
-    id: 4,
-    text: 'Local data storage',
-    icon: 'mdi-check-circle'
-  }
-];
-
-// Privacy principles for detailed policy
 const privacyPrinciples: PrivacyPrinciple[] = [
   {
     id: 1,

@@ -5,6 +5,22 @@ import { useTheme } from 'vuetify';
 import DiscordWarningDialog from '@/components/DiscordWarningDialog.vue';
 import { useDiscordIntercept } from '@/composables/useDiscordIntercept';
 
+// Icons
+import HamburgerIcon from '@iconify-vue/mdi/menu';
+import HomeIcon from '@iconify-vue/mdi/home';
+import MapIcon from '@iconify-vue/mdi/map';
+import SchoolIcon from '@iconify-vue/mdi/school';
+import ShoppingIcon from '@iconify-vue/mdi/shopping-cart';
+import MapMarkerPlusIcon from '@iconify-vue/mdi/map-marker-plus';
+import FileDocumentIcon from '@iconify-vue/mdi/file-document';
+import AccountVoiceIcon from '@iconify-vue/mdi/account-voice';
+import EmailOutlineIcon from '@iconify-vue/mdi/email-outline';
+import GithubIcon from '@iconify-vue/mdi/github';
+import HeartIcon from '@iconify-vue/mdi/heart';
+import DiscordIcon from '@iconify-vue/ic/baseline-discord';
+import ChevronDownIcon from '@iconify-vue/mdi/chevron-down';
+import ThemeIcon from '@iconify-vue/mdi/theme-light-dark';
+
 const theme = useTheme();
 const router = useRouter();
 const isDark = computed(() => theme.name.value === 'dark');
@@ -34,23 +50,23 @@ onMounted(() => {
 });
 
 const items = [
-  { title: 'Home', icon: 'mdi-home', to: '/' },
-  { title: 'Map', icon: 'mdi-map', to: '/map' },
-  { title: 'Learn', icon: 'mdi-school', to: '/what-is-an-alpr' },
-  { title: 'Store', icon: 'mdi-shopping', to: '/store' },
+  { title: 'Home', icon: HomeIcon, to: '/' },
+  { title: 'Map', icon: MapIcon, to: '/map' },
+  { title: 'Learn', icon: SchoolIcon, to: '/what-is-an-alpr' },
+  { title: 'Store', icon: ShoppingIcon, to: '/store' },
 ]
 
 const contributeItems = [
-  { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
-  { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
-  { title: 'City Council', icon: 'mdi-account-voice', to: '/council' },
+  { title: 'Submit Cameras', icon: MapMarkerPlusIcon, to: '/report' },
+  { title: 'Public Records', icon: FileDocumentIcon, to: '/foia' },
+  { title: 'City Council', icon: AccountVoiceIcon, to: '/council' },
 ]
 
 const metaItems = [
-  { title: 'Discord', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg', customIconGrey: '/icon-discord-grey.svg', href: 'https://discord.gg/aV7v4R3sKT'},
-  { title: 'Contact', icon: 'mdi-email-outline', to: '/contact' },
-  { title: 'GitHub', icon: 'mdi-github', href: 'https://github.com/frillweeman/deflock'},
-  { title: 'Donate', icon: 'mdi-heart', to: '/donate'},
+  { title: 'Discord', icon: DiscordIcon, href: 'https://discord.gg/aV7v4R3sKT'},
+  { title: 'Contact', icon: EmailOutlineIcon, to: '/contact' },
+  { title: 'GitHub', icon: GithubIcon, href: 'https://github.com/frillweeman/deflock'},
+  { title: 'Donate', icon: HeartIcon, to: '/donate'},
 ];
 const drawer = ref(false)
 
@@ -79,6 +95,7 @@ watch(() => theme.global.name.value, (newTheme) => {
           @click.stop="drawer = !drawer"
           class="d-md-none"
           aria-label="Toggle Navigation Drawer"
+          :icon="HamburgerIcon"
         ></v-app-bar-nav-icon>
 
         <!-- Logo -->
@@ -114,7 +131,7 @@ watch(() => theme.global.name.value, (newTheme) => {
                 <v-btn
                   variant="text"
                   v-bind="props"
-                  append-icon="mdi-chevron-down"
+                  :append-icon="ChevronDownIcon"
                   class="mx-1"
                 >
                   Contribute
@@ -128,7 +145,9 @@ watch(() => theme.global.name.value, (newTheme) => {
                   link
                 >
                   <template v-slot:prepend>
-                    <v-icon>{{ item.icon }}</v-icon>
+                    <v-icon>
+                      <component :is="item.icon" class="custom-icon" />
+                    </v-icon>
                   </template>
                   <v-list-item-title>{{ item.title }}</v-list-item-title>
                 </v-list-item>
@@ -141,7 +160,7 @@ watch(() => theme.global.name.value, (newTheme) => {
                 <v-btn
                   variant="text"
                   v-bind="props"
-                  append-icon="mdi-chevron-down"
+                  :append-icon="ChevronDownIcon"
                   class="mx-1"
                 >
                   Get Involved
@@ -157,15 +176,9 @@ watch(() => theme.global.name.value, (newTheme) => {
                   link
                 >
                   <template v-slot:prepend>
-                    <v-icon v-if="item.icon">{{ item.icon }}</v-icon>
-                    <v-img 
-                      v-else-if="item.customIcon"
-                      class="mr-8"
-                      contain 
-                      width="24" 
-                      height="24" 
-                      :src="isDark ? item.customIconDark : item.customIconGrey" 
-                    />
+                    <v-icon>
+                      <component :is="item.icon" />
+                    </v-icon>
                   </template>
                   <v-list-item-title>{{ item.title }}</v-list-item-title>
                 </v-list-item>
@@ -176,8 +189,10 @@ watch(() => theme.global.name.value, (newTheme) => {
 
         <v-spacer class="d-md-none" />
 
-        <v-btn icon>
-          <v-icon @click="toggleTheme" aria-label="Toggle Theme">mdi-theme-light-dark</v-icon>
+        <v-btn icon @click="toggleTheme" aria-label="Toggle Theme">
+          <v-icon>
+            <ThemeIcon />
+          </v-icon>
         </v-btn>
       </v-app-bar>
 
@@ -196,7 +211,9 @@ watch(() => theme.global.name.value, (newTheme) => {
             :to="item.to"
             role="option"
           >
-            <v-icon start>{{ item.icon }}</v-icon>
+            <v-icon start>
+              <component :is="item.icon" />
+            </v-icon>
             {{ item.title }}
           </v-list-item>
         </v-list>
@@ -212,7 +229,9 @@ watch(() => theme.global.name.value, (newTheme) => {
             :to="item.to"
             role="option"
           >
-            <v-icon v-if="item.icon" start>{{ item.icon }}</v-icon>
+            <v-icon start>
+              <component :is="item.icon" />
+            </v-icon>
             <span style="vertical-align: middle;">{{ item.title }}</span>
           </v-list-item>
         </v-list>
@@ -230,16 +249,9 @@ watch(() => theme.global.name.value, (newTheme) => {
             :target="item.href ? '_blank' : undefined"
             role="option"
           >
-            <v-icon v-if="item.icon" start>{{ item.icon }}</v-icon>
-            <v-img
-              v-else-if="item.customIcon"
-              class="mr-2 custom-icon"
-              contain
-              width="24"
-              height="24"
-              :src="isDark ? item.customIconDark : item.customIcon"
-              style="vertical-align: middle;"
-            />
+            <v-icon start>
+              <component :is="item.icon" />
+            </v-icon>
             <span style="vertical-align: middle;">{{ item.title }}</span>
           </v-list-item>
         </v-list>
@@ -257,10 +269,3 @@ watch(() => theme.global.name.value, (newTheme) => {
     />
   </v-app>
 </template>
-
-<style lang="css" scoped>
-.custom-icon {
-  display: inline-block;
-  margin-right: 5px;
-}
-</style>

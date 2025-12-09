@@ -15,7 +15,9 @@
           <v-card-text class="py-0">
             <div class="d-flex align-center justify-space-between">
               <span>
-                <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
+                <v-icon size="small" class="mr-2">
+                  <GroupingIcon />
+                </v-icon>
                 <span class="text-caption mr-2">Grouping</span>
               </span>
               <v-switch
@@ -35,7 +37,9 @@
           <v-card-text class="py-0">
             <div class="d-flex align-center justify-space-between">
               <span>
-                <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
+                <v-icon size="small" class="mr-2">
+                  <CityBoundariesIcon />
+                </v-icon>
                 <span class="text-caption mr-2">City Boundaries</span>
               </span>
               <v-switch
@@ -61,7 +65,9 @@
         v-if="showAutoDisabledStatus" 
         class="clustering-status-bar"
       >
-        <v-icon size="small" class="mr-2">mdi-information</v-icon>
+        <v-icon size="small" class="mr-2">
+          <InformationIcon />
+        </v-icon>
         <span class="text-caption">
           Camera grouping is on for performance at this zoom level.
         </span>
@@ -73,7 +79,9 @@
           class="ml-2"
           @click="dismissZoomWarning"
         >
-          <v-icon size="small">mdi-close</v-icon>
+          <v-icon size="small">
+            <CloseIcon />
+          </v-icon>
         </v-btn>
       </div>
     </v-slide-y-transition>
@@ -93,6 +101,11 @@ import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import { useTheme } from 'vuetify';
+
+import GroupingIcon from '@iconify-vue/ic/baseline-bubble-chart';
+import CityBoundariesIcon from '@iconify-vue/mdi/map-outline';
+import InformationIcon from '@iconify-vue/mdi/information-outline';
+import CloseIcon from '@iconify-vue/mdi/close';
 
 const MARKER_COLOR = 'rgb(63,84,243)';
 const CLUSTER_DISABLE_ZOOM = 16; // Clustering disabled at zoom 16 and above

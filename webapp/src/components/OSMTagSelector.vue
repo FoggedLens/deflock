@@ -3,7 +3,7 @@
       <v-col cols="12" sm="6" class="text-center">
         <v-select
           color="rgb(18, 151, 195)"
-          prepend-inner-icon="mdi-factory"
+          :prepend-inner-icon="CompanyIcon"
           v-model="selectedBrand"
           :items="alprBrands"
           item-title="nickname"
@@ -22,7 +22,7 @@
           max-width="100%"
           class="my-4"
         ></v-img>
-        <v-btn to="/what-is-an-alpr#photos" color="#1297C3" variant="tonal" size="small"><v-icon start>mdi-image-multiple</v-icon> See All Photos</v-btn>
+        <v-btn to="/identify" color="#1297C3" variant="tonal" size="small"><v-icon start><ImageMultipleIcon /></v-icon> See All Photos</v-btn>
       </v-col>
     
       <v-col cols="12" sm="6">
@@ -42,7 +42,7 @@
         </DFCode>
         <div class="text-caption text-center mt-1">
           <a href="https://www.wikidata.org/wiki/Wikidata:Main_Page" target="_blank" rel="noopener" class="text-decoration-none text-grey-darken-1">
-            What is WikiData? <v-icon size="x-small">mdi-open-in-new</v-icon>
+            What is WikiData? <v-icon size="x-small"><OpenInNewIcon /></v-icon>
           </a>
         </div>
       </v-col>
@@ -53,6 +53,10 @@
 import DFCode from '@/components/DFCode.vue';
 import { ref, type Ref } from 'vue';
 import type { WikidataItem } from '@/types';
+
+import CompanyIcon from '@iconify-vue/mdi/company';
+import ImageMultipleIcon from '@iconify-vue/mdi/image-multiple';
+import OpenInNewIcon from '@iconify-vue/mdi/open-in-new';
 
 const alprBrands: WikidataItem[] = [
   {

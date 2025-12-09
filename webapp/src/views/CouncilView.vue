@@ -13,7 +13,9 @@
     <v-row>
       <v-col cols="12" md="10" lg="8" class="mx-auto">
         <div class="text-center mb-8">
-          <v-icon size="64" color="var(--df-blue)" class="mb-4">mdi-account-voice</v-icon>
+          <v-icon size="64" color="var(--df-blue)" class="mb-4">
+            <AccountVoiceIcon />
+          </v-icon>
           <h2 class="text-h4 mb-4 font-weight-bold">Your Voice Matters Locally</h2>
           <p class="text-h6 text-medium-emphasis serif">
             City council members rely on us to understand public opinion. Here's your step-by-step guide to effectively advocate
@@ -36,13 +38,17 @@
         >
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center">
-              <v-icon color="primary" class="mr-3 align-self-center">mdi-comment-alert</v-icon>
+              <v-icon color="primary" class="mr-3 align-self-center">
+                <CommentAlertIcon />
+              </v-icon>
               <div>
                 <h4 class="text-h6 font-weight-bold mb-1">Talking Points</h4>
                 <p class="text-body-2 mb-0">Common questions, arguments & responses for discussing surveillance</p>
               </div>
             </div>
-            <v-icon color="primary" class="align-self-center">mdi-open-in-new</v-icon>
+            <v-icon color="primary" class="align-self-center">
+              <OpenInNewIcon />
+            </v-icon>
           </div>
         </v-card>
       </v-col>
@@ -70,40 +76,44 @@
           <v-row>
             <v-col cols="12" md="6">
               <h4 class="text-h6 mb-3 d-flex align-center">
-                <v-icon color="primary" class="mr-2">mdi-calendar-plus</v-icon>
+                <v-icon color="primary" class="mr-2">
+                  <CalendarPlusIcon />
+                </v-icon>
                 How to Schedule
               </h4>
               <v-list density="compact">
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Contact their office via phone or email</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Suggest meeting at a local coffee shop or their office</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Request just 15-20 minutes of their time</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Mention you're a constituent concerned about ALPRs</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-col>
             <v-col cols="12" md="6">
               <h4 class="text-h6 mb-3 d-flex align-center">
-                <v-icon color="primary" class="mr-2">mdi-lightbulb-on</v-icon>
+                <v-icon color="primary" class="mr-2">
+                  <LightbulbOnIcon />
+                </v-icon>
                 Meeting Tips
               </h4>
               <v-list density="compact">
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Bring a brief printed summary of key points</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Share personal concerns about privacy and community impact</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Ask about their position and listen to their concerns</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Respond to their concerns with your ideas</v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -148,40 +158,44 @@
           <v-row>
             <v-col cols="12" md="6">
               <h4 class="text-h6 mb-3 d-flex align-center">
-                <v-icon color="primary" class="mr-2">mdi-clock</v-icon>
+                <v-icon color="primary" class="mr-2">
+                  <ClockIcon />
+                </v-icon>
                 Before the Meeting
               </h4>
               <v-list density="compact">
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Check meeting schedule and agenda online</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Sign up for public comment (often required)</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Prepare 2-3 minute statement (practice timing)</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Bring a copy of your statement</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-col>
             <v-col cols="12" md="6">
               <h4 class="text-h6 mb-3 d-flex align-center">
-                <v-icon color="primary" class="mr-2">mdi-presentation</v-icon>
+                <v-icon color="primary" class="mr-2">
+                  <PresentationIcon />
+                </v-icon>
                 During the Meeting
               </h4>
               <v-list density="compact">
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Arrive on time or early</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>State your name and connection to the city</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Speak clearly and maintain eye contact</v-list-item-title>
                 </v-list-item>
-                <v-list-item prepend-icon="mdi-check">
+                <v-list-item :prepend-icon="CheckIcon">
                   <v-list-item-title>Stay respectful and thank council for their time</v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -197,7 +211,9 @@
           <!-- Example Videos -->
           <div class="mt-6">
             <h4 class="text-h6 font-weight-bold mb-4 d-flex align-center">
-              <v-icon color="primary" class="mr-2">mdi-video</v-icon>
+              <v-icon color="primary" class="mr-2">
+                <VideoIcon />
+              </v-icon>
               Example Speeches
             </h4>
             <v-row>
@@ -210,7 +226,9 @@
                   @click="openVideo(video.url)"
                 >
                   <v-avatar size="48" color="primary" class="mr-3 video-play-button-compact">
-                    <v-icon size="24" color="white">mdi-play</v-icon>
+                    <v-icon size="24" color="white">
+                      <PlayIcon />
+                    </v-icon>
                   </v-avatar>
                   
                   <div class="flex-grow-1">
@@ -232,7 +250,9 @@
           <v-card class="pa-6" elevation="3" rounded="lg">
             <div class="d-flex align-center mb-4">
               <v-avatar size="48" color="primary" class="mr-4">
-                <v-icon size="24" color="white">mdi-trophy</v-icon>
+                <v-icon size="24" color="white">
+                  <TrophyOutlineIcon />
+                </v-icon>
               </v-avatar>
               <div>
                 <h3 class="text-h5 font-weight-bold mb-1">Recent Victories</h3>
@@ -254,28 +274,34 @@
           >
             <template v-slot:header.cityState="{ column }">
               <div class="d-flex align-center text-medium-emphasis">
-                <v-icon icon="mdi-map-marker" size="18" class="mr-2" />
+                <v-icon size="18" class="mr-2">
+                  <MapMarkerIcon />
+                </v-icon>
                 <span class="text-caption font-weight-medium">{{ column.title }}</span>
               </div>
             </template>
 
             <template v-slot:header.MonthYear="{ column }">
               <div class="d-flex align-center text-medium-emphasis">
-                <v-icon icon="mdi-calendar-month" size="18" class="mr-2" />
+                <v-icon size="18" class="mr-2">
+                  <CalendarMonthIcon />
+                </v-icon>
                 <span class="text-caption font-weight-medium">{{ column.title }}</span>
               </div>
             </template>
 
             <template v-slot:header.Outcome="{ column }">
               <div class="d-flex align-center text-medium-emphasis">
-                <v-icon icon="mdi-trophy-outline" size="18" class="mr-2" />
+                <v-icon size="18" class="mr-2">
+                  <TrophyOutlineIcon />
+                </v-icon>
                 <span class="text-caption font-weight-medium">{{ column.title }}</span>
               </div>
             </template>
 
             <template v-slot:item.data-table-expand="{ internalItem, isExpanded, toggleExpand }">
               <v-btn
-                :append-icon="isExpanded(internalItem) ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                :append-icon="isExpanded(internalItem) ? ChevronUpIcon : ChevronDownIcon"
                 :text="isExpanded(internalItem) ? 'Collapse' : 'More info'"
                 class="text-none"
                 color="medium-emphasis"
@@ -304,7 +330,9 @@
             </template>
             
             <template v-slot:item.Outcome="{ item }">
-              <v-icon icon="mdi-check-bold" size="18" class="mr-2" />
+              <v-icon size="18" class="mr-2">
+                <CheckBoldIcon />
+              </v-icon>
               <span class="font-weight-bold">{{ item.Outcome }}</span>
             </template>
             
@@ -314,7 +342,9 @@
             
             <template v-slot:no-data>
               <div class="text-center py-8">
-                <v-icon size="48" color="grey-lighten-1" class="mb-4">mdi-database-off</v-icon>
+                <v-icon size="48" color="grey-lighten-1" class="mb-4">
+                  <DatabaseOffIcon />
+                </v-icon>
                 <div class="text-h6 text-medium-emphasis">No victories found</div>
                 <div class="text-body-2 text-medium-emphasis mt-2">
                   Check your connection and try again
@@ -324,7 +354,7 @@
                   color="primary"
                   variant="outlined"
                   class="mt-4"
-                  prepend-icon="mdi-refresh"
+                  :prepend-icon="RefreshIcon"
                 >
                   Retry
                 </v-btn>
@@ -345,7 +375,9 @@
       <v-col cols="12" md="10" lg="8" class="mx-auto">
         <v-card class="pa-6" elevation="3" rounded="lg" color="primary" variant="tonal">
           <div class="text-center">
-            <v-icon size="64" color="primary" class="mb-4">mdi-comment-question</v-icon>
+            <v-icon size="64" color="primary" class="mb-4">
+              <CommentQuestionIcon />
+            </v-icon>
             <h3 class="text-h4 font-weight-bold mb-4">Need Help or Have Questions?</h3>
             <p class="text-h6 mb-6 serif">
               Join our supportive community of activists and experienced speakers who are ready to help you succeed.
@@ -357,8 +389,12 @@
               size="large"
               color="primary"
               class="mr-4 mb-4"
-              prepend-icon="mdi-discord"
             >
+              <template #prepend>
+                <v-icon>
+                  <DiscordIcon />
+                </v-icon>
+              </template>
               Join #campaigning Channel
             </v-btn>
           </div>
@@ -373,6 +409,27 @@
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+
+import AccountVoiceIcon from '@iconify-vue/mdi/account-voice';
+import CommentAlertIcon from '@iconify-vue/mdi/comment-alert';
+import OpenInNewIcon from '@iconify-vue/mdi/open-in-new';
+import CalendarPlusIcon from '@iconify-vue/mdi/calendar-plus';
+import CheckIcon from '@iconify-vue/mdi/check';
+import CheckBoldIcon from '@iconify-vue/mdi/check-bold';
+import PresentationIcon from '@iconify-vue/mdi/presentation';
+import VideoIcon from '@iconify-vue/mdi/video';
+import CommentQuestionIcon from '@iconify-vue/mdi/comment-question';
+import MapMarkerIcon from '@iconify-vue/mdi/map-marker';
+import CalendarMonthIcon from '@iconify-vue/mdi/calendar-month';
+import TrophyOutlineIcon from '@iconify-vue/mdi/trophy-outline';
+import ChevronUpIcon from '@iconify-vue/mdi/chevron-up';
+import ChevronDownIcon from '@iconify-vue/mdi/chevron-down';
+import DatabaseOffIcon from '@iconify-vue/mdi/database-off';
+import RefreshIcon from '@iconify-vue/mdi/refresh';
+import LightbulbOnIcon from '@iconify-vue/mdi/lightbulb-on';
+import ClockIcon from '@iconify-vue/mdi/clock';
+import DiscordIcon from '@iconify-vue/ic/baseline-discord';
+import PlayIcon from '@iconify-vue/mdi/play';
 
 const sortMonthYearByDateDesc = (a: string, b: string) => {
   const [aMonth, aYear] = a.split(/\s/);

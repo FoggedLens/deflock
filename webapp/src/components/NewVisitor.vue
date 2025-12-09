@@ -12,14 +12,18 @@
 
       <v-list class="text-center">
         <v-list-item class="my-4">
-          <v-icon size="x-large" color="primary" class="mb-2">mdi-progress-pencil</v-icon>
+          <v-icon size="x-large" color="primary" class="mb-2">
+            <ProgressIcon />
+          </v-icon>
           <v-list-item-title class="font-weight-bold">The map is incomplete!</v-list-item-title>
           <v-list-item-subtitle>
             New locations are always being added.
           </v-list-item-subtitle>
         </v-list-item>
         <v-list-item class="my-4">
-          <v-icon size="x-large" color="primary" class="mb-2">mdi-square-edit-outline</v-icon>
+          <v-icon size="x-large" color="primary" class="mb-2">
+            <EditIcon />
+          </v-icon>
           <v-list-item-title class="font-weight-bold">Add missing points!</v-list-item-title>
           <v-list-item-subtitle>
             Know of a missing ALPR? <router-link to="/report/id">Contribute</router-link> to the map.
@@ -37,6 +41,9 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+
+import ProgressIcon from '@iconify-vue/mdi/progress-pencil';
+import EditIcon from '@iconify-vue/mdi/square-edit-outline';
 
 const show = ref(false);
 

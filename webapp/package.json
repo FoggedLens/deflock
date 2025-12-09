@@ -12,6 +12,8 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "@iconify-vue/ic": "^1.0.1",
+    "@iconify-vue/mdi": "^1.0.1",
     "@types/leaflet.markercluster": "^1.5.5",
     "@unhead/vue": "^1.11.14",
     "axios": "^1.7.7",
@@ -23,7 +25,6 @@
     "vuetify": "^3.7.2"
   },
   "devDependencies": {
-    "@mdi/font": "^7.4.47",
     "@tsconfig/node20": "^20.1.4",
     "@types/leaflet": "^1.9.15",
     "@types/node": "^20.14.5",

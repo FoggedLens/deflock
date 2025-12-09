@@ -20,7 +20,9 @@
               :aria-label="link.alt"
             >
                 <v-list-item-title class="d-flex align-center">
-                <v-icon class="custom-icon" start :icon="link.icon" :alt="link.alt" />
+                <v-icon start :alt="link.alt">
+                  <component :is="link.icon" />
+                </v-icon>
                 {{ link.title }}
                 </v-list-item-title>
             </v-list-item>
@@ -42,8 +44,9 @@
               role="listitem"
             >
               <v-list-item-title class="d-flex align-center justify-start">
-                <v-icon start v-if="link.icon" class="custom-icon" :icon="link.icon"></v-icon>
-                <img v-else-if="link.customIcon" class="mr-2 custom-icon" width="24" height="24" :src="isDark ? link.customIconDark : link.customIcon" :alt="link.alt" />
+                <v-icon start :alt="link.alt">
+                  <component :is="link.icon" />
+                </v-icon>
                 {{ link.title }}
               </v-list-item-title>
             </v-list-item>
@@ -70,29 +73,36 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
+
+import InformationIcon from '@iconify-vue/mdi/information';
+import ShieldLockIcon from '@iconify-vue/mdi/shield-lock';
+import FileDocumentIcon from '@iconify-vue/mdi/file-document';
+import NewspaperIcon from '@iconify-vue/mdi/newspaper';
+import EmailIcon from '@iconify-vue/mdi/email';
+import HeartIcon from '@iconify-vue/mdi/heart';
+import GithubIcon from '@iconify-vue/mdi/github';
+import DiscordIcon from '@iconify-vue/ic/baseline-discord';
+
 const theme = useTheme();
 const isDark = computed(() => theme.name.value === 'dark');
 const currentYear = new Date().getFullYear();
 
 const internalLinks = [
-  { title: 'About', to: '/about', icon: 'mdi-information', alt: 'About' },
-  { title: 'Privacy Policy', to: '/privacy', icon: 'mdi-shield-lock', alt: 'Privacy Policy' },
-  { title: 'Terms of Service', to: '/terms', icon: 'mdi-file-document', alt: 'Terms of Service' },
-  { title: 'Press', to: '/press', icon: 'mdi-newspaper', alt: 'Press' },
-  { title: 'Contact', to: '/contact', icon: 'mdi-email', alt: 'Contact' },
+  { title: 'About', to: '/about', icon: InformationIcon, alt: 'About' },
+  { title: 'Privacy Policy', to: '/privacy', icon: ShieldLockIcon, alt: 'Privacy Policy' },
+  { title: 'Terms of Service', to: '/terms', icon: FileDocumentIcon, alt: 'Terms of Service' },
+  { title: 'Press', to: '/press', icon: NewspaperIcon, alt: 'Press' },
+  { title: 'Contact', to: '/contact', icon: EmailIcon, alt: 'Contact' },
 ];
 
 const externalLinks = [
-  { title: 'Discord', href: 'https://discord.gg/aV7v4R3sKT', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg', alt: 'Discord Logo' },
-  { title: 'Donate', to: '/donate', icon: 'mdi-heart', alt: 'Donate' },
-  { title: 'GitHub', href: 'https://github.com/FoggedLens/deflock', icon: 'mdi-github', alt: 'GitHub Logo' },
+  { title: 'Discord', href: 'https://discord.gg/aV7v4R3sKT', icon: DiscordIcon, alt: 'Discord Logo' },
+  { title: 'Donate', to: '/donate', icon: HeartIcon, alt: 'Donate' },
+  { title: 'GitHub', href: 'https://github.com/FoggedLens/deflock', icon: GithubIcon, alt: 'GitHub Logo' },
 ]
 </script>
 
 <style scoped>
-.custom-icon {
-  opacity: var(--v-medium-emphasis-opacity);
-}
 .copyright p {
   font-size: 0.85rem;
   line-height: 0.5rem;

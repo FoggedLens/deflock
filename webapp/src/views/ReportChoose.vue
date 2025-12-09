@@ -20,9 +20,11 @@
           color="blue"
           variant="tonal"
           to="/identify"
-          prepend-icon="mdi-image-search"
           size="large"
         >
+          <template #prepend>
+            <v-icon><ImageSearchIcon /></v-icon>
+          </template>
           View ALPR Gallery
         </v-btn>
       </v-col>
@@ -60,7 +62,7 @@
                 size="large"
               >
                 Download App
-                <v-icon icon="mdi-arrow-right" end></v-icon>
+                <v-icon end><ArrowRightIcon /></v-icon>
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -98,7 +100,7 @@
               size="large"
             >
               How to Edit
-              <v-icon icon="mdi-arrow-right" end></v-icon>
+              <v-icon end><ArrowRightIcon /></v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -111,6 +113,9 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import ALPRVerificationDialog from '@/components/ALPRVerificationDialog.vue';
+
+import ImageSearchIcon from '@iconify-vue/mdi/image-search';
+import ArrowRightIcon from '@iconify-vue/mdi/arrow-right';
 </script>
 
 <style scoped>

@@ -10,7 +10,9 @@
     <v-list density="compact" class="my-2">
       <v-list-item>
         <template v-slot:prepend>
-          <v-icon icon="mdi-police-badge"></v-icon>
+          <v-icon>
+            <PoliceBadgeIcon />
+          </v-icon>
         </template>
 
         <v-list-item-subtitle style="font-size: 1em">
@@ -28,7 +30,9 @@
 
       <v-list-item>
         <template v-slot:prepend>
-          <v-icon icon="mdi-factory"></v-icon>
+          <v-icon>
+            <FactoryIcon />
+          </v-icon>
         </template>
 
         <v-list-item-subtitle style="font-size: 1em">
@@ -44,7 +48,12 @@
     </v-list>
 
     <div class="text-center">
-      <v-btn target="_blank" size="x-small" :href="osmNodeLink(props.alpr.id)" variant="text" color="grey"><v-icon start>mdi-open-in-new</v-icon>View on OSM</v-btn>
+      <v-btn target="_blank" size="x-small" :href="osmNodeLink(props.alpr.id)" variant="text" color="grey">
+        <v-icon start>
+          <OpenInNewIcon />
+        </v-icon>
+        View on OSM
+      </v-btn>
     </div>
   </v-sheet>
 </template>
@@ -54,6 +63,10 @@ import { computed } from 'vue';
 import type { ComputedRef, PropType } from 'vue';
 import type { ALPR } from '@/types';
 import { VIcon, VList, VSheet, VListItem, VBtn, VImg, VListItemSubtitle, VDivider } from 'vuetify/components';
+
+import PoliceBadgeIcon from '@iconify-vue/mdi/police-badge';
+import FactoryIcon from '@iconify-vue/mdi/factory';
+import OpenInNewIcon from '@iconify-vue/mdi/open-in-new';
 
 const props = defineProps({
   alpr: {

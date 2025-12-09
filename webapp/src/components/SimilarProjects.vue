@@ -39,10 +39,11 @@
               <template v-slot:placeholder>
                 <v-row class="fill-height ma-0" align="center" justify="center">
                   <v-icon 
-                    icon="mdi-web" 
                     size="x-large" 
                     color="grey-lighten-2"
-                  ></v-icon>
+                  >
+                    <WebIcon />
+                  </v-icon>
                 </v-row>
               </template>
             </v-img>
@@ -50,11 +51,12 @@
             <!-- Overlay with external link icon -->
             <div class="project-overlay">
               <v-icon 
-                icon="mdi-open-in-new" 
                 color="white" 
                 size="large"
                 class="external-link-icon"
-              ></v-icon>
+              >
+                <OpenInNewIcon />
+              </v-icon>
             </div>
           </div>
 
@@ -78,10 +80,14 @@
               color="primary"
               variant="tonal"
               size="small"
-              prepend-icon="mdi-arrow-top-right"
               block
               @click.stop
             >
+              <template v-slot:prepend>
+                <v-icon>
+                  <ArrowTopRightIcon />
+                </v-icon>
+              </template>
               Visit Site
             </v-btn>
           </v-card-actions>
@@ -92,6 +98,10 @@
 </template>
 
 <script setup lang="ts">
+import WebIcon from '@iconify-vue/mdi/web';
+import OpenInNewIcon from '@iconify-vue/mdi/open-in-new';
+import ArrowTopRightIcon from '@iconify-vue/mdi/arrow-top-right';
+
 interface SimilarProject {
   name: string;
   description: string;

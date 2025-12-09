@@ -8,16 +8,22 @@
   >
     <v-card class="h-100 d-flex flex-column">
       <v-card-title class="text-center py-4 font-weight-bold bg-warning d-flex align-center justify-center">
-        <v-icon icon="mdi-alert-circle" size="large" class="mr-2"></v-icon>
+        <v-icon size="large" class="mr-2">
+          <AlertCircleIcon />
+        </v-icon>
         <h3 class="headline">Are you sure it's an ALPR?</h3>
         <v-spacer v-if="$vuetify.display.mobile"></v-spacer>
         <v-btn
+          icon
           v-if="$vuetify.display.mobile"
-          icon="mdi-close"
           variant="text"
           color="on-warning"
           @click="dismiss"
-        ></v-btn>
+        >
+          <v-icon>
+            <CloseIcon />
+          </v-icon>
+        </v-btn>
       </v-card-title>
       
       <v-card-text class="pa-6 flex-grow-1 d-flex flex-column justify-center">
@@ -43,10 +49,14 @@
               variant="elevated"
               size="large"
               to="/identify"
-              prepend-icon="mdi-image-search"
               class="mb-3"
               @click="dismiss"
             >
+              <template #prepend>
+                <v-icon>
+                  <ImageSearchIcon />
+                </v-icon>
+              </template>
               View ALPR Gallery
             </v-btn>
           </div>
@@ -70,6 +80,10 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+
+import AlertCircleIcon from '@iconify-vue/mdi/alert-circle';
+import CloseIcon from '@iconify-vue/mdi/close';
+import ImageSearchIcon from '@iconify-vue/mdi/image-search';
 
 const show = ref(false);
 

@@ -8,13 +8,16 @@
         <p class="caption">... just like the license plate this guy is searching for.</p>
       </div>
 
-      <v-btn color="primary" to="/"><v-icon start>mdi-home</v-icon>Home</v-btn>
+      <v-btn color="primary" to="/"><v-icon start>
+        <HomeIcon />
+      </v-icon>Home</v-btn>
     </div>
   </DefaultLayout>
 </template>
 
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
+import HomeIcon from '@iconify-vue/mdi/home';
 </script>
 
 <style scoped>

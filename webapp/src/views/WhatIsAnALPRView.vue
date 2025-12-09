@@ -39,12 +39,12 @@
     <v-divider class="my-12" />
 
     <h2 class="mb-8">
-      <v-icon class="mr-2" color="primary">mdi-camera-outline</v-icon>
+      <v-icon class="mr-2" color="primary"><CameraOutlineIcon /></v-icon>
       What do they look like?
     </h2>
     <div class="mb-16 text-center">
       <v-btn size="large" color="primary" to="/identify">
-        <v-icon left class="mr-2">mdi-image-search</v-icon>
+        <v-icon left class="mr-2"><ImageSearchIcon /></v-icon>
         View ALPR Images
       </v-btn>
     </div>
@@ -76,6 +76,9 @@ import Hero from '@/components/layout/Hero.vue';
 import Dangers from '@/components/Dangers.vue';
 import FAQ from '@/components/FAQ.vue';
 import SimilarProjects from '@/components/SimilarProjects.vue';
+
+import CameraOutlineIcon from '@iconify-vue/mdi/camera-outline';
+import ImageSearchIcon from '@iconify-vue/mdi/image-search';
 </script>
 
 <style scoped>

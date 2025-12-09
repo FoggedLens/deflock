@@ -42,22 +42,28 @@
                 v-model="selectedType"
                 :items="typeOptions"
                 label="Filter by type"
-                prepend-inner-icon="mdi-filter"
                 variant="outlined"
                 clearable
                 hide-details
                 class="filter-select"
               >
+                <template v-slot:prepend-inner>
+                  <v-icon><FilterIcon /></v-icon>
+                </template>
                 <template v-slot:item="{ props, item }">
                   <v-list-item v-bind="props">
                     <template v-slot:prepend>
-                      <v-icon :color="getTypeColor(item.raw.value)">{{ getTypeIcon(item.raw.value) }}</v-icon>
+                      <v-icon :color="getTypeColor(item.raw.value)">
+                        <component :is="getTypeIcon(item.raw.value)" />
+                      </v-icon>
                     </template>
                   </v-list-item>
                 </template>
                 <template v-slot:selection="{ item }">
                   <div class="d-flex align-center">
-                    <v-icon :color="getTypeColor(item.raw.value)" class="mr-2">{{ getTypeIcon(item.raw.value) }}</v-icon>
+                    <v-icon :color="getTypeColor(item.raw.value)" class="mr-2">
+                      <component :is="getTypeIcon(item.raw.value)" />
+                    </v-icon>
                     <span class="text-capitalize">{{ item.raw.title }}</span>
                   </div>
                 </template>
@@ -110,12 +116,16 @@
                   size="small"
                   class="text-capitalize mb-2 font-weight-bold"
                 >
-                  <v-icon start size="small">{{ getTypeIcon(printable.type) }}</v-icon>
+                  <template v-slot:prepend>
+                    <v-icon size="small" class="mr-2">
+                      <component :is="getTypeIcon(printable.type)" />
+                    </v-icon>
+                  </template>
                   {{ deCamel(printable.type) }}
                 </v-chip>
                 
                 <div class="d-flex align-center text-caption text-grey mb-3">
-                  <v-icon size="small" class="mr-1">mdi-account</v-icon>
+                  <v-icon size="small" class="mr-1"><AccountIcon /></v-icon>
                   by {{ printable.author }}
                   <v-tooltip text="Licensed under CC BY-NC 4.0">
                     <template v-slot:activator="{ props }">
@@ -125,12 +135,12 @@
                         class="ml-1"
                         color="grey"
                       >
-                        mdi-creative-commons
+                        <CreativeCommonsIcon />
                       </v-icon>
                     </template>
                   </v-tooltip>
                   <v-spacer />
-                  <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
+                  <v-icon size="small" class="mr-1"><ClockIcon /></v-icon>
                   {{ formatDate(printable.date_updated) }}
                 </div>
 
@@ -145,9 +155,11 @@
                       variant="tonal"
                       color="primary"
                       size="small"
-                      prepend-icon="mdi-download"
                       class="flex-1-1-50"
                     >
+                      <template v-slot:prepend>
+                        <v-icon><DownloadIcon /></v-icon>
+                      </template>
                       <span v-if="printable.back">Front Side</span>
                       <span v-else>Download</span>
                     </v-btn>
@@ -160,9 +172,11 @@
                       variant="tonal"
                       color="secondary"
                       size="small"
-                      prepend-icon="mdi-download"
                       class="flex-1-1-50"
                     >
+                      <template v-slot:prepend>
+                        <v-icon><DownloadIcon /></v-icon>
+                      </template>
                       Back Side
                     </v-btn>
                   </div>
@@ -175,7 +189,7 @@
 
       <!-- Empty State -->
       <div v-else class="text-center py-12">
-        <v-icon size="64" color="grey-lighten-1">mdi-inbox-outline</v-icon>
+        <v-icon size="64" color="grey-lighten-1"><InboxIcon /></v-icon>
         <h3 class="text-h5 mt-4 mb-2 text-grey">No printables available</h3>
         <p class="text-grey">Check back later for new content!</p>
       </div>
@@ -190,9 +204,11 @@
           color="primary"
           variant="outlined"
           size="large"
-          prepend-icon="mdi-upload"
           class="text-none"
         >
+          <template v-slot:prepend>
+            <v-icon><UploadIcon /></v-icon>
+          </template>
           Submit Your Artwork
         </v-btn>
         <p class="text-caption text-grey mt-2">
@@ -208,6 +224,21 @@ import { ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
+
+// Icon imports
+import FilterIcon from '@iconify-vue/mdi/filter';
+import AccountIcon from '@iconify-vue/mdi/account';
+import CreativeCommonsIcon from '@iconify-vue/mdi/creative-commons';
+import ClockIcon from '@iconify-vue/mdi/clock-outline';
+import DownloadIcon from '@iconify-vue/mdi/download';
+import InboxIcon from '@iconify-vue/mdi/inbox-outline';
+import UploadIcon from '@iconify-vue/mdi/upload';
+import PostIcon from '@iconify-vue/mdi/post';
+import BookIcon from '@iconify-vue/mdi/book-open-page-variant';
+import SignIcon from '@iconify-vue/mdi/sign-real-estate';
+import StickerIcon from '@iconify-vue/mdi/sticker-circle-outline';
+import RectangleIcon from '@iconify-vue/mdi/rectangle-outline';
+import FileIcon from '@iconify-vue/mdi/file';
 
 // Types
 interface Printable {
@@ -289,15 +320,15 @@ const getTypeColor = (type: string): string => {
   return colors[type] || 'grey';
 };
 
-const getTypeIcon = (type: string): string => {
-  const icons: Record<string, string> = {
-    poster: 'mdi-post',
-    zine: 'mdi-book-open-page-variant',
-    yardSign: 'mdi-sign-real-estate',
-    sticker: 'mdi-sticker-circle-outline',
-    bumperSticker: 'mdi-rectangle-outline',
+const getTypeIcon = (type: string) => {
+  const icons: Record<string, any> = {
+    poster: PostIcon,
+    zine: BookIcon,
+    yardSign: SignIcon,
+    sticker: StickerIcon,
+    bumperSticker: RectangleIcon,
   };
-  return icons[type] || 'mdi-file';
+  return icons[type] || FileIcon;
 };
 
 const formatDate = (dateString: string): string => {
