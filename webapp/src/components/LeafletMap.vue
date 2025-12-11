@@ -141,7 +141,7 @@ let currentLocationLayer: FeatureGroup;
 let routeLayer: FeatureGroup;
 
 // Marker Creation Utilities
-function createSVGMarkers(alpr: ALPR): string {
+function createSVGMarkers(alpr: ALPR, marker_color: string = MARKER_COLOR): string {
   const orientationValues = (alpr.tags['camera:direction'] || alpr.tags.direction || '')
     .split(';')
     .map(val => parseDirectionValue(val.trim()));
@@ -159,8 +159,8 @@ function createSVGMarkers(alpr: ALPR): string {
   return `<svg class="svgMarker" width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
       ${allDirectionsPath}
         <g transform="matrix(0.906623,0,0,0.906623,23.9045,22.3271)">
-          <circle class="someSVGpath" cx="256" cy="256" r="57.821" style="fill:${MARKER_COLOR};fill-opacity:0.41;"/>
-          <path class="someSVGpath" d="M256,174.25C301.119,174.25 337.75,210.881 337.75,256C337.75,301.119 301.119,337.75 256,337.75C210.881,337.75 174.25,301.119 174.25,256C174.25,210.881 210.881,174.25 256,174.25ZM256,198.179C224.088,198.179 198.179,224.088 198.179,256C198.179,287.912 224.088,313.821 256,313.821C287.912,313.821 313.821,287.912 313.821,256C313.821,224.088 287.912,198.179 256,198.179Z" style="fill:${MARKER_COLOR};"/>
+          <circle class="someSVGpath" cx="256" cy="256" r="57.821" style="fill:${marker_color};fill-opacity:0.41;stroke:${marker_color}"/>
+          <path class="someSVGpath" d="M256,174.25C301.119,174.25 337.75,210.881 337.75,256C337.75,301.119 301.119,337.75 256,337.75C210.881,337.75 174.25,301.119 174.25,256C174.25,210.881 210.881,174.25 256,174.25ZM256,198.179C224.088,198.179 198.179,224.088 198.179,256C198.179,287.912 224.088,313.821 256,313.821C287.912,313.821 313.821,287.912 313.821,256C313.821,224.088 287.912,198.179 256,198.179Z" style="fill:${marker_color};"/>
         </g>
     </svg>
     `;
@@ -240,11 +240,11 @@ function cardinalToDegrees(cardinal: string): number {
   return CARDINAL_DIRECTIONS[upperCardinal] ?? parseFloat(cardinal) ?? 0;
 }
 
-function createMarker(alpr: ALPR): Marker | CircleMarker {
+function createMarker(alpr: ALPR, marker_color: string = MARKER_COLOR): Marker | CircleMarker {
   if (hasPlottableOrientation(alpr.tags.direction || alpr.tags['camera:direction'])) {
     const icon = L.divIcon({
       className: 'leaflet-data-marker',
-      html: createSVGMarkers(alpr),
+      html: createSVGMarkers(alpr, marker_color),
       iconSize: [60, 60],
       iconAnchor: [30, 30],
       popupAnchor: [0, 0],
@@ -254,10 +254,10 @@ function createMarker(alpr: ALPR): Marker | CircleMarker {
 
   return L.circleMarker([alpr.lat, alpr.lon], {
     fill: true,
-    fillColor: MARKER_COLOR,
+    fillColor: marker_color,
     fillOpacity: 0.6,
     stroke: true,
-    color: MARKER_COLOR,
+    color: marker_color,
     opacity: 1,
     radius: 8,
     weight: 3,
@@ -423,18 +423,25 @@ function updateCurrentLocation(): void {
   }
 }
 
+function getBearing(from: L.LatLng, to: L.LatLng): number {
+  const fromLat = from.lat * Math.PI / 180;
+  const fromLng = from.lng * Math.PI / 180;
+  const toLat = to.lat * Math.PI / 180;
+  const toLng = to.lng * Math.PI / 180;
+
+  const y = Math.sin(toLng - fromLng) * Math.cos(toLat);
+  const x = Math.cos(fromLat) * Math.sin(toLat) - Math.sin(fromLat) * Math.cos(toLat) * Math.cos(toLng - fromLng);
+  const bearing = Math.atan2(y, x) * 180 / Math.PI;
+
+  return (bearing + 360) % 360; // Normalize to 0-360
+}
+
 function updateRoute(newRoute: GeoJSON.LineString | null): void {
   routeLayer.clearLayers();
 
   if (newRoute) {
     // add the line
-    const geoJsonLayer = L.geoJSON(newRoute, {
-      style: {
-        weight: 4,
-        opacity: 1,
-      },
-      interactive: false,
-    });
+    const geoJsonLayer = L.geoJSON(newRoute);
     routeLayer.addLayer(geoJsonLayer);
 
     // add a marker at the ends of the route
@@ -444,13 +451,86 @@ function updateRoute(newRoute: GeoJSON.LineString | null): void {
     routeLayer.addLayer(startMarker);
     routeLayer.addLayer(endMarker);
 
+    var nearbyAlprRadius = 250
+    var watchingAlprRadius = 100
+    var watchingAlprHalfAngle = 45
+
+    // resample coordinates
+    for (var i = 1; i < coord_len; i++) {
+      var start = L.latLng(newRoute.coordinates[i - 1][1], newRoute.coordinates[i - 1][0]);
+      var end = L.latLng(newRoute.coordinates[i][1], newRoute.coordinates[i][0]);
+      var distance = start.distanceTo(end);
+      if (distance > watchingAlprRadius / 4) {
+        var numExtraPoints = Math.floor(distance / watchingAlprRadius);
+        for (var j = 1; j <= numExtraPoints; j++) {
+          var fraction = j / (numExtraPoints + 1);
+          var lat = start.lat + (end.lat - start.lat) * fraction;
+          var lon = start.lng + (end.lng - start.lng) * fraction;
+          newRoute.coordinates.splice(i, 0, [lon, lat]);
+          i++;
+        }
+      }
+    }
+
+    // coarse filter for ALPRs
+    var candidateAlprs = [];
+    var bounds = geoJsonLayer.getBounds();
+    bounds.pad(0.05);
+    console.log("getting candidates");
+    for (var alpr of props.alprs) {
+      if (bounds.contains(L.latLng(alpr.lat, alpr.lon))) {
+        candidateAlprs.push(alpr);
+      }
+    }
+
+    // nearby filter for ALPRs
+    var nearbyAlprs: ALPR[] = [];
+    for (var alpr of candidateAlprs) {
+      for (var coord of newRoute.coordinates) {
+        if (L.latLng(alpr.lat, alpr.lon).distanceTo(L.latLng(coord[1], coord[0])) < nearbyAlprRadius) {
+          nearbyAlprs.push(alpr);
+          break;
+        }
+      }
+    }
+
+    // watching route filter for ALPRs
+    var watchingAlprs: ALPR[] = [];
+    for (var alpr of nearbyAlprs) {
+      for (var coord of newRoute.coordinates) {
+        if (L.latLng(alpr.lat, alpr.lon).distanceTo(L.latLng(coord[1], coord[0])) < watchingAlprRadius) {
+          var addAlpr = false;
+          if (hasPlottableOrientation(alpr.tags.direction || alpr.tags['camera:direction'])) {
+            const orientationValues = (alpr.tags['camera:direction'] || alpr.tags.direction || '')
+              .split(';')
+              .map(val => parseDirectionValue(val.trim()));
+            const bearingToRoute = getBearing(L.latLng(alpr.lat, alpr.lon), L.latLng(coord[1], coord[0]));
+            for (var orientation of orientationValues) {
+              var angleDiff = Math.abs(orientation - bearingToRoute);
+              angleDiff = angleDiff > 180 ? 360 - angleDiff : angleDiff;
+              if (angleDiff < watchingAlprHalfAngle) {
+                addAlpr = true;
+                break;
+              }
+            }
+          }
+          else {
+            addAlpr = true;
+          }
+          if (addAlpr) {
+            watchingAlprs.push(alpr);
+            routeLayer.addLayer(createMarker(alpr, 'red'));  // TODO fix ordering/grouping interaction
+            break;
+          }
+        }
+      }
+    }
+
     // add statistics popup
     var popup = L.popup()
       .setLatLng([newRoute.coordinates[~~(coord_len / 2)][1], newRoute.coordinates[~~(coord_len / 2)][0]])
-      .setContent("It's the route.")
+      .setContent(`<center><strong>${watchingAlprs.length} ALPRs </strong> are watching this route.<br><strong>${nearbyAlprs.length} ALPRs </strong> are within a block.</center>`);
     routeLayer.addLayer(popup);
-
-
     map.addLayer(routeLayer);
   }
 }

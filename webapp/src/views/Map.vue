@@ -364,6 +364,7 @@ onMounted(() => {
   width: calc(100vw - 22px) !important;
 }
 
+/* TODO fix toggle dark mode */
 @media (min-width: 600px) {
   .search-toggle {
     max-width: 320px !important;
