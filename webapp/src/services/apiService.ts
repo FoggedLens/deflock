@@ -128,3 +128,9 @@ export const geocodeQuery = async (query: string, currentLocation: any) => {
   console.debug("defaultPattern");
   return findNearestResult(results, currentLocation);
 }
+
+export const routeQuery = async (start: {lat: number, lng: number}, end: {lat: number, lng: number}) => {
+  const osrmUrl = `http://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?geometries=geojson&overview=full`;
+  const response = await apiService.get(osrmUrl);
+  return response.data;
+}

@@ -18,18 +18,12 @@
                 <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
                 <span class="text-caption mr-2">Grouping</span>
               </span>
-              <v-switch
-                v-model="clusteringEnabled"
-                :disabled="currentZoom < 12"
-                hide-details
-                density="compact"
-                color="primary"
-                class="mx-1"
-              />
+              <v-switch v-model="clusteringEnabled" :disabled="currentZoom < 12" hide-details density="compact"
+                color="primary" class="mx-1" />
             </div>
           </v-card-text>
         </v-card>
-        
+
         <!-- City Boundaries Toggle Switch -->
         <v-card v-if="geojson" variant="elevated">
           <v-card-text class="py-0">
@@ -38,13 +32,7 @@
                 <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
                 <span class="text-caption mr-2">City Boundaries</span>
               </span>
-              <v-switch
-                v-model="cityBoundariesVisible"
-                hide-details
-                density="compact"
-                color="primary"
-                class="mx-1"
-              />
+              <v-switch v-model="cityBoundariesVisible" hide-details density="compact" color="primary" class="mx-1" />
             </div>
           </v-card-text>
         </v-card>
@@ -54,25 +42,15 @@
     <div class="bottomright">
       <slot name="bottomright"></slot>
     </div>
-    
+
     <!-- Status Bar for Zoom Warning -->
     <v-slide-y-transition>
-      <div 
-        v-if="showAutoDisabledStatus" 
-        class="clustering-status-bar"
-      >
+      <div v-if="showAutoDisabledStatus" class="clustering-status-bar">
         <v-icon size="small" class="mr-2">mdi-information</v-icon>
         <span class="text-caption">
           Camera grouping is on for performance at this zoom level.
         </span>
-        <v-btn 
-          size="x-small" 
-          icon
-          variant="text" 
-          color="white"
-          class="ml-2"
-          @click="dismissZoomWarning"
-        >
+        <v-btn size="x-small" icon variant="text" color="white" class="ml-2" @click="dismissZoomWarning">
           <v-icon size="small">mdi-close</v-icon>
         </v-btn>
       </div>
@@ -140,11 +118,15 @@ const props = defineProps({
     default: () => [],
   },
   geojson: {
-    type : Object as PropType<GeoJSON.GeoJsonObject | null>,
+    type: Object as PropType<GeoJSON.GeoJsonObject | null>,
     default: null,
   },
   currentLocation: {
     type: Object as PropType<[number, number] | null>,
+    default: null,
+  },
+  route: {
+    type: Object as PropType<GeoJSON.GeoJsonObject | null>,
     default: null,
   },
 });
@@ -156,6 +138,7 @@ let map: L.Map;
 let circlesLayer: FeatureGroup;
 let clusterLayer: MarkerClusterGroup;
 let currentLocationLayer: FeatureGroup;
+let routeLayer: FeatureGroup;
 
 // Marker Creation Utilities
 function createSVGMarkers(alpr: ALPR): string {
@@ -185,7 +168,7 @@ function createSVGMarkers(alpr: ALPR): string {
 
 function parseDirectionValue(value: string): number {
   if (!value) return 0;
-  
+
   // Check if it's a range (contains '-' but not at the start)
   if (value.includes('-') && value.indexOf('-') > 0) {
     const parts = value.split('-');
@@ -195,7 +178,7 @@ function parseDirectionValue(value: string): number {
       return calculateMidpointAngle(start, end);
     }
   }
-  
+
   // Single value
   return parseDirectionSingle(value);
 }
@@ -205,7 +188,7 @@ function parseDirectionSingle(value: string): number {
   if (/^\d+(\.\d+)?$/.test(value)) {
     return parseFloat(value);
   }
-  
+
   // Try cardinal direction
   return cardinalToDegrees(value);
 }
@@ -214,21 +197,21 @@ function calculateMidpointAngle(start: number, end: number): number {
   // Normalize angles to 0-360 range
   start = ((start % 360) + 360) % 360;
   end = ((end % 360) + 360) % 360;
-  
+
   // Calculate the difference and handle wrap-around
   let diff = end - start;
   if (diff < 0) {
     diff += 360;
   }
-  
+
   // If the difference is greater than 180, go the other way around
   if (diff > 180) {
     diff = diff - 360;
   }
-  
+
   // Calculate midpoint
   let midpoint = start + diff / 2;
-  
+
   // Normalize result to 0-360 range
   return ((midpoint % 360) + 360) % 360;
 }
@@ -314,23 +297,23 @@ function bindPopup(marker: L.CircleMarker | L.Marker, alpr: ALPR): L.CircleMarke
 
 function hasPlottableOrientation(orientationDegrees: string) {
   if (!orientationDegrees) return false;
-  
+
   // Split by semicolon to handle multiple values (e.g. '0;90')
   const values = orientationDegrees.split(';');
-  
+
   return values.some(value => {
     const trimmed = value.trim();
-    
+
     // Check if it's a range (contains '-' but not at the start)
     if (trimmed.includes('-') && trimmed.indexOf('-') > 0) {
       return true; // Ranges are plottable
     }
-    
+
     // Check if it's a numeric value
     if (/^\d+(\.\d+)?$/.test(trimmed)) {
       return true;
     }
-    
+
     // Check if it's a valid cardinal direction
     return CARDINAL_DIRECTIONS.hasOwnProperty(trimmed.toUpperCase());
   });
@@ -359,6 +342,7 @@ function initializeMap() {
 
   circlesLayer = L.featureGroup();
   currentLocationLayer = L.featureGroup();
+  routeLayer = L.featureGroup();
 
   // Initialize current zoom
   currentZoom.value = props.zoom;
@@ -439,16 +423,34 @@ function updateCurrentLocation(): void {
   }
 }
 
+function updateRoute(newRoute: GeoJSON.GeoJsonObject | null): void {
+  routeLayer.clearLayers();
+
+  if (newRoute) {
+    const geoJsonLayer = L.geoJSON(newRoute, {
+      style: {
+        weight: 4,
+        opacity: 1,
+      },
+      interactive: false,
+    });
+    routeLayer.addLayer(geoJsonLayer);
+    console.log("newRoute", newRoute)
+    // L.marker([geoJsonLayer.geometry,coordinates[0].location[1], newRoute.coordinates[0].location[0]]).bindPopup('Route Start').addTo(routeLayer);
+    map.addLayer(routeLayer);
+  }
+}
+
 function updateClusteringBehavior(): void {
   if (!clusterLayer || !map) return;
   // Use shouldCluster computed value which handles both zoom and user preference
   const newDisableZoom = shouldCluster.value ? CLUSTER_DISABLE_ZOOM : 1;
-  
+
   // Remove the cluster layer, update its options, and re-add it
   if (map.hasLayer(clusterLayer)) {
     map.removeLayer(clusterLayer);
   }
-  
+
   // Create new cluster layer with updated settings
   const newClusterLayer = L.markerClusterGroup({
     chunkedLoading: true,
@@ -458,10 +460,10 @@ function updateClusteringBehavior(): void {
     spiderfyOnEveryZoom: false,
     spiderfyOnMaxZoom: false,
   });
-  
+
   // Transfer all markers to the new cluster layer
   newClusterLayer.addLayer(circlesLayer);
-  
+
   // Replace the old cluster layer
   clusterLayer = newClusterLayer;
   map.addLayer(clusterLayer);
@@ -479,7 +481,7 @@ onMounted(() => {
   watch(clusteringEnabled, () => {
     updateClusteringBehavior();
   });
-  
+
   // Watch for zoom-based clustering changes
   watch(shouldCluster, () => {
     updateClusteringBehavior();
@@ -524,6 +526,12 @@ onMounted(() => {
   watch(() => props.currentLocation, () => {
     updateCurrentLocation();
   });
+
+  watch(() => props.route, (newRoute) => {
+    // add custom geojson layer, properties
+    // console.log(newRoute)
+    updateRoute(newRoute)
+  });
 });
 
 onBeforeUnmount(() => {
@@ -538,13 +546,13 @@ function registerMapEvents() {
       emit('update:bounds', map.getBounds());
     }
   });
-  
+
   map.on('zoomend', () => {
     if (!isInternalUpdate.value) {
       const oldZoom = currentZoom.value;
       const newZoom = map.getZoom();
       currentZoom.value = newZoom;
-      
+
       // Reset zoom warning when user zooms in enough
       if (newZoom >= 12) {
         zoomWarningDismissed.value = false;
@@ -583,8 +591,10 @@ function registerMapEvents() {
 
 .bottomright {
   position: absolute;
-  bottom: 50px; /* hack */
-  right: 60px; /* hack */
+  bottom: 50px;
+  /* hack */
+  right: 60px;
+  /* hack */
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -626,12 +636,15 @@ function registerMapEvents() {
 }
 </style>
 
-<style> /* (Global) */
+<style>
+/* (Global) */
 /* Disables clicks on the main wrappers */
-.leaflet-marker-icon.leaflet-interactive:not(.marker-cluster), .svgMarker {
+.leaflet-marker-icon.leaflet-interactive:not(.marker-cluster),
+.svgMarker {
   pointer-events: none;
   cursor: default;
 }
+
 .svgMarker {
   pointer-events: none;
   cursor: default;
