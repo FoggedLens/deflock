@@ -186,7 +186,7 @@ function onRouteSearch() {
   geocodeQuery(routeStartInput.value, center.value)
     .then((result: any) => {
       if (!result) {
-        alert('No results found');
+        alert('No results found for start location');
         return;
       }
       const { lat: latStart, lon: lngStart } = result;
@@ -194,12 +194,10 @@ function onRouteSearch() {
       geocodeQuery(routeEndInput.value, center.value)
         .then((result: any) => {
           if (!result) {
-            alert('No results found');
+            alert('No results found for end location');
             return;
           }
           const { lat: latEnd, lon: lngEnd } = result;
-
-          console.log(latStart, lngStart, latEnd, lngEnd)
 
           routeQuery({ lat: latStart, lng: lngStart }, { lat: latEnd, lng: lngEnd })
             .then((routeData) => {
@@ -217,8 +215,6 @@ function onRouteSearch() {
 
           searchQuery.value = routeStartInput.value + '>' + routeEndInput.value; // Store the successful search query
           updateURL(); // TODO have route generate from URL
-          routeStartInput.value = ''; // Clear the input field
-          routeEndInput.value = '';
         });
     });
 }
@@ -260,7 +256,7 @@ function updateURL() {
   // URL encode searchQuery.value
   const encodedSearchValue = searchQuery.value ? encodeURIComponent(searchQuery.value) : null;
 
-  const baseHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
+  const baseHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}/route=${isRouteMode.value}`;
   const maybeSuffix = encodedSearchValue ? `/${encodedSearchValue}` : '';
   const newHash = baseHash + maybeSuffix;
 

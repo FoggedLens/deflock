@@ -423,10 +423,11 @@ function updateCurrentLocation(): void {
   }
 }
 
-function updateRoute(newRoute: GeoJSON.GeoJsonObject | null): void {
+function updateRoute(newRoute: GeoJSON.LineString | null): void {
   routeLayer.clearLayers();
 
   if (newRoute) {
+    // add the line
     const geoJsonLayer = L.geoJSON(newRoute, {
       style: {
         weight: 4,
@@ -435,8 +436,21 @@ function updateRoute(newRoute: GeoJSON.GeoJsonObject | null): void {
       interactive: false,
     });
     routeLayer.addLayer(geoJsonLayer);
-    console.log("newRoute", newRoute)
-    // L.marker([geoJsonLayer.geometry,coordinates[0].location[1], newRoute.coordinates[0].location[0]]).bindPopup('Route Start').addTo(routeLayer);
+
+    // add a marker at the ends of the route
+    const coord_len = newRoute.coordinates.length
+    var startMarker = L.marker([newRoute.coordinates[0][1], newRoute.coordinates[0][0]]);
+    var endMarker = L.marker([newRoute.coordinates[coord_len - 1][1], newRoute.coordinates[coord_len - 1][0]]);
+    routeLayer.addLayer(startMarker);
+    routeLayer.addLayer(endMarker);
+
+    // add statistics popup
+    var popup = L.popup()
+      .setLatLng([newRoute.coordinates[~~(coord_len / 2)][1], newRoute.coordinates[~~(coord_len / 2)][0]])
+      .setContent("It's the route.")
+    routeLayer.addLayer(popup);
+
+
     map.addLayer(routeLayer);
   }
 }
