@@ -160,6 +160,22 @@ const router = createRouter({
       }
     },
     {
+      path: '/blog',
+      name: 'blog',
+      component: () => import('../views/Blog.vue'),
+      meta: {
+        title: 'Blog | DeFlock'
+      }
+    },
+    {
+      path: '/blog/:id',
+      name: 'blog-post',
+      component: () => import('../views/BlogPost.vue'),
+      meta: {
+        title: 'Blog Post | DeFlock'
+      }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('../views/404.vue'),

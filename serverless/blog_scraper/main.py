@@ -81,15 +81,33 @@ class BlogScraper:
         
         try:
             url = f"{self.directus_base_url}/items/blog"
+            
+            # Log the request details for debugging
+            logger.info(f"POST URL: {url}")
+            logger.info(f"Request headers: {json.dumps({k: v for k, v in self.headers.items() if 'authorization' not in k.lower()}, indent=2)}")
+            logger.info(f"Request body: {json.dumps(post_data, indent=2)}")
+            
             response = requests.post(url, headers=self.headers, json=post_data)
+            
+            # Log response details before raising for status
+            logger.info(f"Response status: {response.status_code}")
+            logger.info(f"Response headers: {dict(response.headers)}")
+            
+            if response.status_code >= 400:
+                logger.error(f"HTTP {response.status_code} error response body: {response.text}")
+            
             response.raise_for_status()
             
             created_post = response.json()
             logger.info(f"Successfully created blog post with ID: {created_post['data']['id']}")
             return created_post["data"]
             
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"HTTP error creating blog post '{post_data['title']}': {e}")
+            logger.error(f"Response content: {response.text if 'response' in locals() else 'No response available'}")
+            raise
         except Exception as e:
-            logger.error(f"Error creating blog post: {e}")
+            logger.error(f"Error creating blog post '{post_data['title']}': {e}")
             raise
     
     def update_blog_post(self, post_id: int, post_data: Dict) -> Optional[Dict]:
@@ -98,13 +116,29 @@ class BlogScraper:
         
         try:
             url = f"{self.directus_base_url}/items/blog/{post_id}"
+            
+            # Log the request details for debugging
+            logger.info(f"PATCH URL: {url}")
+            logger.info(f"Request body: {json.dumps(post_data, indent=2)}")
+            
             response = requests.patch(url, headers=self.headers, json=post_data)
+            
+            # Log response details before raising for status
+            logger.info(f"Response status: {response.status_code}")
+            
+            if response.status_code >= 400:
+                logger.error(f"HTTP {response.status_code} error response body: {response.text}")
+            
             response.raise_for_status()
             
             updated_post = response.json()
             logger.info(f"Successfully updated blog post ID: {post_id}")
             return updated_post["data"]
             
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"HTTP error updating blog post ID {post_id}: {e}")
+            logger.error(f"Response content: {response.text if 'response' in locals() else 'No response available'}")
+            raise
         except Exception as e:
             logger.error(f"Error updating blog post ID {post_id}: {e}")
             raise
@@ -155,9 +189,8 @@ class BlogScraper:
             "content": None,  # RSS posts don't have content, just external links
         }
         
-        # Add publication date if available
         if pub_date:
-            post_data["date_created"] = pub_date
+            post_data["published"] = pub_date
         
         # Log the data being created for debugging
         logger.debug(f"Parsed post data: {json.dumps(post_data, indent=2)}")
