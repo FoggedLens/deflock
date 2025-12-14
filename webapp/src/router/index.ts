@@ -164,7 +164,7 @@ const router = createRouter({
       name: 'blog',
       component: () => import('../views/Blog.vue'),
       meta: {
-        title: 'Blog | DeFlock'
+        title: 'News | DeFlock'
       }
     },
     {

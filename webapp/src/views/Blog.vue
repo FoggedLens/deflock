@@ -2,8 +2,8 @@
 <DefaultLayout>
   <template #header>
     <Hero
-      title="Blog"
-      description="The latest news on LPRs and surveillance from external contributors."
+      title="DeFlock News"
+      description="The latest news on LPRs and surveillance."
       gradient="linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%)"
     />
   </template>
@@ -92,18 +92,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import Hero from '@/components/layout/Hero.vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import { blogService, type BlogPost } from '@/services/blogService';
+
+// Router
+const route = useRoute();
+const router = useRouter();
 
 // Reactive state
 const blogPosts = ref<BlogPost[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
-const currentPage = ref(1);
 const totalCount = ref(0);
 const postsPerPage = 5; // Fewer posts per page for larger cards
+
+// Current page from route query parameter
+const currentPage = computed({
+  get: () => {
+    const page = parseInt(route.query.page as string) || 1;
+    return page > 0 ? page : 1;
+  },
+  set: (page: number) => {
+    router.push({
+      path: route.path,
+      query: { ...route.query, page: page > 1 ? page.toString() : undefined }
+    });
+  }
+});
 
 // Computed properties
 const totalPages = computed(() => Math.ceil(totalCount.value / postsPerPage));
@@ -151,14 +169,19 @@ const fetchBlogPosts = async (page = 1) => {
 
 const onPageChange = (page: number) => {
   currentPage.value = page;
-  fetchBlogPosts(page);
   // Scroll to top of the page
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+// Watch route query changes to fetch posts when page parameter changes
+watch(() => route.query.page, (newPage) => {
+  const page = parseInt(newPage as string) || 1;
+  fetchBlogPosts(page);
+}, { immediate: false });
+
 // Lifecycle
 onMounted(() => {
-  fetchBlogPosts();
+  fetchBlogPosts(currentPage.value);
 });
 </script>
 

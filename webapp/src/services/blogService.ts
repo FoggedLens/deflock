@@ -59,10 +59,6 @@ export const blogService = {
     // Request metadata for pagination
     queryParams.append("meta", "total_count,filter_count");
     
-    // Add timestamp to prevent caching
-    // TODO: remove after development
-    queryParams.append("t", Date.now().toString());
-    
     try {
       const response = await blogApiService.get(`/items/blog?${queryParams.toString()}`);
       return response.data;

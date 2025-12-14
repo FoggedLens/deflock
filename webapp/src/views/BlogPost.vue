@@ -21,7 +21,7 @@
         variant="outlined"
         prepend-icon="mdi-arrow-left"
       >
-        Back to Blog
+        Back to News
       </v-btn>
     </v-container>
 
@@ -37,7 +37,7 @@
             prepend-icon="mdi-arrow-left"
             class="mb-4"
           >
-            Back to Blog
+            Back to News
           </v-btn>
           
           <h1 class="text-h3 text-md-h2 font-weight-bold mb-4">
@@ -51,7 +51,7 @@
               color="primary"
               prepend-icon="mdi-calendar"
             >
-              {{ formatDate(blogPost.date_created) }}
+              {{ formatDate(blogPost.published) }}
             </v-chip>
             
             <v-chip 
@@ -126,7 +126,7 @@
         variant="outlined"
         prepend-icon="mdi-arrow-left"
       >
-        Back to Blog
+        Back to News
       </v-btn>
     </v-container>
   </DefaultLayout>
