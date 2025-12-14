@@ -176,8 +176,8 @@ watch(() => theme.global.name.value, (newTheme) => {
 
         <v-spacer class="d-md-none" />
 
-        <v-btn icon>
-          <v-icon @click="toggleTheme" aria-label="Toggle Theme">mdi-theme-light-dark</v-icon>
+        <v-btn icon @click="toggleTheme" aria-label="Toggle Theme">
+          <v-icon>mdi-theme-light-dark</v-icon>
         </v-btn>
       </v-app-bar>
 
