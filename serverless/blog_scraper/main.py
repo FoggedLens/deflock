@@ -25,7 +25,8 @@ class BlogScraper:
         
         self.headers = {
             "Authorization": f"Bearer {self.directus_token}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "User-Agent": "deflock-blog-scraper/1.0"
         }
     
     def fetch_rss_feed(self) -> feedparser.FeedParserDict:
@@ -82,16 +83,7 @@ class BlogScraper:
         try:
             url = f"{self.directus_base_url}/items/blog"
             
-            # Log the request details for debugging
-            logger.info(f"POST URL: {url}")
-            logger.info(f"Request headers: {json.dumps({k: v for k, v in self.headers.items() if 'authorization' not in k.lower()}, indent=2)}")
-            logger.info(f"Request body: {json.dumps(post_data, indent=2)}")
-            
             response = requests.post(url, headers=self.headers, json=post_data)
-            
-            # Log response details before raising for status
-            logger.info(f"Response status: {response.status_code}")
-            logger.info(f"Response headers: {dict(response.headers)}")
             
             if response.status_code >= 400:
                 logger.error(f"HTTP {response.status_code} error response body: {response.text}")
@@ -117,14 +109,7 @@ class BlogScraper:
         try:
             url = f"{self.directus_base_url}/items/blog/{post_id}"
             
-            # Log the request details for debugging
-            logger.info(f"PATCH URL: {url}")
-            logger.info(f"Request body: {json.dumps(post_data, indent=2)}")
-            
             response = requests.patch(url, headers=self.headers, json=post_data)
-            
-            # Log response details before raising for status
-            logger.info(f"Response status: {response.status_code}")
             
             if response.status_code >= 400:
                 logger.error(f"HTTP {response.status_code} error response body: {response.text}")
@@ -191,9 +176,6 @@ class BlogScraper:
         
         if pub_date:
             post_data["published"] = pub_date
-        
-        # Log the data being created for debugging
-        logger.debug(f"Parsed post data: {json.dumps(post_data, indent=2)}")
         
         return post_data
     

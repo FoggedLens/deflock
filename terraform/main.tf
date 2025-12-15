@@ -18,6 +18,15 @@ module "alpr_cache" {
   sns_topic_arn        = aws_sns_topic.lambda_alarms.arn
 }
 
+module "blog_scraper" {
+  module_name         = "blog_scraper"
+  source              = "./modules/blog_scraper"
+  rate                = "rate(30 minutes)"
+  sns_topic_arn       = aws_sns_topic.lambda_alarms.arn
+  directus_base_url   = var.directus_base_url
+  directus_api_token  = var.directus_api_token
+}
+
 resource "aws_sns_topic" "lambda_alarms" {
   name = "lambda_alarms_topic"
 }
