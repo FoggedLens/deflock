@@ -3,7 +3,7 @@
   <template #header>
     <Hero
       title="DeFlock News"
-      description="The latest news on LPRs and surveillance."
+      description="The latest news on LPRs and surveillance from us and our partners."
       gradient="linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%)"
     />
   </template>
@@ -26,36 +26,34 @@
 
     <!-- Blog Posts List -->
     <div v-else>
-      <div v-if="blogPosts.length > 0" class="blog-posts-container">
+      <div v-if="blogPosts.length > 0" class="mx-auto" style="max-width: 900px;">
         <article 
           v-for="post in blogPosts" 
           :key="post.id"
-          class="blog-post-item"
+          class="mb-8"
         >
           <v-card
-            class="blog-card"
+            class="rounded-xl transition-all cursor-pointer mx-4 mx-sm-0"
             :href="post.externalUrl || `/blog/${post.id}`"
             :target="post.externalUrl ? '_blank' : undefined"
             :to="post.externalUrl ? undefined : `/blog/${post.id}`"
-            hover
-            elevation="0"
-            variant="flat"
+            flat
           >
             <v-card-text class="pa-8">
               <div class="mb-3">
-                <h2 class="blog-title">{{ post.title }}</h2>
+                <h2 class="font-weight-medium mb-0">{{ post.title }}</h2>
               </div>
               
-              <p class="blog-date mb-4">
+              <p class="text-caption text-uppercase font-weight-medium text-medium-emphasis mb-4">
                 {{ formatDate(post.published) }}
               </p>
               
-              <p class="blog-description mb-6">
+              <p class="text-body-1 mb-6" style="line-height: 1.6;">
                 {{ post.description }}
               </p>
 
               <div class="d-flex align-center justify-space-between">
-                <span class="read-more-text text-primary">
+                <span class="text-body-2 font-weight-medium text-primary">
                   {{ post.externalUrl ? `Read on ${getExternalOrigin(post.externalUrl)}` : 'Read full article' }}
                 </span>
                 <v-icon 
@@ -79,9 +77,10 @@
       <!-- Pagination -->
       <div v-if="blogPosts.length > 0" class="d-flex justify-center mt-8">
         <v-pagination
+          class="pl-0"
           v-model="currentPage"
           :length="totalPages > 0 ? totalPages : 1"
-          :total-visible="7"
+          :total-visible="3"
           :disabled="totalPages <= 1"
           @update:model-value="onPageChange"
         ></v-pagination>
@@ -186,69 +185,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.blog-posts-container {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.blog-post-item {
-  margin-bottom: 2rem;
-}
-
-.blog-card {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 16px !important;
-  border: 1px solid rgb(var(--v-theme-outline-variant));
-  background: rgb(var(--v-theme-surface));
-  cursor: pointer;
-}
-
-.blog-title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  line-height: 1.3;
-  margin-bottom: 0;
-  color: rgb(var(--v-theme-on-surface));
-  letter-spacing: -0.025em;
-}
-
-.blog-description {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: rgb(var(--v-theme-on-surface));
-  font-weight: 400;
-}
-
-.blog-date {
-  font-size: 0.875rem;
-  color: rgb(var(--v-theme-on-surface));
-  opacity: 0.7;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.read-more-text {
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.25px;
-}
-
-@media (max-width: 768px) {
-  .blog-posts-container {
-    max-width: 100%;
-  }
-  
-  .blog-card {
-    margin: 0 1rem;
-  }
-  
-  .blog-title {
-    font-size: 1.5rem;
-  }
-  
-  .blog-description {
-    font-size: 1rem;
-  }
+/* Fix for pagination padding issue */
+:deep(.v-pagination__list) {
+  padding-left: 0 !important;
 }
 </style>

@@ -7,22 +7,16 @@
 
     <!-- Error State -->
     <v-container v-else-if="error" class="py-8">
-      <v-alert type="error" class="mb-6">
-        {{ error }}
-        <template #append>
-          <v-btn variant="outlined" size="small" @click="fetchBlogPost">
-            Retry
-          </v-btn>
-        </template>
-      </v-alert>
-      
       <v-btn
         :to="{ name: 'blog' }"
-        variant="outlined"
+        variant="text"
         prepend-icon="mdi-arrow-left"
       >
         Back to News
       </v-btn>
+      <v-alert type="error" class="mt-6" variant="tonal">
+        {{ error }}
+      </v-alert>
     </v-container>
 
     <!-- Blog Post Content -->
@@ -32,7 +26,7 @@
         <div class="mb-6">
           <v-btn
             :to="{ name: 'blog' }"
-            variant="outlined"
+            variant="text"
             size="small"
             prepend-icon="mdi-arrow-left"
             class="mb-4"
@@ -40,61 +34,34 @@
             Back to News
           </v-btn>
           
-          <h1 class="text-h3 text-md-h2 font-weight-bold mb-4">
+          <h1 class="text-h3 text-md-h2 font-weight-bold mb-4 mt-0">
             {{ blogPost.title }}
           </h1>
           
-          <div class="d-flex flex-wrap align-center gap-4 mb-6">
-            <v-chip 
-              size="small" 
-              variant="outlined" 
-              color="primary"
-              prepend-icon="mdi-calendar"
-            >
-              {{ formatDate(blogPost.published) }}
-            </v-chip>
-            
-            <v-chip 
-              v-if="blogPost.externalUrl"
-              size="small" 
-              variant="outlined" 
-              color="secondary"
-              prepend-icon="mdi-link-variant"
-            >
-              External Article
-            </v-chip>
-          </div>
-
-          <p v-if="blogPost.description" class="text-h6 text-grey-darken-1 mb-6">
-            {{ blogPost.description }}
-          </p>
+          <v-card flat class="mb-6" color="transparent">
+            <div class="d-flex flex-column flex-sm-row">
+              <v-chip
+                prepend-icon="mdi-account"
+                color="grey-darken-1"
+                variant="text"
+                size="default"
+              >
+                by Will Freeman
+              </v-chip>
+              <v-chip
+                prepend-icon="mdi-calendar"
+                color="grey-darken-1"
+                variant="text"
+                size="default"
+              >
+                {{ formatDate(blogPost.published) }}
+              </v-chip>
+            </div>
+          </v-card>
         </div>
 
-        <!-- External URL Notice -->
-        <v-alert 
-          v-if="blogPost.externalUrl" 
-          type="info" 
-          variant="outlined" 
-          class="mb-6"
-        >
-          <div class="d-flex align-center">
-            <div class="flex-grow-1">
-              <strong>External Article:</strong> This content is hosted on an external website.
-            </div>
-            <v-btn
-              :href="blogPost.externalUrl"
-              target="_blank"
-              variant="outlined"
-              size="small"
-              append-icon="mdi-open-in-new"
-            >
-              Read on External Site
-            </v-btn>
-          </div>
-        </v-alert>
-
         <!-- Blog Content -->
-        <v-card v-if="blogPost.content && !blogPost.externalUrl" elevation="0" class="bg-transparent">
+        <v-card v-if="blogPost.content"elevation="0" class="bg-transparent">
           <v-card-text class="pa-0">
             <div 
               class="blog-content"
@@ -102,33 +69,8 @@
             ></div>
           </v-card-text>
         </v-card>
-
-        <!-- No Content Message -->
-        <v-alert
-          v-else-if="!blogPost.externalUrl"
-          type="warning"
-          variant="outlined"
-        >
-          <strong>Content Unavailable:</strong> The full content for this blog post is not available.
-        </v-alert>
       </v-container>
     </div>
-
-    <!-- Not Found State -->
-    <v-container v-else class="py-8 text-center">
-      <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-file-document-remove-outline</v-icon>
-      <h2 class="text-h4 text-grey-darken-1 mb-2">Blog Post Not Found</h2>
-      <p class="text-body-1 text-grey-darken-2 mb-6">
-        The blog post you're looking for doesn't exist or has been removed.
-      </p>
-      <v-btn
-        :to="{ name: 'blog' }"
-        variant="outlined"
-        prepend-icon="mdi-arrow-left"
-      >
-        Back to News
-      </v-btn>
-    </v-container>
   </DefaultLayout>
 </template>
 
