@@ -72,5 +72,9 @@
     <loc>https://deflock.me/store</loc>
     <changefreq>daily</changefreq>
   </url>
+  <url>
+    <loc>https://deflock.me/blog</loc>
+    <changefreq>daily</changefreq>
+  </url>
 </urlset>
 
