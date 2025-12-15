@@ -33,20 +33,14 @@ Your Directus `blog` collection should have the following fields:
 - `description` (text)
 - `content` (rich text, optional - RSS posts will have this as null)
 - `externalUrl` (string, optional - identifies RSS-ingested posts)
-- `date_created` (datetime)
+- `published` (datetime)
 
 ### Dependencies
 
-Install dependencies using pip:
+Install dependencies using uv:
 
 ```bash
-pip install feedparser requests python-dateutil
-```
-
-Or use the pyproject.toml file:
-
-```bash
-pip install -e .
+uv init
 ```
 
 ## Usage
@@ -54,7 +48,7 @@ pip install -e .
 ### Local Testing
 
 ```bash
-python main.py
+uv run main.py
 ```
 
 ### AWS Lambda
@@ -116,7 +110,7 @@ Error:
 The scraper expects standard RSS 2.0 format with the following elements:
 - `<title>`: Post title
 - `<link>`: Post URL (becomes `externalUrl`)
-- `<pubDate>`: Publication date (becomes `date_created`)
+- `<pubDate>`: Publication date (becomes `published`)
 - `<description>` or `<content>`: Post description (HTML tags are stripped)
 
 ## Error Handling
@@ -147,14 +141,9 @@ The function uses Python's standard logging module with INFO level. Key events l
 
 ### AWS Lambda Deployment Package
 
-1. Create a deployment package:
-```bash
-pip install -r requirements.txt -t package/
-cp main.py package/
-cd package && zip -r ../blog-scraper.zip .
-```
-
-2. Upload to AWS Lambda with Python 3.14 runtime
+1. Navigate to [the terraform directory](../../terraform/).
+2. Set the required variables in a local copy of `terraform.tfvars`.
+3. Run `terraform apply`.
 
 ### Environment Variables in Lambda
 
@@ -164,7 +153,7 @@ Set in the Lambda function configuration:
 
 ### Scheduling
 
-Consider setting up a CloudWatch Events rule to run this function periodically (e.g., every hour or daily).
+The Terraform configutaiton sets up a CloudWatch Events rule to run this function periodically.
 
 ## Troubleshooting
 
@@ -188,14 +177,14 @@ The function will fail fast if it can't connect to Directus, making debugging ea
 cd serverless/blog_scraper
 
 # Install dependencies
-pip install -e .
+uv init
 
 # Set environment variables
 export DIRECTUS_API_TOKEN="your_token"
 export DIRECTUS_BASE_URL="https://cms.deflock.me"
 
 # Run locally
-python main.py
+uv run main.py
 ```
 
 ### Testing with Different RSS Feeds
