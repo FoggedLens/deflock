@@ -8,7 +8,7 @@
     >
       <v-col cols="12" md="8">
         <h1 class="mb-4">{{ title }}</h1>
-        <p class="mb-4">
+        <p class="mb-4 px-8">
           {{ description }}
         </p>
         <v-btn

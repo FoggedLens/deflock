@@ -2,7 +2,7 @@
   <DefaultLayout>
     <template #header>
       <Hero
-        title="DeFlock Store"
+        title="DeFlock Store (Coming Soon)"
         description="Full store coming soon! In the meantime, check out our free Downloads."
         gradient="linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%)"
       />
