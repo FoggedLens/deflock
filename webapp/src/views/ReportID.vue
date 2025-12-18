@@ -106,8 +106,68 @@
         <v-stepper-vertical-item
           class="transparent"
           :complete="step > 5"
-          title="Submit Your Changes"
+          title="Add an image (optional)"
           value="5"
+          editable
+        >
+          <p>
+            Optionally, you can add an image to your submission as well. If you choose to do this, <a href="https://auth.wikimedia.org/commonswiki/wiki/Special:CreateAccount">you will need to sign up for a wikimedia commons account.</a>
+          </p>
+
+          <v-img
+            max-width="450"
+            class="my-8"
+            src="/wikimedia-instructions/informational.png"
+          />
+          <p>
+            Open the <a href="https://commons.wikimedia.org/wiki/Special:UploadWizard">Upload Wizard</a> after logging into your account. Make sure to read the graphic and confirm you understand the rules about what can be uploaded to wikimedia commons.
+          </p>
+
+          <v-img
+            max-width="450"
+            class="my-8"
+            src="/wikimedia-instructions/upload_continue.png"
+          />
+          <p>
+            Upload your image of the ALPR and click <strong>Continue</strong>.
+          </p>
+
+          <v-img
+            max-width="450"
+            class="my-8"
+            src="/wikimedia-instructions/license.png"
+          />
+          <p>
+            Make sure you publish the image under a <strong>CCO Waiver</strong> license.
+          </p>
+
+          <v-img
+            max-width="450"
+            class="my-8"
+            src="/wikimedia-instructions/title.png"
+          />
+          <p>
+            Give your image a descriptive title and caption so that other users understand what it is. For example, you could title the image <code>ALPR (city name) (intersection)</code>. Make sure the date is accurate. Optionally, you may add the image to a category or add a capture location if you wish.
+            <br><br>
+            After you're doing filling everything out, click <strong>publish files</strong> at the bottom of the page.
+          </p>
+
+          <v-img
+            max-width="500"
+            class="my-8"
+            src="/wikimedia-instructions/copy_paste_title.png"
+          />
+          <p>
+            Finally, link your image on the point you created in OSM. Copy the title of your published image, including <code>File:</code> and <code>.jpg</code>. Create a new tag called <code>wikimedia_commons</code> and paste your title as the value.
+          </p>
+
+        </v-stepper-vertical-item>
+
+        <v-stepper-vertical-item
+          class="transparent"
+          :complete="step > 6"
+          title="Submit Your Changes"
+          value="6"
           editable
         >
           <p>
