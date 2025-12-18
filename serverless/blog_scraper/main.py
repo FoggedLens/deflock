@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from dateutil import parser as date_parser
 from typing import List, Dict, Optional
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -28,9 +28,12 @@ class BlogScraper:
             "Content-Type": "application/json",
             "User-Agent": "deflock-blog-scraper/1.0"
         }
+        
+        # Extract host from RSS URL for filtering
+        self.rss_host = urlparse(self.rss_url).netloc
     
-    def fetch_rss_feed(self) -> feedparser.FeedParserDict:
-        """Fetch and parse the RSS feed"""
+    def fetch_rss_feed(self) -> Optional[feedparser.FeedParserDict]:
+        """Fetch and parse the RSS feed. Returns None if connection fails."""
         logger.info(f"Fetching RSS feed from {self.rss_url}")
         
         try:
@@ -41,8 +44,8 @@ class BlogScraper:
             logger.info(f"Successfully parsed RSS feed with {len(feed.entries)} entries")
             return feed
         except Exception as e:
-            logger.error(f"Error fetching RSS feed: {e}")
-            raise
+            logger.error(f"Error fetching RSS feed: {e}. Skipping sync to prevent data loss.")
+            return None
     
     def get_existing_posts(self) -> List[Dict]:
         """Get all existing blog posts from Directus that have external URLs"""
@@ -75,6 +78,14 @@ class BlogScraper:
         except Exception as e:
             logger.error(f"Error fetching existing posts: {e}")
             raise
+    
+    def is_same_host_as_rss(self, url: str) -> bool:
+        """Check if the given URL has the same host as the RSS feed"""
+        try:
+            url_host = urlparse(url).netloc
+            return url_host == self.rss_host
+        except Exception:
+            return False
     
     def create_blog_post(self, post_data: Dict) -> Optional[Dict]:
         """Create a new blog post in Directus"""
@@ -186,8 +197,24 @@ class BlogScraper:
         # Fetch RSS feed
         feed = self.fetch_rss_feed()
         
+        # If feed fetch failed, return early to prevent data loss
+        if feed is None:
+            logger.warning("Skipping synchronization due to RSS feed fetch failure")
+            return {
+                "created": 0,
+                "updated": 0,
+                "deleted": 0,
+                "errors": 1
+            }
+        
         # Get existing posts from Directus
-        existing_posts = self.get_existing_posts()
+        all_existing_posts = self.get_existing_posts()
+        
+        # Filter existing posts to only include those from the same host as RSS feed
+        existing_posts = [post for post in all_existing_posts 
+                         if post.get("externalUrl") and self.is_same_host_as_rss(post["externalUrl"])]
+        
+        logger.info(f"Found {len(existing_posts)} existing posts from RSS host {self.rss_host}")
         
         # Create lookup by external URL
         existing_by_url = {post["externalUrl"]: post for post in existing_posts}
