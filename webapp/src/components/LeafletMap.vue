@@ -572,11 +572,21 @@ function updateRoute(newRoute: GeoJSON.LineString | null): void {
       }
     }
 
-    // add statistics popup
+    // Add click event to route line to show statistics popup
+    const statsContent = `<center><strong>${alprsOnRoute.length} ALPRs </strong> are watching this route.<br>There are <strong>${nearbyAlprs.length} ALPRs </strong> within a block.</center>`;
+    geoJsonLayer.on('click', function (e) {
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(statsContent)
+        .openOn(map);
+    });
+
+    // add statistics popup (initial display - remove this since we'll show on click)
     var popup = L.popup()
       .setLatLng([newRoute.coordinates[~~(coord_len / 2)][1], newRoute.coordinates[~~(coord_len / 2)][0]])
       .setContent(`<center><strong>${alprsOnRoute.length} ALPRs </strong> are watching this route.<br>There are <strong>${nearbyAlprs.length} ALPRs </strong> within a block.</center>`);
-    routeLayer.addLayer(popup); // TODO make clickable to appear (or sidebar?)
+    routeLayer.addLayer(popup);
+
     map.addLayer(routeLayer);
     map.fitBounds(bounds);
 
