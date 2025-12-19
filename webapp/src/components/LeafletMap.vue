@@ -139,6 +139,7 @@ let circlesLayer: FeatureGroup;
 let clusterLayer: MarkerClusterGroup;
 let currentLocationLayer: FeatureGroup;
 let routeLayer: FeatureGroup;
+let alprsOnRoute: ALPR[] = [];
 
 // Marker Creation Utilities
 function createSVGMarkers(alpr: ALPR, marker_color: string = MARKER_COLOR): string {
@@ -436,8 +437,43 @@ function getBearing(from: L.LatLng, to: L.LatLng): number {
   return (bearing + 360) % 360; // Normalize to 0-360
 }
 
+function hideMarkersInCluster(alprIds: string[]): void {
+  for (const alprId of alprIds) {
+    const marker = markerMap.get(alprId);
+    if (marker) {
+      // Hide the marker by setting its opacity to 0
+      if (marker instanceof L.Marker) {
+        marker.setOpacity(0);
+        marker.getElement()?.style.setProperty('pointer-events', 'none');
+      } else if (marker instanceof L.CircleMarker) {
+        marker.setStyle({ fillOpacity: 0, opacity: 0 });
+      }
+    }
+  }
+}
+
+function showMarkersInCluster(alprIds: string[]): void {
+  for (const alprId of alprIds) {
+    const marker = markerMap.get(alprId);
+    if (marker) {
+      // Show the marker by restoring opacity
+      if (marker instanceof L.Marker) {
+        marker.setOpacity(1);
+        marker.getElement()?.style.removeProperty('pointer-events');
+      } else if (marker instanceof L.CircleMarker) {
+        marker.setStyle({ fillOpacity: 0.6, opacity: 1 });
+      }
+    }
+  }
+}
+
 function updateRoute(newRoute: GeoJSON.LineString | null): void {
   routeLayer.clearLayers();
+
+  // Show previously hidden route ALPRs back in clustering layer
+  const previousRouteAlprIds = alprsOnRoute.map(alpr => alpr.id);
+  showMarkersInCluster(previousRouteAlprIds);
+  alprsOnRoute.length = 0; // clear previous
 
   if (newRoute) {
     // add the line
@@ -502,7 +538,7 @@ function updateRoute(newRoute: GeoJSON.LineString | null): void {
     }
 
     // watching route filter for ALPRs
-    var watchingAlprs: ALPR[] = [];
+    alprsOnRoute.length = 0; // clear previous
     for (var alpr of nearbyAlprs) {
       for (var coord of newRoute.coordinates) {
         if (L.latLng(alpr.lat, alpr.lon).distanceTo(L.latLng(coord[1], coord[0])) < watchingAlprRadius) {
@@ -525,8 +561,11 @@ function updateRoute(newRoute: GeoJSON.LineString | null): void {
             addAlpr = true;
           }
           if (addAlpr) {
-            watchingAlprs.push(alpr);
-            routeLayer.addLayer(createMarker(alpr, 'red'));  // TODO fix ordering/grouping interaction
+            alprsOnRoute.push(alpr);
+            const marker = createMarker(alpr, 'red')
+            routeLayer.addLayer(marker);
+            bindPopup(marker, alpr);
+            // Don't add to markerMap since it's only for route display
             break;
           }
         }
@@ -536,10 +575,14 @@ function updateRoute(newRoute: GeoJSON.LineString | null): void {
     // add statistics popup
     var popup = L.popup()
       .setLatLng([newRoute.coordinates[~~(coord_len / 2)][1], newRoute.coordinates[~~(coord_len / 2)][0]])
-      .setContent(`<center><strong>${watchingAlprs.length} ALPRs </strong> are watching this route.<br>There are <strong>${nearbyAlprs.length} ALPRs </strong> within a block.</center>`);
+      .setContent(`<center><strong>${alprsOnRoute.length} ALPRs </strong> are watching this route.<br>There are <strong>${nearbyAlprs.length} ALPRs </strong> within a block.</center>`);
     routeLayer.addLayer(popup); // TODO make clickable to appear (or sidebar?)
     map.addLayer(routeLayer);
     map.fitBounds(bounds);
+
+    // Hide route ALPRs from clustering layer to avoid duplicates
+    const routeAlprIds = alprsOnRoute.map(alpr => alpr.id);
+    hideMarkersInCluster(routeAlprIds);
   }
 }
 
