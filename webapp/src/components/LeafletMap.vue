@@ -126,7 +126,7 @@ const props = defineProps({
     default: null,
   },
   route: {
-    type: Object as PropType<GeoJSON.GeoJsonObject | null>,
+    type: Object as PropType<GeoJSON.LineString | null>,
     default: null,
   },
 });
@@ -441,7 +441,13 @@ function updateRoute(newRoute: GeoJSON.LineString | null): void {
 
   if (newRoute) {
     // add the line
-    const geoJsonLayer = L.geoJSON(newRoute);
+    const geoJsonLayer = L.geoJSON(newRoute, {
+      style: {
+        color: 'red',     // line color
+        weight: 5,            // line width
+        opacity: 0.8,         // line opacity
+      }
+    });
     routeLayer.addLayer(geoJsonLayer);
 
     // add a marker at the ends of the route
@@ -472,6 +478,7 @@ function updateRoute(newRoute: GeoJSON.LineString | null): void {
       }
     }
 
+    // TODO improve performance for long routes
     // coarse filter for ALPRs
     var candidateAlprs = [];
     var bounds = geoJsonLayer.getBounds();
@@ -529,9 +536,10 @@ function updateRoute(newRoute: GeoJSON.LineString | null): void {
     // add statistics popup
     var popup = L.popup()
       .setLatLng([newRoute.coordinates[~~(coord_len / 2)][1], newRoute.coordinates[~~(coord_len / 2)][0]])
-      .setContent(`<center><strong>${watchingAlprs.length} ALPRs </strong> are watching this route.<br><strong>${nearbyAlprs.length} ALPRs </strong> are within a block.</center>`);
-    routeLayer.addLayer(popup);
+      .setContent(`<center><strong>${watchingAlprs.length} ALPRs </strong> are watching this route.<br>There are <strong>${nearbyAlprs.length} ALPRs </strong> within a block.</center>`);
+    routeLayer.addLayer(popup); // TODO make clickable to appear (or sidebar?)
     map.addLayer(routeLayer);
+    map.fitBounds(bounds);
   }
 }
 
@@ -622,8 +630,6 @@ onMounted(() => {
   });
 
   watch(() => props.route, (newRoute) => {
-    // add custom geojson layer, properties
-    // console.log(newRoute)
     updateRoute(newRoute)
   });
 });

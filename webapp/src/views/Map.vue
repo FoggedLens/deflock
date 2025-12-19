@@ -8,11 +8,11 @@
         <!-- Toggle Button -->
         <div class="mb-2">
           <v-btn-toggle v-model="isRouteMode" mandatory class="mb-2 search-toggle">
-            <v-btn :value="false" size="small" variant="outlined">
+            <v-btn :value="false" size="small" variant="flat">
               <v-icon start>mdi-magnify</v-icon>
               Search
             </v-btn>
-            <v-btn :value="true" size="small" variant="outlined">
+            <v-btn :value="true" size="small" variant="flat">
               <v-icon start>mdi-directions</v-icon>
               Route
             </v-btn>
@@ -92,7 +92,7 @@ const routeStartInput: Ref<string> = ref(''); // For the route start input field
 const routeEndInput: Ref<string> = ref(''); // For the route end input field
 const searchQuery: Ref<string> = ref(''); // For URL and boundaries (persistent)
 const geojson: Ref<GeoJSON.GeoJsonObject | null> = ref(null);
-const route: Ref<GeoJSON.GeoJsonObject | null> = ref(null);
+const route: Ref<GeoJSON.LineString | null> = ref(null);
 const isRouteMode: Ref<boolean> = ref(false); // Toggle between search and route mode
 const tilesStore = useTilesStore();
 
@@ -206,7 +206,6 @@ function onRouteSearch() {
                 lat: (routeData.waypoints[0].location[1] + routeData.waypoints[1].location[1]) / 2,
                 lng: (routeData.waypoints[0].location[0] + routeData.waypoints[1].location[0]) / 2,
               };
-              setZoom(route.value);
             })
             .catch((error) => {
               alert("Error fetching route data.");
@@ -357,10 +356,9 @@ onMounted(() => {
 }
 
 .search-toggle {
-  background-color: rgba(25, 118, 210, 0.1) !important;
-  backdrop-filter: blur(10px);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* background-color: rgb(255, 255, 255) !important; */
+  /* backdrop-filter: blur(10px); */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: calc(100vw - 22px) !important;
 }
 
@@ -372,11 +370,6 @@ onMounted(() => {
 }
 
 .search-toggle .v-btn {
-  background-color: transparent !important;
   flex: 1 !important;
-}
-
-.search-toggle .v-btn--active {
-  background-color: rgba(255, 255, 255, 0.95) !important;
 }
 </style>
