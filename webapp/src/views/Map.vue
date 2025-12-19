@@ -201,7 +201,7 @@ function onRouteSearch() {
 
           routeQuery({ lat: latStart, lng: lngStart }, { lat: latEnd, lng: lngEnd })
             .then((routeData) => {
-              route.value = routeData.routes[0].geometry as GeoJSON.GeoJsonObject;
+              route.value = routeData.routes[0].geometry as GeoJSON.LineString;
               center.value = {
                 lat: (routeData.waypoints[0].location[1] + routeData.waypoints[1].location[1]) / 2,
                 lng: (routeData.waypoints[0].location[0] + routeData.waypoints[1].location[0]) / 2,
@@ -211,8 +211,6 @@ function onRouteSearch() {
               alert("Error fetching route data.");
               console.debug("Error fetching route data:", error);
             });
-
-          searchQuery.value = routeStartInput.value + '>' + routeEndInput.value; // Store the successful search query
           updateURL(); // TODO have route generate from URL
         });
     });
@@ -253,9 +251,16 @@ function updateURL() {
 
   const currentRoute = router.currentRoute.value;
   // URL encode searchQuery.value
-  const encodedSearchValue = searchQuery.value ? encodeURIComponent(searchQuery.value) : null;
+  let encodedSearchValue: string | null;
+  if (isRouteMode.value) {
+    encodedSearchValue = encodeURIComponent(routeStartInput.value) + '/' + encodeURIComponent(routeEndInput.value);
+  } else {
+    encodedSearchValue = searchQuery.value ? encodeURIComponent(searchQuery.value) : null;
+  }
 
-  const baseHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}/route=${isRouteMode.value}`;
+  routeStartInput.value + '/' + routeEndInput.value
+
+  const baseHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
   const maybeSuffix = encodedSearchValue ? `/${encodedSearchValue}` : '';
   const newHash = baseHash + maybeSuffix;
 
@@ -287,10 +292,15 @@ onMounted(() => {
         lat: parseFloat(parts[1]),
         lng: parseFloat(parts[2]),
       };
-      if (parts.length >= 4 && parts[3]) {
+      if (parts.length == 4 && parts[3]) {
         searchQuery.value = decodeURIComponent(parts[3]);
         searchInput.value = searchQuery.value; // Populate input field with URL search query
         onSearch()
+      } else if (parts.length == 5 && parts[3] && parts[4]) {
+        isRouteMode.value = true;
+        routeStartInput.value = decodeURIComponent(parts[3]);
+        routeEndInput.value = decodeURIComponent(parts[4]);
+        onRouteSearch()
       }
     }
   } else {
