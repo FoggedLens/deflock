@@ -18,18 +18,12 @@
                 <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
                 <span class="text-caption mr-2">Grouping</span>
               </span>
-              <v-switch
-                v-model="clusteringEnabled"
-                :disabled="currentZoom < 12"
-                hide-details
-                density="compact"
-                color="primary"
-                class="mx-1"
-              />
+              <v-switch v-model="clusteringEnabled" :disabled="currentZoom < 12" hide-details density="compact"
+                color="primary" class="mx-1" />
             </div>
           </v-card-text>
         </v-card>
-        
+
         <!-- City Boundaries Toggle Switch -->
         <v-card v-if="geojson" variant="elevated">
           <v-card-text class="py-0">
@@ -38,13 +32,7 @@
                 <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
                 <span class="text-caption mr-2">City Boundaries</span>
               </span>
-              <v-switch
-                v-model="cityBoundariesVisible"
-                hide-details
-                density="compact"
-                color="primary"
-                class="mx-1"
-              />
+              <v-switch v-model="cityBoundariesVisible" hide-details density="compact" color="primary" class="mx-1" />
             </div>
           </v-card-text>
         </v-card>
@@ -54,25 +42,15 @@
     <div class="bottomright">
       <slot name="bottomright"></slot>
     </div>
-    
+
     <!-- Status Bar for Zoom Warning -->
     <v-slide-y-transition>
-      <div 
-        v-if="showAutoDisabledStatus" 
-        class="clustering-status-bar"
-      >
+      <div v-if="showAutoDisabledStatus" class="clustering-status-bar">
         <v-icon size="small" class="mr-2">mdi-information</v-icon>
         <span class="text-caption">
           Camera grouping is on for performance at this zoom level.
         </span>
-        <v-btn 
-          size="x-small" 
-          icon
-          variant="text" 
-          color="white"
-          class="ml-2"
-          @click="dismissZoomWarning"
-        >
+        <v-btn size="x-small" icon variant="text" color="white" class="ml-2" @click="dismissZoomWarning">
           <v-icon size="small">mdi-close</v-icon>
         </v-btn>
       </div>
@@ -140,11 +118,15 @@ const props = defineProps({
     default: () => [],
   },
   geojson: {
-    type : Object as PropType<GeoJSON.GeoJsonObject | null>,
+    type: Object as PropType<GeoJSON.GeoJsonObject | null>,
     default: null,
   },
   currentLocation: {
     type: Object as PropType<[number, number] | null>,
+    default: null,
+  },
+  route: {
+    type: Object as PropType<GeoJSON.LineString | null>,
     default: null,
   },
 });
@@ -156,9 +138,11 @@ let map: L.Map;
 let circlesLayer: FeatureGroup;
 let clusterLayer: MarkerClusterGroup;
 let currentLocationLayer: FeatureGroup;
+let routeLayer: FeatureGroup;
+let alprsOnRoute: ALPR[] = [];
 
 // Marker Creation Utilities
-function createSVGMarkers(alpr: ALPR): string {
+function createSVGMarkers(alpr: ALPR, marker_color: string = MARKER_COLOR): string {
   const orientationValues = (alpr.tags['camera:direction'] || alpr.tags.direction || '')
     .split(';')
     .map(val => parseDirectionValue(val.trim()));
@@ -176,8 +160,8 @@ function createSVGMarkers(alpr: ALPR): string {
   return `<svg class="svgMarker" width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
       ${allDirectionsPath}
         <g transform="matrix(0.906623,0,0,0.906623,23.9045,22.3271)">
-          <circle class="someSVGpath" cx="256" cy="256" r="57.821" style="fill:${MARKER_COLOR};fill-opacity:0.41;"/>
-          <path class="someSVGpath" d="M256,174.25C301.119,174.25 337.75,210.881 337.75,256C337.75,301.119 301.119,337.75 256,337.75C210.881,337.75 174.25,301.119 174.25,256C174.25,210.881 210.881,174.25 256,174.25ZM256,198.179C224.088,198.179 198.179,224.088 198.179,256C198.179,287.912 224.088,313.821 256,313.821C287.912,313.821 313.821,287.912 313.821,256C313.821,224.088 287.912,198.179 256,198.179Z" style="fill:${MARKER_COLOR};"/>
+          <circle class="someSVGpath" cx="256" cy="256" r="57.821" style="fill:${marker_color};fill-opacity:0.41;stroke:${marker_color}"/>
+          <path class="someSVGpath" d="M256,174.25C301.119,174.25 337.75,210.881 337.75,256C337.75,301.119 301.119,337.75 256,337.75C210.881,337.75 174.25,301.119 174.25,256C174.25,210.881 210.881,174.25 256,174.25ZM256,198.179C224.088,198.179 198.179,224.088 198.179,256C198.179,287.912 224.088,313.821 256,313.821C287.912,313.821 313.821,287.912 313.821,256C313.821,224.088 287.912,198.179 256,198.179Z" style="fill:${marker_color};"/>
         </g>
     </svg>
     `;
@@ -185,7 +169,7 @@ function createSVGMarkers(alpr: ALPR): string {
 
 function parseDirectionValue(value: string): number {
   if (!value) return 0;
-  
+
   // Check if it's a range (contains '-' but not at the start)
   if (value.includes('-') && value.indexOf('-') > 0) {
     const parts = value.split('-');
@@ -195,7 +179,7 @@ function parseDirectionValue(value: string): number {
       return calculateMidpointAngle(start, end);
     }
   }
-  
+
   // Single value
   return parseDirectionSingle(value);
 }
@@ -205,7 +189,7 @@ function parseDirectionSingle(value: string): number {
   if (/^\d+(\.\d+)?$/.test(value)) {
     return parseFloat(value);
   }
-  
+
   // Try cardinal direction
   return cardinalToDegrees(value);
 }
@@ -214,21 +198,21 @@ function calculateMidpointAngle(start: number, end: number): number {
   // Normalize angles to 0-360 range
   start = ((start % 360) + 360) % 360;
   end = ((end % 360) + 360) % 360;
-  
+
   // Calculate the difference and handle wrap-around
   let diff = end - start;
   if (diff < 0) {
     diff += 360;
   }
-  
+
   // If the difference is greater than 180, go the other way around
   if (diff > 180) {
     diff = diff - 360;
   }
-  
+
   // Calculate midpoint
   let midpoint = start + diff / 2;
-  
+
   // Normalize result to 0-360 range
   return ((midpoint % 360) + 360) % 360;
 }
@@ -257,11 +241,11 @@ function cardinalToDegrees(cardinal: string): number {
   return CARDINAL_DIRECTIONS[upperCardinal] ?? parseFloat(cardinal) ?? 0;
 }
 
-function createMarker(alpr: ALPR): Marker | CircleMarker {
+function createMarker(alpr: ALPR, marker_color: string = MARKER_COLOR): Marker | CircleMarker {
   if (hasPlottableOrientation(alpr.tags.direction || alpr.tags['camera:direction'])) {
     const icon = L.divIcon({
       className: 'leaflet-data-marker',
-      html: createSVGMarkers(alpr),
+      html: createSVGMarkers(alpr, marker_color),
       iconSize: [60, 60],
       iconAnchor: [30, 30],
       popupAnchor: [0, 0],
@@ -271,10 +255,10 @@ function createMarker(alpr: ALPR): Marker | CircleMarker {
 
   return L.circleMarker([alpr.lat, alpr.lon], {
     fill: true,
-    fillColor: MARKER_COLOR,
+    fillColor: marker_color,
     fillOpacity: 0.6,
     stroke: true,
-    color: MARKER_COLOR,
+    color: marker_color,
     opacity: 1,
     radius: 8,
     weight: 3,
@@ -314,23 +298,23 @@ function bindPopup(marker: L.CircleMarker | L.Marker, alpr: ALPR): L.CircleMarke
 
 function hasPlottableOrientation(orientationDegrees: string) {
   if (!orientationDegrees) return false;
-  
+
   // Split by semicolon to handle multiple values (e.g. '0;90')
   const values = orientationDegrees.split(';');
-  
+
   return values.some(value => {
     const trimmed = value.trim();
-    
+
     // Check if it's a range (contains '-' but not at the start)
     if (trimmed.includes('-') && trimmed.indexOf('-') > 0) {
       return true; // Ranges are plottable
     }
-    
+
     // Check if it's a numeric value
     if (/^\d+(\.\d+)?$/.test(trimmed)) {
       return true;
     }
-    
+
     // Check if it's a valid cardinal direction
     return CARDINAL_DIRECTIONS.hasOwnProperty(trimmed.toUpperCase());
   });
@@ -359,6 +343,7 @@ function initializeMap() {
 
   circlesLayer = L.featureGroup();
   currentLocationLayer = L.featureGroup();
+  routeLayer = L.featureGroup();
 
   // Initialize current zoom
   currentZoom.value = props.zoom;
@@ -439,16 +424,188 @@ function updateCurrentLocation(): void {
   }
 }
 
+function getBearing(from: L.LatLng, to: L.LatLng): number {
+  const fromLat = from.lat * Math.PI / 180;
+  const fromLng = from.lng * Math.PI / 180;
+  const toLat = to.lat * Math.PI / 180;
+  const toLng = to.lng * Math.PI / 180;
+
+  const y = Math.sin(toLng - fromLng) * Math.cos(toLat);
+  const x = Math.cos(fromLat) * Math.sin(toLat) - Math.sin(fromLat) * Math.cos(toLat) * Math.cos(toLng - fromLng);
+  const bearing = Math.atan2(y, x) * 180 / Math.PI;
+
+  return (bearing + 360) % 360; // Normalize to 0-360
+}
+
+function hideMarkersInCluster(alprIds: string[]): void {
+  for (const alprId of alprIds) {
+    const marker = markerMap.get(alprId);
+    if (marker) {
+      // Hide the marker by setting its opacity to 0
+      if (marker instanceof L.Marker) {
+        marker.setOpacity(0);
+        marker.getElement()?.style.setProperty('pointer-events', 'none');
+      } else if (marker instanceof L.CircleMarker) {
+        marker.setStyle({ fillOpacity: 0, opacity: 0 });
+      }
+    }
+  }
+}
+
+function showMarkersInCluster(alprIds: string[]): void {
+  for (const alprId of alprIds) {
+    const marker = markerMap.get(alprId);
+    if (marker) {
+      // Show the marker by restoring opacity
+      if (marker instanceof L.Marker) {
+        marker.setOpacity(1);
+        marker.getElement()?.style.removeProperty('pointer-events');
+      } else if (marker instanceof L.CircleMarker) {
+        marker.setStyle({ fillOpacity: 0.6, opacity: 1 });
+      }
+    }
+  }
+}
+
+function updateRoute(newRoute: GeoJSON.LineString | null): void {
+  routeLayer.clearLayers();
+
+  // Show previously hidden route ALPRs back in clustering layer
+  const previousRouteAlprIds = alprsOnRoute.map(alpr => alpr.id);
+  showMarkersInCluster(previousRouteAlprIds);
+  alprsOnRoute.length = 0; // clear previous
+
+  if (newRoute) {
+    // add the line
+    const geoJsonLayer = L.geoJSON(newRoute, {
+      style: {
+        color: 'red',     // line color
+        weight: 5,            // line width
+        opacity: 0.8,         // line opacity
+      }
+    });
+    routeLayer.addLayer(geoJsonLayer);
+
+    // add a marker at the ends of the route
+    const coord_len = newRoute.coordinates.length
+    var startMarker = L.marker([newRoute.coordinates[0][1], newRoute.coordinates[0][0]]);
+    var endMarker = L.marker([newRoute.coordinates[coord_len - 1][1], newRoute.coordinates[coord_len - 1][0]]);
+    routeLayer.addLayer(startMarker);
+    routeLayer.addLayer(endMarker);
+
+    var nearbyAlprRadius = 250
+    var watchingAlprRadius = 100
+    var watchingAlprHalfAngle = 45
+
+    // resample coordinates
+    for (var i = 1; i < coord_len; i++) {
+      var start = L.latLng(newRoute.coordinates[i - 1][1], newRoute.coordinates[i - 1][0]);
+      var end = L.latLng(newRoute.coordinates[i][1], newRoute.coordinates[i][0]);
+      var distance = start.distanceTo(end);
+      if (distance > watchingAlprRadius / 4) {
+        var numExtraPoints = Math.floor(distance / watchingAlprRadius);
+        for (var j = 1; j <= numExtraPoints; j++) {
+          var fraction = j / (numExtraPoints + 1);
+          var lat = start.lat + (end.lat - start.lat) * fraction;
+          var lon = start.lng + (end.lng - start.lng) * fraction;
+          newRoute.coordinates.splice(i, 0, [lon, lat]);
+          i++;
+        }
+      }
+    }
+
+    // TODO improve performance for long routes
+    // coarse filter for ALPRs
+    var candidateAlprs = [];
+    var bounds = geoJsonLayer.getBounds();
+    bounds.pad(0.05);
+    console.log("getting candidates");
+    for (var alpr of props.alprs) {
+      if (bounds.contains(L.latLng(alpr.lat, alpr.lon))) {
+        candidateAlprs.push(alpr);
+      }
+    }
+
+    // nearby filter for ALPRs
+    var nearbyAlprs: ALPR[] = [];
+    for (var alpr of candidateAlprs) {
+      for (var coord of newRoute.coordinates) {
+        if (L.latLng(alpr.lat, alpr.lon).distanceTo(L.latLng(coord[1], coord[0])) < nearbyAlprRadius) {
+          nearbyAlprs.push(alpr);
+          break;
+        }
+      }
+    }
+
+    // watching route filter for ALPRs
+    alprsOnRoute.length = 0; // clear previous
+    for (var alpr of nearbyAlprs) {
+      for (var coord of newRoute.coordinates) {
+        if (L.latLng(alpr.lat, alpr.lon).distanceTo(L.latLng(coord[1], coord[0])) < watchingAlprRadius) {
+          var addAlpr = false;
+          if (hasPlottableOrientation(alpr.tags.direction || alpr.tags['camera:direction'])) {
+            const orientationValues = (alpr.tags['camera:direction'] || alpr.tags.direction || '')
+              .split(';')
+              .map(val => parseDirectionValue(val.trim()));
+            const bearingToRoute = getBearing(L.latLng(alpr.lat, alpr.lon), L.latLng(coord[1], coord[0]));
+            for (var orientation of orientationValues) {
+              var angleDiff = Math.abs(orientation - bearingToRoute);
+              angleDiff = angleDiff > 180 ? 360 - angleDiff : angleDiff;
+              if (angleDiff < watchingAlprHalfAngle) {
+                addAlpr = true;
+                break;
+              }
+            }
+          }
+          else {
+            addAlpr = true;
+          }
+          if (addAlpr) {
+            alprsOnRoute.push(alpr);
+            const marker = createMarker(alpr, 'red')
+            routeLayer.addLayer(marker);
+            bindPopup(marker, alpr);
+            // Don't add to markerMap since it's only for route display
+            break;
+          }
+        }
+      }
+    }
+
+    // Add click event to route line to show statistics popup
+    const statsContent = `<center><strong>${alprsOnRoute.length} ALPRs </strong> are watching this route.<br>There are <strong>${nearbyAlprs.length} ALPRs </strong> within a block.</center>`;
+    geoJsonLayer.on('click', function (e) {
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(statsContent)
+        .openOn(map);
+    });
+
+    // add statistics popup (initial display - remove this since we'll show on click)
+    var popup = L.popup()
+      .setLatLng([newRoute.coordinates[~~(coord_len / 2)][1], newRoute.coordinates[~~(coord_len / 2)][0]])
+      .setContent(`<center><strong>${alprsOnRoute.length} ALPRs </strong> are watching this route.<br>There are <strong>${nearbyAlprs.length} ALPRs </strong> within a block.</center>`);
+    routeLayer.addLayer(popup);
+
+    map.addLayer(routeLayer);
+    map.fitBounds(bounds);
+
+    // Hide route ALPRs from clustering layer to avoid duplicates
+    const routeAlprIds = alprsOnRoute.map(alpr => alpr.id);
+    hideMarkersInCluster(routeAlprIds);
+  }
+}
+
 function updateClusteringBehavior(): void {
   if (!clusterLayer || !map) return;
   // Use shouldCluster computed value which handles both zoom and user preference
   const newDisableZoom = shouldCluster.value ? CLUSTER_DISABLE_ZOOM : 1;
-  
+
   // Remove the cluster layer, update its options, and re-add it
   if (map.hasLayer(clusterLayer)) {
     map.removeLayer(clusterLayer);
   }
-  
+
   // Create new cluster layer with updated settings
   const newClusterLayer = L.markerClusterGroup({
     chunkedLoading: true,
@@ -458,10 +615,10 @@ function updateClusteringBehavior(): void {
     spiderfyOnEveryZoom: false,
     spiderfyOnMaxZoom: false,
   });
-  
+
   // Transfer all markers to the new cluster layer
   newClusterLayer.addLayer(circlesLayer);
-  
+
   // Replace the old cluster layer
   clusterLayer = newClusterLayer;
   map.addLayer(clusterLayer);
@@ -479,7 +636,7 @@ onMounted(() => {
   watch(clusteringEnabled, () => {
     updateClusteringBehavior();
   });
-  
+
   // Watch for zoom-based clustering changes
   watch(shouldCluster, () => {
     updateClusteringBehavior();
@@ -524,6 +681,10 @@ onMounted(() => {
   watch(() => props.currentLocation, () => {
     updateCurrentLocation();
   });
+
+  watch(() => props.route, (newRoute) => {
+    updateRoute(newRoute)
+  });
 });
 
 onBeforeUnmount(() => {
@@ -538,13 +699,13 @@ function registerMapEvents() {
       emit('update:bounds', map.getBounds());
     }
   });
-  
+
   map.on('zoomend', () => {
     if (!isInternalUpdate.value) {
       const oldZoom = currentZoom.value;
       const newZoom = map.getZoom();
       currentZoom.value = newZoom;
-      
+
       // Reset zoom warning when user zooms in enough
       if (newZoom >= 12) {
         zoomWarningDismissed.value = false;
@@ -583,8 +744,10 @@ function registerMapEvents() {
 
 .bottomright {
   position: absolute;
-  bottom: 50px; /* hack */
-  right: 60px; /* hack */
+  bottom: 50px;
+  /* hack */
+  right: 60px;
+  /* hack */
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -626,12 +789,15 @@ function registerMapEvents() {
 }
 </style>
 
-<style> /* (Global) */
+<style>
+/* (Global) */
 /* Disables clicks on the main wrappers */
-.leaflet-marker-icon.leaflet-interactive:not(.marker-cluster), .svgMarker {
+.leaflet-marker-icon.leaflet-interactive:not(.marker-cluster),
+.svgMarker {
   pointer-events: none;
   cursor: default;
 }
+
 .svgMarker {
   pointer-events: none;
   cursor: default;
