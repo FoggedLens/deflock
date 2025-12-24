@@ -45,6 +45,7 @@
 
     <div class="text-center">
       <v-btn target="_blank" size="x-small" :href="osmNodeLink(props.alpr.id)" variant="text" color="grey"><v-icon start>mdi-open-in-new</v-icon>View on OSM</v-btn>
+      <v-btn v-if="imageLink" target="_blank" size="x-small" :href="imageLink" variant="text" color="grey"><v-icon start>mdi-image</v-icon>View image</v-btn>
     </div>
   </v-sheet>
 </template>
@@ -105,6 +106,14 @@ const abbreviatedOperator = computed(() => {
     }
   }
   return operator;
+});
+
+const imageLink = computed(() => {
+  if (!props.alpr.tags.hasOwnProperty("wikimedia_commons")) {
+    return;
+  }
+  const file_uri_encoded = encodeURIComponent(props.alpr.tags["wikimedia_commons"]);
+  return `https://commons.wikimedia.org/wiki/${file_uri_encoded}`;
 });
 
 function osmNodeLink(id: string): string {
