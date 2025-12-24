@@ -2,6 +2,11 @@ provider "aws" {
   region = "us-east-1"
 }
 
+module "directus_backup" {
+  source             = "./modules/directus_backup"
+  bucket_name        = "deflock-directus-backups"
+}
+
 module "alpr_counts" {
   module_name          = "alpr_counts"
   source               = "./modules/alpr_counts"
