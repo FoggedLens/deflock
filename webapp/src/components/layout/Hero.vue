@@ -64,9 +64,13 @@ const heroStyle = computed(() => (
 <style scoped>
 .hero {
   color: white;
-  padding: 100px 0 !important;
+  padding: 35px 0;
   position: relative;
+}
+
+.hero-image {
   min-height: 350px;
+  padding: 100px 0 !important;
 }
 
 /* Overlay for image backgrounds only */
