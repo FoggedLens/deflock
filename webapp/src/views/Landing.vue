@@ -29,28 +29,6 @@
   
   <!-- Dangers Section -->
   <v-container class="pb-10 text-center info-section">
-    <!-- Flock Warning Alert -->
-    <v-alert
-      type="warning"
-      variant="tonal"
-      class="text-left mx-4 mt-4"
-      prominent
-      border="start"
-      closable
-    >
-      <template v-slot:prepend>
-        <v-icon>mdi-alert</v-icon>
-      </template>
-      <v-alert-title class="text-h6 font-weight-bold">
-        Similar Sites are Disappearing
-      </v-alert-title>
-      <div>
-        <p>
-          Following <a target="_blank" href="https://haveibeenflocked.com/news/cyble-downtime">takedown claims submitted on behalf of Flock</a>, sites similar to DeFlock have gone offline. If DeFlock disappears, it's clear why.
-        </p>
-      </div>
-    </v-alert>
-
     <h2 class="mb-4">What are ALPRs</h2>
     
     <p class="text-left px-6">
