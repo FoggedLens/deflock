@@ -4,19 +4,12 @@
     <v-container fluid class="hero-section">
       <v-row justify="center">
         <v-col cols="12" md="8" class="text-center">
-          <h1 class="display-1 px-8">You're Being Tracked</h1>
+          <h1 class="display-1 px-8">Welcome to DeFlock</h1>
+          <h2 class="bigger px-8">
+            An open-source project mapping license plate readers.
+          </h2>
           
           <ALPRCounter class="my-6" />
-          
-          <!-- Featured On Section -->
-          <v-container class="featured-on-section my-8">
-            <h2 class="mb-4 text-h5 font-weight-black" style="opacity: 0.8">Featured On</h2>
-            <v-row justify="center" align-items="center">
-              <v-card v-for="site in featuredOn" flat target="_blank" :href="site.url" class="mx-4" :width="site.wide ? 200 : 100" height="50" style="background: rgba(0,0,0,0)">
-                <v-img contain :src="site.logo" :alt="site.name" class="featured-logo" style="display: flex; align-items: center; height: 100%;" />
-              </v-card>
-            </v-row>
-          </v-container>
   
           <v-btn size="large" color="rgb(18, 151, 195)" large @click="goToMap({ withCurrentLocation: true })">
             Explore the Map
@@ -181,10 +174,6 @@
   font-size: 1.1rem;
 }
 
-.featured-logo {
-  opacity: 0.7;
-}
-
 .alpr-demo-container {
   max-width: 600px;
   margin: 0 auto;
@@ -208,11 +197,6 @@
 .flock-resources-section {
   margin: 0 auto;
 }
-
-.flock-resource-card {
-  width: 100%;
-  text-decoration: none !important;
-}
 </style>
 
 
@@ -228,25 +212,6 @@ const { setCurrentLocation } = useGlobalStore();
 interface GoToMapOptions {
   withCurrentLocation?: boolean;
 }
-
-const featuredOn = [
-{
-  name: 'Forbes',
-  logo: '/white-logos/forbes.svg',
-  url: 'https://www.forbes.com/sites/larsdaniel/2024/11/26/think-youre-not-being-watched-deflock-says-think-again/',
-},
-{
-  name: '404 Media',
-  logo: '/white-logos/404media.svg',
-  url: 'https://www.404media.co/the-open-source-project-deflock-is-mapping-license-plate-surveillance-cameras-all-over-the-world/',
-},
-{
-  name: 'LA Times',
-  logo: '/white-logos/latimes.svg',
-  url: 'https://www.latimes.com/california/story/2024-11-14/are-there-automated-license-plate-readers-in-your-city-theres-an-open-source-program-for-that',
-  wide: true,
-}
-];
 
 async function goToMap(options: GoToMapOptions = {}) {
   if (options.withCurrentLocation) {
