@@ -8,7 +8,7 @@
       </div>
     </div>
     <v-list density="compact" class="my-2">
-      <v-list-item>
+      <v-list-item v-if="abbreviatedOperator">
         <template v-slot:prepend>
           <v-icon icon="mdi-police-badge"></v-icon>
         </template>
@@ -19,12 +19,12 @@
         
         <b>
           <span style="font-size: 1.25em">
-            {{ abbreviatedOperator }}
+            {{ abbreviatedOperator ?? 'Unknown' }}
           </span>
         </b>
       </v-list-item>
 
-      <v-divider class="my-2" />
+      <v-divider v-if="abbreviatedOperator" class="my-2" />
 
       <v-list-item>
         <template v-slot:prepend>
@@ -89,7 +89,7 @@ const abbreviatedOperator = computed(() => {
   ]
   const operatorTagKey = operatorTagKeys.find(key => props.alpr.tags[key] !== undefined);
   if (!operatorTagKey) {
-    return 'Unknown';
+    return undefined;
   }
 
   const replacements: Record<string, string> = {
