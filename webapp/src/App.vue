@@ -37,18 +37,11 @@ const items = [
   { title: 'Home', icon: 'mdi-home', to: '/' },
   { title: 'Map', icon: 'mdi-map', to: '/map' },
   { title: 'Learn', icon: 'mdi-school', to: '/what-is-an-alpr' },
+  { title: 'Get Involved', icon: 'mdi-account-voice', to: '/get-involved' },
   { title: 'News', icon: 'mdi-newspaper', to: '/blog' },
 ]
 
-const contributeItems = [
-  { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
-  { title: 'Hang Signs', icon: 'mdi-sign-direction', to: '/store' },
-  { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
-  { title: 'City Council', icon: 'mdi-account-voice', to: '/council' },
-]
-
 const metaItems = [
-  { title: 'Discord', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg', customIconGrey: '/icon-discord-grey.svg', href: 'https://discord.gg/aV7v4R3sKT'},
   { title: 'Contact', icon: 'mdi-email-outline', to: '/contact' },
   { title: 'GitHub', icon: 'mdi-github', href: 'https://github.com/frillweeman/deflock'},
   { title: 'Donate', icon: 'mdi-heart', to: '/donate'},
@@ -108,71 +101,9 @@ watch(() => theme.global.name.value, (newTheme) => {
 
           <v-spacer></v-spacer>
 
-          <!-- Contribute section -->
-          <div class="d-flex align-center">
-            <v-menu offset-y>
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  variant="text"
-                  v-bind="props"
-                  append-icon="mdi-chevron-down"
-                  class="mx-1"
-                >
-                  Contribute
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item
-                  v-for="item in contributeItems"
-                  :key="item.title"
-                  :to="item.to"
-                  link
-                >
-                  <template v-slot:prepend>
-                    <v-icon>{{ item.icon }}</v-icon>
-                  </template>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-
-            <!-- Get Involved section -->
-            <v-menu offset-y>
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  variant="text"
-                  v-bind="props"
-                  append-icon="mdi-chevron-down"
-                  class="mx-1"
-                >
-                  Get Involved
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item
-                  v-for="item in metaItems"
-                  :key="item.title"
-                  :to="item.to"
-                  :href="item.href"
-                  :target="item.href ? '_blank' : undefined"
-                  link
-                >
-                  <template v-slot:prepend>
-                    <v-icon v-if="item.icon">{{ item.icon }}</v-icon>
-                    <v-img 
-                      v-else-if="item.customIcon"
-                      class="mr-8"
-                      contain 
-                      width="24" 
-                      height="24" 
-                      :src="isDark ? item.customIconDark : item.customIconGrey" 
-                    />
-                  </template>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </div>
+          <v-btn icon to="/contact" aria-label="Toggle Theme">
+            <v-icon>mdi-email-outline</v-icon>
+          </v-btn>
         </div>
 
         <v-spacer class="d-md-none" />
@@ -201,26 +132,10 @@ watch(() => theme.global.name.value, (newTheme) => {
             {{ item.title }}
           </v-list-item>
         </v-list>
-
-        <v-divider class="my-2" aria-hidden="true" role="presentation" />
-
-        <v-list-subheader class="px-4">Contribute</v-list-subheader>
-        <v-list nav aria-label="Contribute Links">
-          <v-list-item
-            v-for="item in contributeItems"
-            :key="item.title"
-            link
-            :to="item.to"
-            role="option"
-          >
-            <v-icon v-if="item.icon" start>{{ item.icon }}</v-icon>
-            <span style="vertical-align: middle;">{{ item.title }}</span>
-          </v-list-item>
-        </v-list>
           
         <v-divider class="my-2" aria-hidden="true" role="presentation" />
           
-        <v-list-subheader class="px-4">Get Involved</v-list-subheader>
+        <v-list-subheader class="px-4">More</v-list-subheader>
         <v-list nav aria-label="Meta Links">
           <v-list-item
             v-for="item in metaItems"

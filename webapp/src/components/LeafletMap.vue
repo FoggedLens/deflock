@@ -52,6 +52,9 @@
     </div>
 
     <div class="bottomright">
+      <v-btn icon to="/report" style="color: unset">
+        <v-icon size="large">mdi-map-marker-plus</v-icon>
+      </v-btn>
       <slot name="bottomright"></slot>
     </div>
     
@@ -583,8 +586,8 @@ function registerMapEvents() {
 
 .bottomright {
   position: absolute;
-  bottom: 50px; /* hack */
-  right: 60px; /* hack */
+  bottom: 25px;
+  right: 10px;
   z-index: 1000;
   display: flex;
   flex-direction: column;

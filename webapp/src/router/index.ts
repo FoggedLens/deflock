@@ -32,11 +32,19 @@ const router = createRouter({
       }
     },
     {
-      path: '/chapters',
-      name: 'chapters',
-      component: () => import('../views/Chapters.vue'),
+      path: '/get-involved',
+      name: 'get-involved',
+      component: () => import('../views/WhatToDo.vue'),
       meta: {
-        title: 'DeFlock Chapters | Connect Locally'
+        title: 'What Can I Do | DeFlock'
+      }
+    },
+    {
+      path: '/groups',
+      name: 'groups',
+      component: () => import('../views/Groups.vue'),
+      meta: {
+        title: 'Local Groups | DeFlock'
       }
     },
     {

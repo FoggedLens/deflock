@@ -38,7 +38,9 @@
 
       <!-- CURRENT LOCATION -->
       <template v-slot:bottomright>
-        <v-fab icon="mdi-crosshairs-gps" @click="goToUserLocation" />
+        <v-btn icon @click="goToUserLocation">
+          <v-icon>mdi-crosshairs-gps</v-icon>
+        </v-btn>
       </template>
     </leaflet-map>
     <div v-else class="loader">

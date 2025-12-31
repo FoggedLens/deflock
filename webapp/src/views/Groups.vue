@@ -15,7 +15,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="12" md="6" class="mx-auto">
+        <v-col cols="12" sm="8" lg="6" class="mx-auto">
           <div v-if="chapters.length">
             <div v-for="(state, idx) in statesWithChapters" :key="state" class="mb-8">
               <h3 class="font-weight-bold text-h6 mb-0">{{ abbrevToState[state] }}</h3>
@@ -54,7 +54,7 @@
 
             <div class="text-center">
               <p>Don't see a group near you?</p>
-              <v-btn color="primary" variant="text" to="/contact">
+              <v-btn color="primary" variant="outlined" to="/contact">
                 <v-icon start>mdi-plus</v-icon>Submit a Group
               </v-btn>
             </div>
