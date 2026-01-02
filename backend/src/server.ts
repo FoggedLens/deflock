@@ -39,6 +39,10 @@ app.head('/healthcheck', (req: Request, res: Response) => {
   res.status(200).end();
 });
 
+app.get('/fuck', (req: Request, res: Response) => {
+  res.json({ fuck: "yeah" })
+});
+
 app.get('/sponsors/github', async (req: Request, res: Response) => {
   try {
     const sponsors = await githubClient.getSponsors('frillweeman');
