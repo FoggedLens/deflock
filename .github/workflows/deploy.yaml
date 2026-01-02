@@ -1,0 +1,34 @@
+name: Deploy DeFlock Backend
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: app
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            mkdir -p /opt/app/dist
+            rsync -avz --delete ./dist/ /opt/app/dist/
+            pm2 reload my-app
