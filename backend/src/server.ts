@@ -39,10 +39,6 @@ app.head('/healthcheck', (req: Request, res: Response) => {
   res.status(200).end();
 });
 
-app.get('/fuck', (req: Request, res: Response) => {
-  res.json({ fuck: "yeah" })
-});
-
 app.get('/sponsors/github', async (req: Request, res: Response) => {
   try {
     const sponsors = await githubClient.getSponsors('frillweeman');
@@ -79,6 +75,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on http://0.0.0.0:${port}`);
   console.log('Press Ctrl+C to stop...');
 });
