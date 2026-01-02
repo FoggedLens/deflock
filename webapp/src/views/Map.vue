@@ -1,6 +1,6 @@
 <template>
   <NewVisitor />
-  <div class="map-container" @keyup="handleKeyUp">
+  <div class="map-container">
     <leaflet-map
       v-if="center"
       v-model:center="center"
@@ -12,24 +12,24 @@
     >
       <!-- SEARCH -->
       <template v-slot:topleft>
-        <form @submit.prevent="onSearch">
+        <form @submit.prevent="onSearch" @dblclick.stop @mousedown.stop @mousemove.stop>
           <v-text-field
-            :rounded="xs || undefined"
-            :density="xs ? 'compact' : 'default'"
             class="map-search"
             ref="searchField"
-            prepend-inner-icon="mdi-magnify"
-            placeholder="Search for a location"
+            placeholder="City or zip code"
             single-line
             variant="solo"
-            clearable
             hide-details
             v-model="searchInput"
             type="search"
+            @focus="isSearchFocused = true"
+            @blur="isSearchFocused = false"
           >
             <template v-slot:append-inner>
-              <v-btn :disabled="!searchInput" variant="text" flat color="#0080BC" @click="onSearch">
-                Go<v-icon end>mdi-chevron-right</v-icon>
+              <span v-if="!isMobile && !isSearchFocused" class="text-subtitle-2 text-grey-darken-1">{{ searchShortcut }}</span>
+
+              <v-btn icon tile :disabled="!searchInput" variant="text" flat color="#0080BC" @click="onSearch">
+                <v-icon>mdi-magnify</v-icon>
               </v-btn>
             </template>
           </v-text-field>
@@ -52,12 +52,12 @@
 
 <script setup lang="ts">
 import 'leaflet/dist/leaflet.css';
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router'
 import type { Ref } from 'vue';
 import { BoundingBox } from '@/services/apiService';
 import { geocodeQuery } from '@/services/apiService';
-import { useDisplay, useTheme } from 'vuetify';
+import { useDisplay } from 'vuetify';
 import { useGlobalStore } from '@/stores/global';
 import { useTilesStore } from '@/stores/tiles';
 import L from 'leaflet';
@@ -74,6 +74,7 @@ const bounds: Ref<BoundingBox|null> = ref(null);
 const searchField: Ref<any|null> = ref(null);
 const searchInput: Ref<string> = ref(''); // For the text input field
 const searchQuery: Ref<string> = ref(''); // For URL and boundaries (persistent)
+const isSearchFocused: Ref<boolean> = ref(false);
 const geojson: Ref<GeoJSON.GeoJsonObject | null> = ref(null);
 const tilesStore = useTilesStore();
 
@@ -81,15 +82,20 @@ const { fetchVisibleTiles } = tilesStore;
 const alprs = computed(() => tilesStore.allNodes);
 
 const router = useRouter();
-const { xs } = useDisplay();
+const { xs: isMobile } = useDisplay();
 
 const globalStore = useGlobalStore();
 
 const setCurrentLocation = globalStore.setCurrentLocation;
 const currentLocation = computed(() => globalStore.currentLocation);
 
-function handleKeyUp(event: KeyboardEvent) {
-  if (event.key === '/' && searchField.value.value !== document.activeElement) {
+const searchShortcut = computed(() => {
+  const isMac = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0;
+  return isMac ? '⌘K' : 'Ctrl+K';
+});
+
+function handleSearchShortcut(event: KeyboardEvent) {
+  if ((event.ctrlKey || event.metaKey) && event.key === 'k' && searchField.value.value !== document.activeElement) {
     searchField.value.focus();
     event.preventDefault();
   }
@@ -200,6 +206,8 @@ function updateMarkers() {
 }
 
 onMounted(() => {
+  document.addEventListener('keydown', handleSearchShortcut);
+
   // Expected hash format like #map=<ZOOM_LEVEL:int>/<LATITUDE:float>/<LONGITUDE:float>/<QUERY:text>
   const hash = router.currentRoute.value.hash;
   if (hash) {
@@ -222,6 +230,10 @@ onMounted(() => {
     zoom.value = 5;
     center.value = { lat: 39.8283, lng: -98.5795 };
   }
+});
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleSearchShortcut);
 });
 
 </script>

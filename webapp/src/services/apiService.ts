@@ -48,7 +48,7 @@ export class BoundingBox implements BoundingBoxLiteral {
 }
 
 const apiService = axios.create({
-  baseURL: window.location.hostname === "localhost" ? "http://localhost:8080/api" : "/api",
+  baseURL: "https://api.deflock.me",
   headers: {
     "Content-Type": "application/json",
   },
@@ -72,12 +72,6 @@ export const getSponsors = async () => {
 
 export const getALPRCounts = async () => {
   const s3Url = "https://cdn.deflock.me/alpr-counts.json";
-  const response = await apiService.get(s3Url);
-  return response.data;
-}
-
-export const getCities = async () => {
-  const s3Url = "https://cdn.deflock.me/flock_cameras_null.json";
   const response = await apiService.get(s3Url);
   return response.data;
 }

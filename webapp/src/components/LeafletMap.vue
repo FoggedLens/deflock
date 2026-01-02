@@ -624,7 +624,7 @@ function registerMapEvents() {
   }
 
   .topright {
-    top: 60px;
+    top: 75px;
   }
 }
 </style>
