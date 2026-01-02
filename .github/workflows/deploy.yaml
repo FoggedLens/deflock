@@ -2,7 +2,8 @@ name: Deploy DeFlock Backend
 
 on:
   push:
-    branches: [master]
+    branches: [static-site]
+    # TODO: change to master after testing
 
 jobs:
   deploy:
