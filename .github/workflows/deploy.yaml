@@ -8,6 +8,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
 
     steps:
       - uses: actions/checkout@v3
@@ -30,6 +33,6 @@ jobs:
           username: app
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            mkdir -p /opt/app/dist
-            rsync -avz --delete ./dist/ /opt/app/dist/
-            pm2 reload my-app
+            mkdir -p /home/nullplate/deflock/backend/dist
+            rsync -avz --delete ./dist/ /home/nullplate/deflock/backend/dist/
+            pm2 reload df-backend || pm2 start /home/nullplate/deflock/backend/dist/server.js --name df-backend
