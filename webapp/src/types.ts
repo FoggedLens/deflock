@@ -6,9 +6,12 @@ export interface ALPR {
   type: string;
 };
 
-export interface WikidataItem {
-  name?: string;
-  nickname: string;
-  wikidata?: string;
-  exampleImage: string|undefined;
+export interface LprVendor {
+  id: number;
+  shortName: string;
+  fullName: string;
+  identificationHints?: string;
+  urls: Array<{ url: string }>;
+  logoUrl?: string;
+  osmTags: Record<string, string>;
 }

@@ -1,3 +1,4 @@
+import type { LprVendor } from "@/types";
 import axios from "axios";
 
 export interface Chapter {
@@ -31,6 +32,15 @@ export const cmsService = {
 		} catch (error) {
 			console.error("Error fetching chapters:", error);
 			throw new Error("Failed to fetch chapters");
+		}
+	},
+	async getLprVendors(): Promise<LprVendor[]> {
+		try {
+			const response = await cmsApiService.get("/items/lprVendors");
+			return response.data.data as LprVendor[];
+		} catch (error) {
+			console.error("Error fetching LPR vendors:", error);
+			throw new Error("Failed to fetch LPR vendors");
 		}
 	}
 };

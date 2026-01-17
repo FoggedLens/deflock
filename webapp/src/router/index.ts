@@ -32,14 +32,6 @@ const router = createRouter({
       }
     },
     {
-      path: '/get-involved',
-      name: 'get-involved',
-      component: () => import('../views/WhatToDo.vue'),
-      meta: {
-        title: 'What Can I Do | DeFlock'
-      }
-    },
-    {
       path: '/groups',
       name: 'groups',
       component: () => import('../views/Groups.vue'),
@@ -154,7 +146,7 @@ const router = createRouter({
     {
       path: '/identify',
       name: 'identify',
-      component: () => import('../views/Identification.vue'),
+      component: () => import('../views/Identify.vue'),
       meta: {
         title: 'Identify ALPRs | DeFlock'
       }

@@ -4,9 +4,9 @@
         <v-select
           color="rgb(18, 151, 195)"
           prepend-inner-icon="mdi-factory"
-          v-model="selectedBrand"
-          :items="alprBrands"
-          item-title="nickname"
+          v-model="selectedLprVendor"
+          :items="lprVendors"
+          item-title="shortName"
           return-object
           label="Choose a Manufacturer"
           variant="outlined"
@@ -16,23 +16,25 @@
         <v-img
           :aspect-ratio="3/2"
           cover
-          v-if="selectedBrand"
-          :src="selectedBrand.exampleImage"
-          :alt="selectedBrand.nickname"
+          v-if="selectedLprVendor?.urls?.length"
+          :src="selectedLprVendor.urls[0]?.url"
+          :alt="selectedLprVendor.shortName + ' LPR'"
           max-width="100%"
           class="my-4"
-        ></v-img>
-        <v-btn to="/what-is-an-alpr#photos" color="#1297C3" variant="tonal" size="small"><v-icon start>mdi-image-multiple</v-icon> See All Photos</v-btn>
+        />
+        <v-responsive :aspect-ratio="3/2" class="my-4" v-else>
+          <div class="d-flex align-center justify-center fill-height">
+            <v-icon size="96" color="grey lighten-1" aria-hidden="true">mdi-image-off</v-icon>
+          </div>
+        </v-responsive>
+        <v-btn to="/identify" color="#1297C3" variant="tonal" size="small"><v-icon start>mdi-image-multiple</v-icon> See All Photos</v-btn>
       </v-col>
     
       <v-col cols="12" sm="6">
         <h3 class="text-center serif">Tags to Copy</h3>
         <DFCode>
-          man_made=surveillance<br>
-          surveillance:type=ALPR<br>
-          camera:type=fixed<br>
-          <span v-if="selectedBrand.name">manufacturer=<span :class="highlightClass(selectedBrand)">{{ selectedBrand.name }}</span><br></span>
-          <span v-if="selectedBrand.wikidata">manufacturer:wikidata=<span :class="highlightClass(selectedBrand)">{{ selectedBrand.wikidata }}</span><br></span>
+          <span v-for="(value, key) in lprBaseTags" :key="key">{{ key }}={{ value }}<br></span>
+          <span v-for="(value, key) in selectedLprVendor?.osmTags" :key="key">{{ key }}=<span :class="highlightClass(selectedLprVendor)">{{ value }}</span><br></span>
         </DFCode>
 
         <h5 class="text-center mt-4 serif">and if operator is known</h5>
@@ -51,52 +53,33 @@
 
 <script setup lang="ts">
 import DFCode from '@/components/DFCode.vue';
-import { ref, type Ref } from 'vue';
-import type { WikidataItem } from '@/types';
+import { ref, type Ref, onMounted } from 'vue';
+import { type LprVendor } from '@/types';
+import { lprBaseTags } from '@/constants';
+import { useVendorStore } from '@/stores/vendorStore';
 
-const alprBrands: WikidataItem[] = [
-  {
-    name: 'Flock Safety',
-    nickname: 'Flock',
-    wikidata: 'Q108485435',
-    exampleImage: '/alprs/flock-1.jpg',
-  },
-  {
-    name: 'Motorola Solutions',
-    nickname: 'Motorola/Vigilant',
-    wikidata: 'Q634815',
-    exampleImage: '/alprs/motorola-4.jpg',
-  },
-  {
-    name: 'Genetec',
-    nickname: 'Genetec',
-    wikidata: 'Q30295174',
-    exampleImage: '/alprs/genetec-3.webp',
-  },
-  {
-    name: 'Leonardo',
-    nickname: 'Leonardo/ELSAG',
-    wikidata: 'Q910379',
-    exampleImage: '/alprs/elsag-1.jpg',
-  },
-  {
-    name: 'Neology, Inc.',
-    nickname: 'Neology',
-    wikidata: undefined,
-    exampleImage: '/alprs/neology-2.jpg',
-  },
-  {
-    name: undefined,
-    nickname: 'Other',
-    wikidata: undefined,
-    exampleImage: '/other-1.jpeg',
-  }
-];
-const selectedBrand: Ref<WikidataItem> = ref(alprBrands[0]);
+const lprVendors = ref<LprVendor[]>([]);
+const selectedLprVendor: Ref<LprVendor | null> = ref(null);
+const vendorStore = useVendorStore();
 
-function highlightClass(item: WikidataItem): string {
-  return item.nickname === 'Other' ? 'placeholder' : 'highlight';
+function highlightClass(item: LprVendor | null): string {
+  if (!item) return 'placeholder';
+  return item.shortName === 'Generic' ? 'placeholder' : 'highlight';
 }
+
+onMounted(async () => {
+  const genericLprVendor: LprVendor = {
+    id: -1,
+    fullName: 'Generic',
+    shortName: 'Generic',
+    osmTags: {},
+    urls: [],
+  }
+  await vendorStore.loadAllVendors();
+  lprVendors.value = [...vendorStore.lprVendors, genericLprVendor];
+
+  selectedLprVendor.value = lprVendors.value[0] ?? null;
+});
 
 </script>
 

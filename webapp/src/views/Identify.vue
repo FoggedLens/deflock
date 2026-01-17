@@ -9,66 +9,52 @@
   </template>
 
   <v-container fluid>
-    <!-- Flock Safety - Featured Section -->
-    <v-container>
-      <v-card class="featured-card" elevation="4">
-        <v-card-title class="text-center bg-green text-h4 pt-6 px-6">
-          <v-img 
-            contain 
-            src="/vendor-logos/Flock_Safety_Logo.svg" 
-            :alt="'Flock Logo'" 
-            style="height: 48px; filter: invert(1);" 
-          />
-        </v-card-title>
-        <v-card-subtitle class="text-center pa-4 text-h6" style="white-space: normal; word-break: break-word;">
-          black housing • teardrop shape • usually with solar panels
-        </v-card-subtitle>
-        <v-card-text class="pa-6">
-          <v-row>
-            <v-col v-for="(image, index) in flockImages" :key="index" cols="12" sm="6" md="3">
-              <v-card class="image-card" elevation="2" @click="openImageInNewTab(image)">
-                <v-img 
-                  :src="image" 
-                  :aspect-ratio="4/3" 
-                  cover
-                  class="cursor-pointer"
-                >
-                  <template v-slot:placeholder>
-                    <v-row class="fill-height ma-0" align="center" justify="center">
-                      <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                    </v-row>
-                  </template>
-                </v-img>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-container>
-
-    <!-- Other ALPR Types -->
     <v-container class="mb-12">
-      <h2 class="text-center mb-8">Other ALPR Types</h2>
-      
-      <v-row>
-        <v-col cols="12" md="6" v-for="vendor in otherVendors" :key="vendor.vendor" class="mb-4">
+      <!-- Skeleton Loader -->
+      <v-row v-if="loading">
+        <v-col cols="12" md="6" v-for="n in 4" :key="`skeleton-${n}`" class="mb-4">
           <v-card class="vendor-card h-100" elevation="2">
             <v-card-title class="text-center" style="background-color: #f5f5f5;">
-              <v-img v-if="vendor.logoUrl" contain :src="vendor.logoUrl" :alt="`${vendor.vendor} Logo`" style="height: 48px;" />
+              <v-skeleton-loader type="image" style="height:48px; width:150px; margin:0 auto;" />
+            </v-card-title>
+            <v-card-subtitle class="text-center pa-4">
+              <v-skeleton-loader type="text" width="80%" />
+            </v-card-subtitle>
+            <v-card-text class="pa-4">
+              <v-row>
+                <v-col cols="6" v-for="i in 4" :key="`skeleton-img-${i}`">
+                  <v-skeleton-loader type="image" :height="120" />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <v-row v-else>
+        <v-col cols="12" md="6" v-for="vendor in vendorStore.lprVendors" :key="vendor.id" class="mb-4">
+          <v-card class="vendor-card h-100" elevation="2">
+            <v-card-title class="text-center" style="background-color: #f5f5f5;"
+              @click="onVendorTitleClick(vendor.id)"
+            >
+              <v-img v-if="vendor.logoUrl" contain :src="vendor.logoUrl" :alt="`${vendor.shortName} Logo`" style="height: 48px;" />
               <div
                 style="height: 48px; display: flex; align-items: center; justify-content: center;"
                 class="font-weight-bold text-black"
                 v-else
               >
-                {{ vendor.vendor }}
+                {{ vendor.shortName }}
               </div>
             </v-card-title>
+            <v-card-subtitle class="text-center pa-4 text-h6" style="white-space: normal; word-break: break-word;">
+              {{ vendor.identificationHints }}
+            </v-card-subtitle>
             <v-card-text class="pa-4">
               <v-row>
-                <v-col v-for="(image, index) in vendor.imageUrls" :key="index" cols="6">
-                  <v-card class="image-card" elevation="1" @click="openImageInNewTab(image)">
+                <v-col v-for="{ url: imageUrl } in vendor.urls" :key="imageUrl" cols="6">
+                  <v-card class="image-card" elevation="1" @click="openImageInNewTab(imageUrl)">
                     <v-img 
-                      :src="image" 
+                      :src="imageUrl" 
                       :aspect-ratio="4/3" 
                       cover
                       class="cursor-pointer"
@@ -159,46 +145,63 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useVendorStore } from '@/stores/vendorStore';
+import { createDeflockProfileUrl } from '@/services/deflockAppUrls';
+import type { LprVendor } from '@/types';
 
 function openImageInNewTab(url: string) {
   window.open(url, '_blank');
 }
 
-// Flock Safety - Featured prominently
-const flockImages = [
-  '/alprs/flock-5.webp',
-  '/alprs/flock-1.jpg',
-  '/alprs/flock-2.jpg', 
-  '/alprs/flock-3.jpg',
-  '/alprs/flock-4.jpg'
-];
+const loading = ref(true);
+const vendorStore = useVendorStore();
 
-// Other ALPR vendors
-const otherVendors = [
-  {
-    vendor: 'Motorola/Vigilant',
-    logoUrl: '/vendor-logos/Motorola_Solutions_Logo.svg',
-    description: 'Usually dark and rectangular, with visible IR illuminators. Often next to an ugly white box.',
-    imageUrls: ['/alprs/motorola-1.jpg', '/alprs/motorola-2.jpg', '/alprs/motorola-3.jpg', '/alprs/motorola-4.jpg']
-  },
-  {
-    vendor: 'Genetec',
-    logoUrl: '/vendor-logos/logo_genetec_rgb_color_tm.svg',
-    description: 'Usually white and rectangular, with visible IR illuminators',
-    imageUrls: ['/alprs/genetec-1.webp', '/alprs/genetec-2.webp', '/alprs/genetec-3.webp']
-  },
-  {
-    vendor: 'Leonardo/ELSAG',
-    logoUrl: '/vendor-logos/Logo_Leonardo.svg',
-    description: 'Large, highly visible array of IR lights',
-    imageUrls: ['/alprs/elsag-3.jpg', '/alprs/elsag-4.jpg', '/alprs/elsag-1.jpg', '/alprs/elsag-2.jpg']
-  },
-  {
-    vendor: 'Neology',
-    description: 'Ugly with a white rounded rectangular shape and long hood',
-    imageUrls: ['/alprs/neology-1.jpg', '/alprs/neology-2.jpg']
+// BEGIN SECRET CLICKS
+const secretClicks = new Map<string | number, number[]>();
+
+function onVendorTitleClick(vendorId: string | number) {
+  const now = Date.now();
+  const windowMs = 2500; // 2.5 seconds
+  const required = 3;
+  const arr = secretClicks.get(vendorId) || [];
+  // keep clicks within window
+  const filtered = arr.filter(t => now - t <= windowMs);
+  filtered.push(now);
+  secretClicks.set(vendorId, filtered);
+  if (filtered.length >= required) {
+    // find vendor object from store and call onAddToApp
+    const vendor = vendorStore.lprVendors.find(v => v.id === vendorId);
+    if (vendor) onAddToApp(vendor as any);
+    secretClicks.set(vendorId, []);
   }
-];
+}
+// END SECRET CLICKS
+
+onMounted(async () => {
+  await vendorStore.loadAllVendors();
+  loading.value = false;
+});
+
+const router = useRouter();
+
+async function onAddToApp(vendor: LprVendor) {
+  const url = createDeflockProfileUrl(vendor.osmTags);
+  const ua = typeof navigator !== 'undefined' && navigator.userAgent ? navigator.userAgent : '';
+  const isMobile = /iphone|ipod|ipad|android|blackberry|bb|playbook|windows phone|iemobile|opera mini|mobile/i.test(ua);
+  if (isMobile) {
+    // attempt to open the app via custom scheme on mobile
+    try {
+      window.location.href = url;
+    } catch (e) {
+      window.open(url, '_blank');
+    }
+  } else {
+    // on Desktop
+    router.push('/app');
+  }
+}
 
 const trafficCameraImages = [
   '/non-alprs/iteris.webp',
@@ -213,7 +216,6 @@ const snowDetectionImages = [
 
 <style scoped>
 .featured-card {
-  /* border: 3px solid rgb(var(--v-theme-secondary)); */
   margin-bottom: 2rem;
 }
 
