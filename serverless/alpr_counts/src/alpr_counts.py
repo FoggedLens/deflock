@@ -2,7 +2,7 @@ import json
 import requests
 import boto3
 
-def fetch_alpr_surveillance_nodes(usOnly=False):
+def fetch_alpr_surveillance_nodes(usOnly=True):
   overpass_url = "http://overpass-api.de/api/interpreter"
   overpass_query = f"""
   [out:json][timeout:180];
@@ -34,7 +34,7 @@ def lambda_handler(event, context):
 
   all_alprs = {
     # 'us': us_alprs,
-    'worldwide': worldwide_alprs
+    'worldwide': worldwide_alprs # keep this as worldwide while we deploy, change eventually
   }
 
   s3 = boto3.client('s3')

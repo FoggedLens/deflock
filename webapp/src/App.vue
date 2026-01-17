@@ -13,7 +13,7 @@ const { showDialog, discordUrl, interceptDiscordLinks } = useDiscordIntercept();
 
 function toggleTheme() {
   const newTheme = theme.global.name.value === 'dark' ? 'light' : 'dark';
-  theme.global.name.value = newTheme;
+  theme.change(newTheme);
   localStorage.setItem('theme', newTheme);
 }
 
@@ -24,10 +24,10 @@ function handleDiscordProceed(url: string) {
 onMounted(() => {
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
-    theme.global.name.value = savedTheme;
+    theme.change(savedTheme);
   } else {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    theme.global.name.value = prefersDark ? 'dark' : 'light';
+    theme.change(prefersDark ? 'dark' : 'light');
     localStorage.setItem('theme', theme.global.name.value);
   }
   interceptDiscordLinks();
@@ -37,17 +37,19 @@ const items = [
   { title: 'Home', icon: 'mdi-home', to: '/' },
   { title: 'Map', icon: 'mdi-map', to: '/map' },
   { title: 'Learn', icon: 'mdi-school', to: '/what-is-an-alpr' },
-  { title: 'Store', icon: 'mdi-shopping', to: '/store' },
+  { title: 'News', icon: 'mdi-newspaper', to: '/blog' },
 ]
 
 const contributeItems = [
   { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
+  { title: 'Hang Signs', icon: 'mdi-sign-direction', to: '/store' },
   { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
   { title: 'City Council', icon: 'mdi-account-voice', to: '/council' },
 ]
 
 const metaItems = [
   { title: 'Discord', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg', customIconGrey: '/icon-discord-grey.svg', href: 'https://discord.gg/aV7v4R3sKT'},
+  { title: 'Local Groups', icon: 'mdi-account-group', to: '/groups' },
   { title: 'Contact', icon: 'mdi-email-outline', to: '/contact' },
   { title: 'GitHub', icon: 'mdi-github', href: 'https://github.com/frillweeman/deflock'},
   { title: 'Donate', icon: 'mdi-heart', to: '/donate'},
@@ -176,8 +178,8 @@ watch(() => theme.global.name.value, (newTheme) => {
 
         <v-spacer class="d-md-none" />
 
-        <v-btn icon>
-          <v-icon @click="toggleTheme" aria-label="Toggle Theme">mdi-theme-light-dark</v-icon>
+        <v-btn icon @click="toggleTheme" aria-label="Toggle Theme">
+          <v-icon>mdi-theme-light-dark</v-icon>
         </v-btn>
       </v-app-bar>
 

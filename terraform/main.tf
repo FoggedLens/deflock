@@ -2,6 +2,11 @@ provider "aws" {
   region = "us-east-1"
 }
 
+module "directus_backup" {
+  source             = "./modules/directus_backup"
+  bucket_name        = "deflock-directus-backups"
+}
+
 module "alpr_counts" {
   module_name          = "alpr_counts"
   source               = "./modules/alpr_counts"
@@ -16,6 +21,15 @@ module "alpr_cache" {
   deflock_cdn_bucket   = var.deflock_cdn_bucket
   rate                 = "rate(1 hour)"
   sns_topic_arn        = aws_sns_topic.lambda_alarms.arn
+}
+
+module "blog_scraper" {
+  module_name         = "blog_scraper"
+  source              = "./modules/blog_scraper"
+  rate                = "rate(30 minutes)"
+  sns_topic_arn       = aws_sns_topic.lambda_alarms.arn
+  directus_base_url   = var.directus_base_url
+  directus_api_token  = var.directus_api_token
 }
 
 resource "aws_sns_topic" "lambda_alarms" {

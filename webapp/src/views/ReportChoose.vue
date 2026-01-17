@@ -1,9 +1,6 @@
 <template>
 <DefaultLayout>
   <v-container>
-    <!-- ALPR Verification Dialog -->
-    <ALPRVerificationDialog />
-    
     <v-row justify="center" class="mb-4">
       <v-col cols="12" md="8">
         <h2 class="text-center text-h4 font-weight-bold">Choose Your Reporting Method</h2>
@@ -110,19 +107,9 @@
 
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
-import ALPRVerificationDialog from '@/components/ALPRVerificationDialog.vue';
 </script>
 
 <style scoped>
-.verification-alert {
-  border-left-width: 6px !important;
-}
-
-.verification-alert .v-alert-title {
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
 /* App card disabled styling */
 .app-card-container {
   position: relative;

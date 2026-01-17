@@ -136,11 +136,16 @@ import Hero from '@/components/layout/Hero.vue';
 import { ref, onMounted, watch } from 'vue';
 import OSMTagSelector from '@/components/OSMTagSelector.vue';
 import { VStepperVerticalItem, VStepperVertical } from 'vuetify/labs/components';
+import { useVendorStore } from '@/stores/vendorStore';
 
 const step = ref(parseInt(localStorage.getItem('currentStep') || '1'));
 
 onMounted(() => {
   step.value = parseInt(localStorage.getItem('currentStep') || '1');
+  
+  // Cache vendors for tag selector component
+  const vendorStore = useVendorStore();
+  vendorStore.loadAllVendors();
 });
 
 watch(step, (newStep) => {

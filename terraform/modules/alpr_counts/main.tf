@@ -43,7 +43,7 @@ resource "null_resource" "pip_install" {
   provisioner "local-exec" {
     command = <<EOT
       cd ${path.root}/../serverless/${var.module_name}/src
-      pip3 install -r requirements.txt -t .
+      pip3.14 install -r requirements.txt -t .
     EOT
   }
 
@@ -68,7 +68,7 @@ resource "aws_lambda_function" "overpass_lambda" {
   handler          = "${var.module_name}.lambda_handler"
   runtime          = "python3.14"
   source_code_hash = data.archive_file.python_lambda_package.output_base64sha256
-  timeout = 60
+  timeout = 180
 }
 
 resource "aws_cloudwatch_event_rule" "lambda_rule" {

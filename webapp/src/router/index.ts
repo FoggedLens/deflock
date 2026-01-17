@@ -32,6 +32,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/groups',
+      name: 'groups',
+      component: () => import('../views/Groups.vue'),
+      meta: {
+        title: 'Local Groups | DeFlock'
+      }
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
@@ -138,7 +146,7 @@ const router = createRouter({
     {
       path: '/identify',
       name: 'identify',
-      component: () => import('../views/Identification.vue'),
+      component: () => import('../views/Identify.vue'),
       meta: {
         title: 'Identify ALPRs | DeFlock'
       }
@@ -157,6 +165,22 @@ const router = createRouter({
       component: () => import('../views/Store.vue'),
       meta: {
         title: 'Store | DeFlock'
+      }
+    },
+    {
+      path: '/blog',
+      name: 'blog',
+      component: () => import('../views/Blog.vue'),
+      meta: {
+        title: 'News | DeFlock'
+      }
+    },
+    {
+      path: '/blog/:id',
+      name: 'blog-post',
+      component: () => import('../views/BlogPost.vue'),
+      meta: {
+        title: 'Blog Post | DeFlock'
       }
     },
     {

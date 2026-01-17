@@ -3,12 +3,12 @@
     <v-row
       justify="center"
       class="hero text-center mb-4"
-      :class="{ 'hero-image': imageUrl, 'hero-gradient': gradient }"
+      :class="{ 'hero-image': imageUrl }"
       :style="heroStyle"
     >
       <v-col cols="12" md="8">
         <h1 class="mb-4">{{ title }}</h1>
-        <p class="mb-4">
+        <p class="mb-4 px-8">
           {{ description }}
         </p>
         <v-btn
@@ -33,7 +33,10 @@ const props = defineProps({
   title: String,
   description: String,
   imageUrl: String,
-  gradient: String,
+  gradient: {
+    type: String,
+    default: 'linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%)',
+  },
   buttonText: String,
   buttonTo: String,
   buttonHref: String,
@@ -51,22 +54,23 @@ const target = computed(() =>
   props.buttonHref && !props.buttonHref.startsWith('#') ? '_blank' : '_self'
 );
 
-const heroStyle = computed(() => {
-  if (props.gradient) {
-    return `background: ${props.gradient};`;
-  } else if (props.imageUrl) {
-    return `background: url('${props.imageUrl}') no-repeat ${props.backgroundPosition} / cover; --hero-opacity: ${props.opacity};`;
-  }
-  return '';
-});
+const heroStyle = computed(() => (
+  props.imageUrl ?
+    `background: url('${props.imageUrl}') no-repeat ${props.backgroundPosition} / cover; --hero-opacity: ${props.opacity};` :
+    `background: ${props.gradient};`
+  ));
 </script>
 
 <style scoped>
 .hero {
   color: white;
-  padding: 100px 0 !important;
+  padding: 35px 0;
   position: relative;
+}
+
+.hero-image {
   min-height: 350px;
+  padding: 100px 0 !important;
 }
 
 /* Overlay for image backgrounds only */

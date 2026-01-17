@@ -79,13 +79,13 @@ const internalLinks = [
   { title: 'Privacy Policy', to: '/privacy', icon: 'mdi-shield-lock', alt: 'Privacy Policy' },
   { title: 'Terms of Service', to: '/terms', icon: 'mdi-file-document', alt: 'Terms of Service' },
   { title: 'Press', to: '/press', icon: 'mdi-newspaper', alt: 'Press' },
-  { title: 'Contact', to: '/contact', icon: 'mdi-email', alt: 'Contact' },
 ];
 
 const externalLinks = [
   { title: 'Discord', href: 'https://discord.gg/aV7v4R3sKT', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg', alt: 'Discord Logo' },
   { title: 'Donate', to: '/donate', icon: 'mdi-heart', alt: 'Donate' },
   { title: 'GitHub', href: 'https://github.com/FoggedLens/deflock', icon: 'mdi-github', alt: 'GitHub Logo' },
+  { title: 'Contact', to: '/contact', icon: 'mdi-email', alt: 'Contact' },
 ]
 </script>
 

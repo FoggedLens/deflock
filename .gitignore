@@ -43,6 +43,7 @@ terraform.tfstate*
 
 # Lambda Python Stuff
 serverless/*/lambda.zip
+serverless/*/.build/
 serverless/*/src/*
 !serverless/*/src/alpr_cache.py
 !serverless/*/src/alpr_clusters.py

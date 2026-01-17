@@ -38,7 +38,9 @@
 
       <!-- CURRENT LOCATION -->
       <template v-slot:bottomright>
-        <v-fab icon="mdi-crosshairs-gps" @click="goToUserLocation" />
+        <v-btn icon @click="goToUserLocation">
+          <v-icon>mdi-crosshairs-gps</v-icon>
+        </v-btn>
       </template>
     </leaflet-map>
     <div v-else class="loader">
@@ -58,6 +60,7 @@ import { geocodeQuery } from '@/services/apiService';
 import { useDisplay, useTheme } from 'vuetify';
 import { useGlobalStore } from '@/stores/global';
 import { useTilesStore } from '@/stores/tiles';
+import { useVendorStore } from '@/stores/vendorStore';
 import L from 'leaflet';
 globalThis.L = L;
 import 'leaflet/dist/leaflet.css'
@@ -220,6 +223,10 @@ onMounted(() => {
     zoom.value = 5;
     center.value = { lat: 39.8283, lng: -98.5795 };
   }
+
+  // Cache vendors for displaying images on the map
+  const vendorStore = useVendorStore();
+  vendorStore.loadAllVendors();
 });
 
 </script>

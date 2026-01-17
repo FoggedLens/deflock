@@ -1,13 +1,12 @@
 <template>
   <div class="counter">
     <span :class="{ mobile: isMobile }" ref="counterEl" class="font-weight-bold">0</span>
-    <span class="caption">&nbsp;ALPRs Mapped Worldwide</span>
-    <div :class="{ 'fade-in': showFinalAnimation }" class="subheading fade-text">and rapidly growing!</div>
+    <span class="caption">&nbsp;LPRs mapped in the USA</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, type Ref } from 'vue';
+import { onMounted, ref, type Ref } from 'vue';
 import { useDisplay } from 'vuetify'
 import { getALPRCounts } from '@/services/apiService';
 import { CountUp } from 'countup.js';
@@ -81,20 +80,6 @@ function countUp(newCounts: Counts) {
 <style scoped>
 .counter {
   font-size: 1.5rem;
-}
-
-.subheading {
-  font-weight: bold;
-  font-size: 0.9rem;
-}
-
-.fade-text {
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-
-.fade-in {
-  opacity: 1;
 }
 
 .mobile {
