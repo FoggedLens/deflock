@@ -226,7 +226,7 @@ onMounted(async () => {
 const router = useRouter();
 
 async function onAddToApp(vendor: LprVendor) {
-  const url = createDeflockProfileUrl(vendor.osmTags);
+  const url = createDeflockProfileUrl(vendor.shortName, vendor.osmTags);
   const ua = typeof navigator !== 'undefined' && navigator.userAgent ? navigator.userAgent : '';
   const isMobile = /iphone|ipod|ipad|android|blackberry|bb|playbook|windows phone|iemobile|opera mini|mobile/i.test(ua);
   if (isMobile) {
@@ -238,7 +238,8 @@ async function onAddToApp(vendor: LprVendor) {
     }
   } else {
     // on Desktop
-    router.push('/app');
+    console.log(`Deflock profile URL: ${url}`);
+    // router.push('/app');
   }
 }
 
