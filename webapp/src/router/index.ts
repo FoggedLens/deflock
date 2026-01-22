@@ -148,7 +148,7 @@ const router = createRouter({
       name: 'identify',
       component: () => import('../views/Identify.vue'),
       meta: {
-        title: 'Identify ALPRs | DeFlock'
+        title: 'Identify LPRs | DeFlock'
       }
     },
     {

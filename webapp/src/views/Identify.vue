@@ -2,14 +2,53 @@
 <DefaultLayout>
   <template #header>
     <Hero 
-      title="Spot an ALPR"
+      title="How to Identify LPRs"
       description="Visual guide to identifying license plate readers"
       gradient="linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%)"
     />
   </template>
 
   <v-container fluid>
+    <v-container>
+      <v-expansion-panels>
+        <v-expansion-panel elevation="2">
+          <v-expansion-panel-title class="text-h5 font-weight-bold">
+            Common Features
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <v-list lines="two">
+              <v-list-item prepend-icon="mdi-eye">
+                <v-list-item-title class="text-h6">Rear-Facing Cameras</v-list-item-title>
+                <v-list-item-subtitle>
+                  LPRs almost always face the <b>rear of vehicles</b>.
+                </v-list-item-subtitle>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-lightbulb-on">
+                <v-list-item-title class="text-h6">Infrared Lights</v-list-item-title>
+                <v-list-item-subtitle>
+                  Look for infrared lights that emit a <b>faint red glow</b> at night.
+                </v-list-item-subtitle>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-solar-panel">
+                <v-list-item-title class="text-h6">Solar Panels</v-list-item-title>
+                <v-list-item-subtitle>
+                  Many LPRs are powered by nearby <b>solar panels</b>.
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </v-container>
+
     <v-container class="mb-12">
+      <h2 class="text-h4 text-center mt-3">Common LPR Vendors</h2>
+      <p class="text-center text-medium-emphasis mb-8">
+        Most LPRs are easy to recognize.
+      </p>
+
       <!-- Skeleton Loader -->
       <v-row v-if="loading">
         <v-col cols="12" md="6" v-for="n in 4" :key="`skeleton-${n}`" class="mb-4">

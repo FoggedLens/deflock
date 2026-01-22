@@ -73,6 +73,10 @@
     <changefreq>daily</changefreq>
   </url>
   <url>
+    <loc>https://deflock.me/groups</loc>
+    <changefreq>daily</changefreq>
+  </url>
+  <url>
     <loc>https://deflock.me/blog</loc>
     <changefreq>daily</changefreq>
   </url>

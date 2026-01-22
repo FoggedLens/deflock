@@ -3,8 +3,8 @@
   <template #header>
     <Hero
       imageUrl="/press.jpg"
-      title="Press"
-      description="We're grateful for the media's interest in DeFlock. Below you'll find our press kit and contact information for interviews."
+      title="Media"
+      description="We're grateful for the media's interest in DeFlock. Below you'll find our media kit and contact information for interviews."
     />
   </template>
 
@@ -50,7 +50,7 @@
 
     <h2>Contact Us</h2>
     <p>
-      For press inquiries and interview requests, <router-link to="/contact" >please contact us here</router-link>.
+      For media inquiries and interview requests, send us an email at <a href="mailto:media@deflock.me">media@deflock.me</a>.
     </p>
 
   </v-container>
