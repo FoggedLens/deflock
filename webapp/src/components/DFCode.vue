@@ -1,10 +1,15 @@
 <template>
   <div style="position: relative">
-    <v-btn v-if="showCopyButton" color="white" @click="copyToClipboard" icon variant="plain" flat class="copy-button">
+    <v-btn v-if="props.showCopyButton" color="white" @click="copyToClipboard" icon variant="plain" flat class="copy-button">
       <v-icon class="copy-icon-with-shadow">mdi-content-copy</v-icon>
     </v-btn>
     <code ref="codeContent">
-      <slot></slot>
+      <template v-if="osmTags">
+        <span v-for="(value, key) in osmTags" :key="key">
+          {{ key }}=<span :class="{ highlight: highlightValuesForKeys.includes(key)}">{{ value }}</span><br>
+        </span>
+      </template>
+      <slot v-else></slot>
     </code>
     <v-snackbar color="#0081ac" v-model="snackbarOpen" :timeout="3000">
       Copied to clipboard!
@@ -21,14 +26,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
-defineProps({
-  showCopyButton: {
-    type: Boolean,
-    default: true
-  }
+const props = withDefaults(defineProps<{
+  showCopyButton?: boolean;
+  osmTags?: Record<string, string>;
+  highlightValuesForKeys?: string[];
+}>(), {
+  showCopyButton: true,
+  highlightValuesForKeys: () => []
 });
+
+const highlightValuesForKeys = computed(() => props.highlightValuesForKeys ?? []);
 
 const codeContent = ref<HTMLElement | null>(null);
 const snackbarOpen = ref(false);
@@ -67,5 +76,12 @@ code {
   right: 0;
   top: 0;
   z-index: 1000;
+}
+
+.highlight {
+  background-color: #0081ac;
+  padding: 0.15rem;
+  border-radius: 0.25rem;
+  font-weight: bold;
 }
 </style>

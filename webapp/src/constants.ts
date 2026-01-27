@@ -1,5 +1,8 @@
 export const lprBaseTags = {
     "man_made": "surveillance",
     "surveillance:type": "ALPR",
-    "camera:type": "fixed"
+    "surveillance": "public",
+    "camera:type": "fixed",
+    "surveillance:zone": "traffic",
+    "camera:mount": ""
 }
