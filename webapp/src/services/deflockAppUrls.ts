@@ -1,21 +1,18 @@
-import { lprBaseTags } from "@/constants";
-
 interface DeflockProfileTags {
   name: string;
   tags: Record<string, string>;
   requiresDirection: boolean;
   submittable: boolean;
-  fov: number;
+  fov: number | null;
 }
 
-export function createDeflockProfileUrl(name: string, obj: Record<string, string>): string {
-  const tags = { ...lprBaseTags, ...obj };
+export function createDeflockProfileUrl(name: string, osmTags: Record<string, string>): string {
   const profile: DeflockProfileTags = {
     name,
-    tags,
+    tags: osmTags,
     requiresDirection: true,
     submittable: true,
-    fov: 90.0,
+    fov: null,
   };
   const payload = btoa(JSON.stringify(profile));
   return `deflockapp://profiles/add?p=${payload}`;

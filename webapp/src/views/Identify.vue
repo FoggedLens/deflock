@@ -73,9 +73,7 @@
       <v-row v-else>
         <v-col cols="12" md="6" v-for="vendor in vendorStore.lprVendors" :key="vendor.id" class="mb-4">
           <v-card class="vendor-card h-100" elevation="2">
-            <v-card-title class="text-center" style="background-color: #f5f5f5;"
-              @click="onVendorTitleClick(vendor.id)"
-            >
+            <v-card-title class="text-center" style="background-color: #f5f5f5;">
               <v-img v-if="vendor.logoUrl" contain :src="vendor.logoUrl" :alt="`${vendor.shortName} Logo`" style="height: 48px;" />
               <div
                 style="height: 48px; display: flex; align-items: center; justify-content: center;"
@@ -102,6 +100,27 @@
                   </v-card>
                 </v-col>
               </v-row>
+              
+              <v-divider class="my-4" />
+              
+              <div class="mt-4">
+                <h4 class="text-center mb-2">OSM Tags</h4>
+                <DFCode 
+                  :osm-tags="getMergedTags(vendor)" 
+                  :highlight-values-for-keys="getVendorTagKeys(vendor)"
+                />
+                <div class="text-center mt-3">
+                  <v-btn 
+                    color="primary" 
+                    variant="elevated"
+                    size="large"
+                    @click="onAddToApp(vendor)"
+                    prepend-icon="mdi-application-import"
+                  >
+                    Import to App
+                  </v-btn>
+                </div>
+              </div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -184,10 +203,12 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
+import DFCode from '@/components/DFCode.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useVendorStore } from '@/stores/vendorStore';
 import { createDeflockProfileUrl } from '@/services/deflockAppUrls';
+import { lprBaseTags } from '@/constants';
 import type { LprVendor } from '@/types';
 
 function openImageInNewTab(url: string) {
@@ -197,26 +218,13 @@ function openImageInNewTab(url: string) {
 const loading = ref(true);
 const vendorStore = useVendorStore();
 
-// BEGIN SECRET CLICKS
-const secretClicks = new Map<string | number, number[]>();
-
-function onVendorTitleClick(vendorId: string | number) {
-  const now = Date.now();
-  const windowMs = 2500; // 2.5 seconds
-  const required = 3;
-  const arr = secretClicks.get(vendorId) || [];
-  // keep clicks within window
-  const filtered = arr.filter(t => now - t <= windowMs);
-  filtered.push(now);
-  secretClicks.set(vendorId, filtered);
-  if (filtered.length >= required) {
-    // find vendor object from store and call onAddToApp
-    const vendor = vendorStore.lprVendors.find(v => v.id === vendorId);
-    if (vendor) onAddToApp(vendor as any);
-    secretClicks.set(vendorId, []);
-  }
+function getMergedTags(vendor: LprVendor): Record<string, string> {
+  return { ...lprBaseTags, ...vendor.osmTags };
 }
-// END SECRET CLICKS
+
+function getVendorTagKeys(vendor: LprVendor): string[] {
+  return Object.keys(vendor.osmTags ?? {});
+}
 
 onMounted(async () => {
   await vendorStore.loadAllVendors();
@@ -226,20 +234,18 @@ onMounted(async () => {
 const router = useRouter();
 
 async function onAddToApp(vendor: LprVendor) {
-  const url = createDeflockProfileUrl(vendor.shortName, vendor.osmTags);
+  const mergedTags = getMergedTags(vendor);
+  const url = createDeflockProfileUrl(vendor.shortName, mergedTags);
   const ua = typeof navigator !== 'undefined' && navigator.userAgent ? navigator.userAgent : '';
   const isMobile = /iphone|ipod|ipad|android|blackberry|bb|playbook|windows phone|iemobile|opera mini|mobile/i.test(ua);
   if (isMobile) {
-    // attempt to open the app via custom scheme on mobile
     try {
       window.location.href = url;
     } catch (e) {
       window.open(url, '_blank');
     }
   } else {
-    // on Desktop
-    console.log(`Deflock profile URL: ${url}`);
-    // router.push('/app');
+    router.push('/app');
   }
 }
 
