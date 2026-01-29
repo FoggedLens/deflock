@@ -1,28 +1,30 @@
 <template>
 <DefaultLayout no-bottom-margin>
   <template #header>
-    <v-container fluid class="hero-section">
-      <v-row justify="center">
-        <v-col cols="12" md="8" class="text-center">
-          <h1 class="display-1 px-8">Welcome to DeFlock</h1>
-          <h2 class="bigger px-8">
-            An open-source project mapping license plate readers.
-          </h2>
-          
-          <ALPRCounter class="my-6" />
-  
-          <v-btn size="large" color="rgb(18, 151, 195)" large @click="goToMap({ withCurrentLocation: true })">
-            Explore the Map
-            <v-icon end>mdi-map</v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
+    <div class="hero-background">
+      <v-container class="text-center py-8">
+        <v-row justify="center">
+          <v-col cols="12" md="8">
+            <h1 class="display-1 px-4 mb-4">Welcome to DeFlock</h1>
+            <h2 class="text-h5 px-4 mb-6">
+              An open-source project mapping license plate readers.
+            </h2>
+            
+            <ALPRCounter class="my-6" />
+    
+            <v-btn size="large" color="rgb(18, 151, 195)" large @click="goToMap({ withCurrentLocation: true })">
+              Explore the Map
+              <v-icon end>mdi-map</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
   </template>
   
   <!-- Dangers Section -->
-  <v-container class="pb-10 text-center info-section">
-    <h2 class="mb-4">What are ALPRs</h2>
+  <v-container class="pb-10 text-center">
+    <h2 class="mb-6">What are ALPRs</h2>
     
     <p class="text-left px-6">
       Automated License Plate Readers (ALPRs or LPRs) are AI-powered cameras that capture and analyze images of <b>all passing vehicles</b>, storing details like your car's <b>location, date, and time</b>. They also capture your car's <b>make, model, color</b>, and <b>identifying features</b> such as dents, roof racks, and bumper stickers, often turning these into <b>searchable data points</b>.
@@ -122,29 +124,10 @@
 </template>
 
 <style>
-.hero-section {
-  background: url('/hero.webp') no-repeat center center;
-  background-size: cover;
-  color: white;
-  padding: 60px 0 50px 0 !important;
-  background-position: right center;
-  position: relative;
-}
-
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 1;
-}
-
-.hero-section > * {
-  position: relative;
-  z-index: 2;
+.featured-image-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 16px;
 }
 
 .map-section {
@@ -168,6 +151,34 @@
 .map-section > * {
   position: relative;
   z-index: 2;
+}
+
+.hero-background {
+  background: url('/hero.webp') no-repeat right center / cover;
+  position: relative;
+  min-height: 400px;
+  color: white;
+}
+
+.hero-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.hero-background > * {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-background h1,
+.hero-background h2 {
+  color: white;
 }
 
 .bigger {

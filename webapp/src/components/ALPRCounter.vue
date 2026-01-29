@@ -1,7 +1,21 @@
 <template>
-  <div class="counter">
-    <span :class="{ mobile: isMobile }" ref="counterEl" class="font-weight-bold">0</span>
-    <span class="caption">&nbsp;LPRs mapped in the USA</span>
+  <div class="dashboard-bg rounded-xl pa-6 pa-sm-4 mx-4 mx-sm-2 text-white">
+    <v-row class="ma-0">
+      <v-col cols="12" sm="6" class="pa-3 pa-sm-2">
+        <div class="d-flex flex-column align-center text-center">
+          <v-icon :size="isMobile ? 24 : 32" color="white" class="mb-2">mdi-camera-outline</v-icon>
+          <div ref="counterEl" class="font-weight-bold mb-2" :class="isMobile ? 'text-h3' : 'text-h2'">0</div>
+          <div class="text-body-1">LPRs mapped in the USA</div>
+        </div>
+      </v-col>
+      <v-col cols="12" sm="6" class="pa-3 pa-sm-2">
+        <div class="d-flex flex-column align-center text-center">
+          <v-icon :size="isMobile ? 24 : 32" color="white" class="mb-2">mdi-trophy-outline</v-icon>
+          <div ref="winsCounterEl" class="font-weight-bold mb-2" :class="isMobile ? 'text-h3' : 'text-h2'">0</div>
+          <div class="text-body-1">Cities Rejecting LPRs</div>
+        </div>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
@@ -19,6 +33,7 @@ const props = defineProps({
 });
 
 const counterEl: Ref<HTMLElement|null> = ref(null);
+const winsCounterEl: Ref<HTMLElement|null> = ref(null);
 const countupOptions = {
   useEasing: true,
   useGrouping: true,
@@ -28,13 +43,14 @@ const countupOptions = {
   suffix: '',
 };
 let counter: CountUp|undefined = undefined;
+let winsCounter: CountUp|undefined = undefined;
 interface Counts {
   us?: number;
-  worldwide?: number;
+  wins: number;
 }
 const counts: Ref<Counts> = ref({
   us: undefined,
-  worldwide: undefined,
+  wins: 0,
 });
 const showFinalAnimation = ref(false);
 const { xs: isMobile } = useDisplay();
@@ -50,23 +66,26 @@ onMounted(() => {
 });
 
 function countUp(newCounts: Counts) {
-  if (!newCounts.worldwide) return;
-  if (!counterEl.value) {
-    console.error('Counter element not found');
+  if (!newCounts.us) return;
+  if (!counterEl.value || !winsCounterEl.value) {
+    console.error('Counter elements not found');
     return;
   };
 
-  if (!counter) {
-    counter = new CountUp(counterEl.value, newCounts.worldwide, countupOptions);
+  if (!counter && !winsCounter) {
+    counter = new CountUp(counterEl.value, newCounts.us, countupOptions);
+    winsCounter = new CountUp(winsCounterEl.value, newCounts.wins, countupOptions);
 
     if (timeOfMount) {
       const timeSinceMount = new Date().getTime() - timeOfMount;
       if (timeSinceMount < props.delayMs) {
         setTimeout(() => {
           counter?.start();
+          winsCounter?.start();
         }, props.delayMs - timeSinceMount);
       } else {
         counter.start();
+        winsCounter.start();
       }
     }
 
@@ -78,12 +97,7 @@ function countUp(newCounts: Counts) {
 </script>
 
 <style scoped>
-.counter {
-  font-size: 1.5rem;
-}
-
-.mobile {
-  display: block;
-  font-size: 1.2em;
+.dashboard-bg {
+  background: rgba(0, 0, 0, 0.6);
 }
 </style>
