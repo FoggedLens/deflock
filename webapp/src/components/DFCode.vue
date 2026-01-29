@@ -5,9 +5,11 @@
     </v-btn>
     <code ref="codeContent">
       <template v-if="osmTags">
-        <span v-for="(value, key) in osmTags" :key="key">
-          {{ key }}=<span :class="{ highlight: highlightValuesForKeys.includes(key)}">{{ value }}</span><br>
-        </span>
+        <template v-for="(value, key) in osmTags" :key="key">
+          <span v-if="value !== ''">
+            {{ key }}=<span :class="{ highlight: highlightValuesForKeys.includes(key)}">{{ value }}</span><br>
+          </span>
+        </template>
       </template>
       <slot v-else></slot>
     </code>

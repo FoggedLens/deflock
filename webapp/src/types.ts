@@ -15,3 +15,14 @@ export interface LprVendor {
   logoUrl?: string;
   osmTags: Record<string, string>;
 }
+
+export interface OtherSurveillanceDevice {
+  id: number;
+  capabilities?: string;
+  category: string;
+  fov?: number;
+  name: string;
+  osmTags: Record<string, string>;
+  requiresDirection: boolean;
+  urls: Array<{ url: string }>;
+}
