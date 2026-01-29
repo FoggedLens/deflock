@@ -17,7 +17,7 @@
         class="mb-6"
       >
         <v-tab value="alprs">License Plate Readers</v-tab>
-        <v-tab value="other">Other Surveillance</v-tab>
+        <v-tab value="other">Other Devices</v-tab>
       </v-tabs>
     </v-container>
 
@@ -121,14 +121,19 @@
                   <div class="mt-4">
                     <h4 class="text-center mb-2">OSM Tags</h4>
                     <DFCode 
+                      v-if="hasOsmTags(vendor.osmTags)"
                       :osm-tags="getMergedTags(vendor)" 
                       :highlight-values-for-keys="getVendorTagKeys(vendor)"
                     />
+                    <div v-else class="text-center pa-4 text-medium-emphasis">
+                      Coming soon
+                    </div>
                     <div class="text-center mt-3">
                       <v-btn 
                         color="primary" 
                         variant="elevated"
                         size="large"
+                        :disabled="!hasOsmTags(vendor.osmTags)"
                         @click="onAddToApp(vendor.shortName, vendor.osmTags, true, true, null)"
                         prepend-icon="mdi-application-import"
                       >
@@ -204,13 +209,18 @@
                       <div class="mt-4">
                         <h4 class="text-center mb-2">OSM Tags</h4>
                         <DFCode 
+                          v-if="hasOsmTags(device.osmTags)"
                           :osm-tags="device.osmTags" 
                         />
+                        <div v-else class="text-center pa-4 text-medium-emphasis">
+                          Coming soon
+                        </div>
                         <div class="text-center mt-3">
                           <v-btn 
                             color="primary" 
                             variant="elevated"
                             size="large"
+                            :disabled="!hasOsmTags(device.osmTags)"
                             @click="onAddToApp(device.name, device.osmTags, false, device.requiresDirection, device.fov ?? null)"
                             prepend-icon="mdi-application-import"
                           >
@@ -276,6 +286,10 @@ function getMergedTags(vendor: LprVendor): Record<string, string> {
 
 function getVendorTagKeys(vendor: LprVendor): string[] {
   return Object.keys(vendor.osmTags ?? {});
+}
+
+function hasOsmTags(osmTags: Record<string, string> | undefined): boolean {
+  return osmTags !== undefined && Object.keys(osmTags).length > 0;
 }
 
 // Group other surveillance devices by category, preserving CMS order
