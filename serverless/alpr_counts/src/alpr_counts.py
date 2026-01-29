@@ -1,13 +1,14 @@
 import json
 import requests
 import boto3
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 def fetch_alpr_surveillance_nodes(usOnly=True):
   overpass_url = "http://overpass-api.de/api/interpreter"
-  overpass_query = f"""
+  overpass_query = """
   [out:json][timeout:180];
-  {'area["ISO3166-1"="US"]->.searchArea;' if usOnly else ''}
-  node["man_made"="surveillance"]["surveillance:type"="ALPR"]{f'(area.searchArea)' if usOnly else ''};
+  area["ISO3166-1"="US"]->.searchArea;
+  node["man_made"="surveillance"]["surveillance:type"="ALPR"](area.searchArea);
   out count;
   """
 
@@ -22,19 +23,53 @@ def fetch_alpr_surveillance_nodes(usOnly=True):
   else:
     raise RuntimeError(f"Failed to fetch data from Overpass API. Status code: {response.status_code}")
 
+def fetch_wins_count():
+  cms_url = "https://cms.deflock.me/items/RecentWins"
+  
+  response = requests.get(cms_url)
+  
+  if response.status_code == 200:
+    response_json = response.json()
+    try:
+      win_instances = response_json['data']['WinInstances']
+      return len(win_instances)
+    except (KeyError, TypeError) as e:
+      raise RuntimeError("Could not find 'data.WinInstances' in the response.")
+  else:
+    raise RuntimeError(f"Failed to fetch data from CMS. Status code: {response.status_code}")
+
 def lambda_handler(event, context):
-  # us_alprs = fetch_alpr_surveillance_nodes('(area["ISO3166-1"="US"])')
-  try:
-    worldwide_alprs = fetch_alpr_surveillance_nodes()
-  except Exception as e:
+  us_alprs = None
+  wins_count = None
+  errors = []
+  
+  with ThreadPoolExecutor(max_workers=2) as executor:
+    future_to_task = {
+      executor.submit(fetch_alpr_surveillance_nodes): 'us_alprs',
+      executor.submit(fetch_wins_count): 'wins'
+    }
+    
+    for future in as_completed(future_to_task):
+      task_name = future_to_task[future]
+      try:
+        result = future.result()
+        if task_name == 'us_alprs':
+          us_alprs = result
+        elif task_name == 'wins':
+          wins_count = result
+      except Exception as e:
+        errors.append(f"{task_name}: {str(e)}")
+  
+  if errors:
     return {
       'statusCode': 500,
-      'body': f"Failed to fetch ALPR counts: {str(e)}",
+      'body': f"Failed to fetch data: {'; '.join(errors)}",
     }
 
   all_alprs = {
-    # 'us': us_alprs,
-    'worldwide': worldwide_alprs # keep this as worldwide while we deploy, change eventually
+    'us': us_alprs, # remove me soon
+    'worldwide': us_alprs, # keep this as worldwide while we deploy, change eventually
+    'wins': wins_count
   }
 
   s3 = boto3.client('s3')
@@ -52,3 +87,7 @@ def lambda_handler(event, context):
     'statusCode': 200,
     'body': 'Successfully fetched ALPR counts.',
   }
+
+if __name__ == "__main__":
+  result = lambda_handler({}, {})
+  print(result)
