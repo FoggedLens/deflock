@@ -37,6 +37,17 @@
                 >
                   Get on Android
                 </v-btn>
+                <v-btn
+                  size="large"
+                  variant="outlined"
+                  color="black"
+                  class="download-btn android-btn"
+                  prepend-icon="mdi-github"
+                  :href="appLinks.github"
+                  target="_blank"
+                >
+                  View Source
+                </v-btn>
 
                 <v-btn
                   size="large"
@@ -262,6 +273,7 @@ interface PrivacyPrinciple {
 const appLinks = {
   android: 'https://play.google.com/store/apps/details?id=me.deflock.deflockapp',
   ios: 'https://apps.apple.com/us/app/deflock-me/id6752760780',
+  github: 'https://github.com/FoggedLens/deflock-app/releases',
 }
 
 // App features
