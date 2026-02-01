@@ -25,8 +25,9 @@ def fetch_alpr_surveillance_nodes(usOnly=True):
 
 def fetch_wins_count():
   cms_url = "https://cms.deflock.me/items/RecentWins"
+  headers = {'User-Agent': 'deflock-alpr-counts/1.0'}
   
-  response = requests.get(cms_url)
+  response = requests.get(cms_url, headers=headers)
   
   if response.status_code == 200:
     response_json = response.json()
