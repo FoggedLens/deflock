@@ -48,7 +48,7 @@ export class BoundingBox implements BoundingBoxLiteral {
 }
 
 const apiService = axios.create({
-  baseURL: window.location.hostname === "localhost" ? "http://localhost:8080/api" : "/api",
+  baseURL: window.location.hostname === "localhost" ? "http://localhost:3000/api" : "/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -82,49 +82,8 @@ export const getCities = async () => {
   return response.data;
 }
 
-export const geocodeQuery = async (query: string, currentLocation: any) => {
+export const geocodeQuery = async (query: string) => {
   const encodedQuery = encodeURIComponent(query);
-  const results = (await apiService.get(`/geocode?query=${encodedQuery}`)).data;
-
-  function findNearestResult(results: any, currentLocation: any) {
-    let nearestResult = results[0];
-    let nearestDistance = Number.MAX_VALUE;
-    for (const result of results) {
-      const distance = Math.sqrt(
-        Math.pow(result.lat - currentLocation.lat, 2) +
-        Math.pow(result.lon - currentLocation.lng, 2)
-      );
-      if (distance < nearestDistance) {
-        nearestResult = result;
-        nearestDistance = distance;
-      }
-    }
-    return nearestResult;
-  }
-
-  if (!results.length) return null;
-
-  const cityStatePattern = /(.+),\s*(\w{2})/;
-  const postalCodePattern = /\d{5}/;
-
-  if (cityStatePattern.test(query)) {
-    console.debug("cityStatePattern");
-    const cityStateResults = results.filter((result: any) => 
-      ["city", "town", "village", "hamlet", "suburb", "quarter", "neighbourhood", "borough"].includes(result.addresstype)
-    );
-    if (cityStateResults.length) {
-      return findNearestResult(cityStateResults, currentLocation);
-    }
-  }
-
-  if (postalCodePattern.test(query)) {
-    console.debug("postalCodePattern");
-    const postalCodeResults = results.filter((result: any) => result.addresstype === "postcode");
-    if (postalCodeResults.length) {
-      return findNearestResult(postalCodeResults, currentLocation);
-    }
-  }
-
-  console.debug("defaultPattern");
-  return findNearestResult(results, currentLocation);
+  const result = (await apiService.get(`/geocode?query=${encodedQuery}`)).data;
+  return result;
 }
