@@ -101,6 +101,7 @@ const start = async () => {
     },
   }, async (request, reply) => {
     const { username } = request.query as { username?: string };
+    reply.header('Cache-Control', 'public, max-age=60, s-maxage=600');
     const result = await githubClient.getSponsors(username || 'frillweeman');
     return result;
   });
