@@ -36,13 +36,21 @@ const start = async () => {
 
   // Coors Light Config
   await server.register(cors, {
-    origin: [
-      'http://localhost:5173', // vite dev server
-      'https://deflock.me',
-      'https://www.deflock.me',
-      'https://deflock.org', // will migrate
-      'https://www.deflock.org', // will migrate
-    ],
+    origin: (origin, cb) => {
+      const allowedOrigins = [
+        'http://localhost:5173', // vite dev server
+        'https://deflock.me',
+        'https://www.deflock.me',
+        'https://deflock.org', // will migrate
+        'https://www.deflock.org', // will migrate
+      ];
+      
+      if (!origin || allowedOrigins.includes(origin) || /^https:\/\/.*\.deflock\.pages\.dev$/.test(origin)) {
+        cb(null, true);
+      } else {
+        cb(null, false);
+      }
+    },
     methods: ['GET', 'HEAD'],
   });
 

@@ -2,7 +2,7 @@ name: DeFlock API Deploy
 
 on:
   push:
-    branches: [master]
+    branches: [ts-backend]
 
 jobs:
   deploy:
