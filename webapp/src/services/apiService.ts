@@ -48,7 +48,7 @@ export class BoundingBox implements BoundingBoxLiteral {
 }
 
 const apiService = axios.create({
-  baseURL: window.location.hostname === "localhost" ? "http://localhost:3000/api" : "/api",
+  baseURL: window.location.hostname === "localhost" ? "http://localhost:3000" : "https://api.deflock.org",
   headers: {
     "Content-Type": "application/json",
   },

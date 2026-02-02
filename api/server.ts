@@ -58,7 +58,7 @@ const start = async () => {
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
 
-  server.get('/api/geocode', {
+  server.get('/geocode', {
     schema: {
       querystring: {
         type: 'object',
@@ -78,7 +78,7 @@ const start = async () => {
     return result;
   });
 
-  server.get('/api/sponsors/github', {
+  server.get('/sponsors/github', {
     schema: {
       querystring: {
         type: 'object',
@@ -97,7 +97,7 @@ const start = async () => {
     return result;
   });
 
-  server.head('/api/healthcheck', async (request, reply) => {
+  server.head('/healthcheck', async (request, reply) => {
     reply.status(200).send();
   });
 
