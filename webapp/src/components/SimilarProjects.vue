@@ -146,7 +146,7 @@ const similarProjects: SimilarProject[] = [
     name: "FlockHopper",
     description: "Flock camera map and avoidance routing",
     url: "https://dontgetflocked.com",
-    imageUrl: "TBD"
+    imageUrl: "/similar-projects/flockhopper.webp"
   }
 ]
 </script>
