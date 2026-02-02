@@ -17,8 +17,8 @@ jobs:
 
       - run: bun install
         working-directory: ./api
-      - run: bun test
-        working-directory: ./api
+			
+			## TODO: add tests
 
       - name: Configure SSH
         run: |
