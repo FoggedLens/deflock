@@ -39,10 +39,8 @@ const start = async () => {
     origin: (origin, cb) => {
       const allowedOrigins = [
         'http://localhost:5173', // vite dev server
-        'https://deflock.me',
-        'https://www.deflock.me',
-        'https://deflock.org', // will migrate
-        'https://www.deflock.org', // will migrate
+        'https://deflock.org',
+        'https://www.deflock.org'
       ];
       
       if (!origin || allowedOrigins.includes(origin) || /^https:\/\/.*\.deflock\.pages\.dev$/.test(origin)) {

@@ -1,83 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://deflock.me/</loc>
+    <loc>https://deflock.org/</loc>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/map</loc>
+    <loc>https://deflock.org/map</loc>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/about</loc>
+    <loc>https://deflock.org/about</loc>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/what-is-an-alpr</loc>
+    <loc>https://deflock.org/what-is-an-alpr</loc>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/report</loc>
+    <loc>https://deflock.org/report</loc>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/report/id</loc>
+    <loc>https://deflock.org/report/id</loc>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/council</loc>
+    <loc>https://deflock.org/council</loc>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/app</loc>
+    <loc>https://deflock.org/app</loc>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/app/docs</loc>
+    <loc>https://deflock.org/app/docs</loc>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/contact</loc>
+    <loc>https://deflock.org/contact</loc>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/terms</loc>
+    <loc>https://deflock.org/terms</loc>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/privacy</loc>
+    <loc>https://deflock.org/privacy</loc>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/qr</loc>
+    <loc>https://deflock.org/qr</loc>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/donate</loc>
+    <loc>https://deflock.org/donate</loc>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/foia</loc>
+    <loc>https://deflock.org/foia</loc>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/identify</loc>
+    <loc>https://deflock.org/identify</loc>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/press</loc>
+    <loc>https://deflock.org/press</loc>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/store</loc>
+    <loc>https://deflock.org/store</loc>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/groups</loc>
+    <loc>https://deflock.org/groups</loc>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.me/blog</loc>
+    <loc>https://deflock.org/blog</loc>
     <changefreq>daily</changefreq>
   </url>
 </urlset>

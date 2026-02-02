@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Sitemap: https://deflock.me/sitemap.xml
+Sitemap: https://deflock.org/sitemap.xml

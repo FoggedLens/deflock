@@ -1,6 +1,6 @@
 # DeFlock
 
-Crowdsourced tool for locating and reporting ALPRs. [View Live Site](https://deflock.me).
+Crowdsourced tool for locating and reporting ALPRs. [View Live Site](https://deflock.org).
 
 ![DeFlock Screenshot](./webapp/public/map-interface-nationwide.webp)
 

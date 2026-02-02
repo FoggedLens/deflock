@@ -33,18 +33,18 @@
 
     <p>
       <DFCode>
-        &lt;iframe src=&quot;https://deflock.me/map&quot; width=&quot;100%&quot; height=&quot;600&quot; style=&quot;border: none;&quot;&gt;&lt;/iframe&gt;
+        &lt;iframe src=&quot;https://deflock.org/map&quot; width=&quot;100%&quot; height=&quot;600&quot; style=&quot;border: none;&quot;&gt;&lt;/iframe&gt;
       </DFCode>
     </p>
 
     <p>
-      If you would like to <b>localize the URL</b> to a specific region, please zoom to the area at <router-link to="/map">https://deflock.me/map</router-link> and copy the URL from your browser's address bar.
+      If you would like to <b>localize the URL</b> to a specific region, please zoom to the area at <router-link to="/map">https://deflock.org/map</router-link> and copy the URL from your browser's address bar.
     </p>
 
     <p>
       To <b>remove the header bar</b>, add the following query parameter to the URL: <code>?fullscreen=true</code>. For example:
       <DFCode>
-        &lt;iframe src=&quot;https://deflock.me/map?fullscreen=true#map=14/40.014863/-105.266275&quot; width=&quot;100%&quot; height=&quot;600&quot; style=&quot;border: none;&quot;&gt;&lt;/iframe&gt;
+        &lt;iframe src=&quot;https://deflock.org/map?fullscreen=true#map=14/40.014863/-105.266275&quot; width=&quot;100%&quot; height=&quot;600&quot; style=&quot;border: none;&quot;&gt;&lt;/iframe&gt;
       </DFCode>
     </p>
 
