@@ -7,7 +7,7 @@ import { GithubClient, SponsorsResponseSchema } from './services/GithubClient';
 const start = async () => {
   const server: FastifyInstance = Fastify({
     logger: {
-      level: 'info',
+      level: 'error',
       transport: {
         target: 'pino-pretty',
         options: {
@@ -33,13 +33,14 @@ const start = async () => {
     });
   });
 
-  // CORS config
+  // Coors Light Config
   await server.register(cors, {
     origin: [
-      'http://localhost:8080',
-      'http://localhost:5173',
+      'http://localhost:5173', // vite dev server
       'https://deflock.me',
       'https://www.deflock.me',
+      'https://deflock.org', // will migrate
+      'https://www.deflock.org', // will migrate
     ],
     methods: ['GET', 'HEAD'],
   });
