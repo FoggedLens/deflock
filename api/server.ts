@@ -17,6 +17,7 @@ const start = async () => {
         },
       },
     },
+    trustProxy: true,
   });
 
   // Global error handler
@@ -48,44 +49,53 @@ const start = async () => {
   const nominatim = new NominatimClient();
   const githubClient = new GithubClient();
 
-server.get('/api/geocode', {
-  schema: {
-    querystring: {
-      type: 'object',
-      properties: {
-        query: { type: 'string' },
-      },
-      required: ['query'],
-    },
-    response: {
-      200: NominatimResultSchema,
-      500: { type: 'object', properties: { error: { type: 'string' } } },
-    },
-  },
-}, async (request, reply) => {
-  const { query } = request.query as { query: string };
-  const result = await nominatim.geocodeSingleResult(query);
-  return result;
-});
+  const shutdown = async () => {
+    server.log.info("Shutting down");
+    await server.close();
+    process.exit(0);
+  };
 
-server.get('/api/sponsors/github', {
-  schema: {
-    querystring: {
-      type: 'object',
-      properties: {
-        username: { type: 'string', default: 'frillweeman' },
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+
+  server.get('/api/geocode', {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          query: { type: 'string' },
+        },
+        required: ['query'],
+      },
+      response: {
+        200: NominatimResultSchema,
+        500: { type: 'object', properties: { error: { type: 'string' } } },
       },
     },
-    response: {
-      200: SponsorsResponseSchema,
-      500: { type: 'object', properties: { error: { type: 'string' } } },
+  }, async (request, reply) => {
+    const { query } = request.query as { query: string };
+    const result = await nominatim.geocodeSingleResult(query);
+    return result;
+  });
+
+  server.get('/api/sponsors/github', {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          username: { type: 'string', default: 'frillweeman' },
+        },
+      },
+      response: {
+        200: SponsorsResponseSchema,
+        500: { type: 'object', properties: { error: { type: 'string' } } },
+      },
     },
-  },
-}, async (request, reply) => {
-  const { username } = request.query as { username?: string };
-  const result = await githubClient.getSponsors(username || 'frillweeman');
-  return result;
-});
+  }, async (request, reply) => {
+    const { username } = request.query as { username?: string };
+    const result = await githubClient.getSponsors(username || 'frillweeman');
+    return result;
+  });
 
   server.head('/api/healthcheck', async (request, reply) => {
     reply.status(200).send();
