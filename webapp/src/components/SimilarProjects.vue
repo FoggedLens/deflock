@@ -141,6 +141,12 @@ const similarProjects: SimilarProject[] = [
     description: "The Institute for Justice's site analyzing ALPR usage patterns in the US.",
     url: "https://plateprivacy.com",
     imageUrl: "/similar-projects/plate-privacy.webp"
+  },
+  {
+    name: "FlockHopper",
+    description: "Flock camera map and avoidance routing",
+    url: "https://dontgetflocked.com",
+    imageUrl: "TBD"
   }
 ]
 </script>
