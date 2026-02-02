@@ -29,7 +29,7 @@ export type NominatimResult = Static<typeof NominatimResultSchema>;
 const cache: Cache = createCache({
   stores: [new DiskStore({
     path: '/tmp/nominatim-cache',
-    ttl: 3600, // 1 hour
+    ttl: 3600 * 24, // 24 hours
     maxsize: 1000 * 1000 * 100, // 100MB
     subdirs: true,
     zip: false,
@@ -43,11 +43,9 @@ export class NominatimClient {
     const cacheKey = `geocode:${query}`;
     const cached = await cache.get(cacheKey);
     if (cached) {
-			console.log('NominatimClient: CACHE HIT', query);
       return cached as NominatimResult[];
     }
     const url = `${this.baseUrl}?q=${encodeURIComponent(query)}&polygon_geojson=1&format=json`;
-    console.log('NominatimClient: Fetching', url);
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'DeFlock/1.1',
@@ -57,7 +55,6 @@ export class NominatimClient {
       throw new Error(`Failed to geocode phrase: ${response.status}`);
     }
     const json = await response.json();
-    console.log('NominatimClient: CACHE MISS');
     await cache.set(cacheKey, json);
     return json;
   }
@@ -71,7 +68,6 @@ export class NominatimClient {
     const postalCodePattern = /\d{5}/;
 
     if (cityStatePattern.test(query)) {
-      console.log('NominatimClient: cityStatePattern matched');
       const cityStateResults = results.filter((result: NominatimResult) => 
         ["city", "town", "village", "hamlet", "suburb", "quarter", "neighbourhood", "borough"].includes(result.addresstype)
       );
@@ -81,14 +77,12 @@ export class NominatimClient {
     }
 
     if (postalCodePattern.test(query)) {
-      console.log('NominatimClient: postalCodePattern matched');
       const postalCodeResults = results.filter((result: NominatimResult) => result.addresstype === "postcode");
       if (postalCodeResults.length) {
         return postalCodeResults[0];
       }
     }
 
-    console.log('NominatimClient: defaultPattern');
     return results[0];
   }
 }
