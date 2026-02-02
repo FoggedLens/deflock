@@ -4,5 +4,7 @@ export const lprBaseTags = {
     "surveillance": "public",
     "camera:type": "fixed",
     "surveillance:zone": "traffic",
-    "camera:mount": ""
+    "camera:mount": "",
+    "electricity": "",
+    "note": ""
 }
