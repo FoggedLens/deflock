@@ -8,7 +8,7 @@ import { useDiscordIntercept } from '@/composables/useDiscordIntercept';
 const theme = useTheme();
 const router = useRouter();
 const isDark = computed(() => theme.name.value === 'dark');
-const isFullscreen = computed(() => router.currentRoute.value?.query.fullscreen === 'true');
+const isInIframe = computed(() => window.self !== window.top);
 const { showDialog, discordUrl, interceptDiscordLinks } = useDiscordIntercept();
 
 function toggleTheme() {
@@ -70,7 +70,7 @@ watch(() => theme.global.name.value, (newTheme) => {
 
 <template>
   <v-app>
-    <template v-if="!isFullscreen">
+    <template v-if="!isInIframe">
       <v-app-bar
         flat
         prominent

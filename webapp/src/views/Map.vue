@@ -1,5 +1,5 @@
 <template>
-  <NewVisitor />
+  <NewVisitor v-if="!isIframe" />
   <div class="map-container" @keyup="handleKeyUp">
     <leaflet-map
       v-if="center"
@@ -77,6 +77,8 @@ const searchInput: Ref<string> = ref(''); // For the text input field
 const searchQuery: Ref<string> = ref(''); // For URL and boundaries (persistent)
 const geojson: Ref<GeoJSON.GeoJsonObject | null> = ref(null);
 const tilesStore = useTilesStore();
+
+const isIframe = computed(() => window.self !== window.top);
 
 const { fetchVisibleTiles } = tilesStore;
 const alprs = computed(() => tilesStore.allNodes);
