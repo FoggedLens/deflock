@@ -107,6 +107,12 @@ const similarProjects: SimilarProject[] = [
     imageUrl: "/similar-projects/hibf.webp"
   },
   {
+    name: "FlockHopper",
+    description: "Get directions that avoid ALPR cameras, and see how many are normally on your route.",
+    url: "https://dontgetflocked.com",
+    imageUrl: "/similar-projects/flockhopper.webp"
+  },
+  {
     name: "Upcoming Meetings",
     description: "Find upcoming public meetings related to ALPR deployments.",
     url: "https://alpr.watch/",
@@ -141,12 +147,6 @@ const similarProjects: SimilarProject[] = [
     description: "The Institute for Justice's site analyzing ALPR usage patterns in the US.",
     url: "https://plateprivacy.com",
     imageUrl: "/similar-projects/plate-privacy.webp"
-  },
-  {
-    name: "FlockHopper",
-    description: "Flock camera map and avoidance routing",
-    url: "https://dontgetflocked.com",
-    imageUrl: "/similar-projects/flockhopper.webp"
   }
 ]
 </script>
