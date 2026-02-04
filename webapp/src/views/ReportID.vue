@@ -106,12 +106,12 @@
         <v-stepper-vertical-item
           class="transparent"
           :complete="step > 5"
-          title="Add an image (optional)"
+          title="Add an Image (optional)"
           value="5"
           editable
         >
           <p>
-            Optionally, you can add an image to your submission as well. If you choose to do this, <a href="https://auth.wikimedia.org/commonswiki/wiki/Special:CreateAccount">you will need to sign up for a wikimedia commons account.</a>
+            Optionally, you can add an image to your submission as well. If you choose to do this, <a target="_blank" href="https://auth.wikimedia.org/commonswiki/wiki/Special:CreateAccount">you will need to sign up for a wikimedia commons account.</a>
           </p>
 
           <v-img
@@ -120,7 +120,7 @@
             src="/wikimedia-instructions/informational.png"
           />
           <p>
-            Open the <a href="https://commons.wikimedia.org/wiki/Special:UploadWizard">Upload Wizard</a> after logging into your account. Make sure to read the graphic and confirm you understand the rules about what can be uploaded to wikimedia commons.
+            Open the <a target="_blank" href="https://commons.wikimedia.org/wiki/Special:UploadWizard">Upload Wizard</a> after logging into your account. Make sure to read the graphic and confirm you understand the rules about what can be uploaded to wikimedia commons.
           </p>
 
           <v-img
