@@ -16,6 +16,7 @@
     "@unhead/vue": "^1.11.14",
     "axios": "^1.7.7",
     "countup.js": "^2.8.0",
+    "js-md5": "^0.8.3",
     "leaflet.markercluster": "^1.5.3",
     "pinia": "^2.3.0",
     "vue": "^3.4.29",
