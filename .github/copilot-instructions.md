@@ -1,48 +1,29 @@
 # Copilot Instructions
 
-This monorepo contains multiple subprojects. Below are the specific instructions for each.
+DeFlock — crowdsourced ALPR mapping tool. See `CLAUDE.md` for full project documentation, commands, architecture, and data flow.
 
-## Web Application
-/webapp
+## Conventions
 
-This is a TypeScript + Vue 3 + Vuetify application.
+- Functional patterns; simple and readable over clever
+- No tracking, analytics, or telemetry; never log PII
+- No placeholder logic; use `TODO` comments for unknowns
+- The Scala backend (`shotgun/`) is deprecated and deleted; do not recreate it
 
-### Architecture
-- Vue 3 (Composition API)
-- State management is local-first; avoid global stores unless required
-- Vuetify for UI components and styling
+### Frontend (webapp/)
 
-### Page Structure
-- Each page resides in `src/views`
-- Shared components go in `src/components`
-- Styles are scoped to components; avoid global styles unless necessary
-- Prefer helper classes (provided by Vuetify) for styling over CSS rules
-- Wrap most pages in DefaultLayout.vue for consistent headers/footers
-- Use the Hero component for prominent page headings
+- Vue 3 Composition API; local-first state (Pinia only when truly global)
+- Vuetify helper classes over custom CSS; always scoped styles
+- Pages in `src/views/`, shared components in `src/components/`
+- Wrap pages in `DefaultLayout.vue`; use `Hero` component for page headings
 
-### Coding Style
-- Prefer functional patterns
+### API (api/)
 
-### Security & Privacy
-- Never log PII
-- Do not introduce tracking, analytics, or telemetry
+Fastify + TypeScript on Bun. See `api/README.md` for endpoints.
 
-### General Rules
-- Do not generate placeholder logic
-- If something is unknown, leave a TODO comment
-- Prefer simple, readable solutions over clever ones
+### Serverless (serverless/)
 
-## Backend Service
-/shotgun
+Python 3.14 AWS Lambda functions. Deployed via Terraform.
 
-This is being deprecated. No new features should be added. Backend functionality should be migrated to serverless functions where possible.
+### Infrastructure (terraform/)
 
-## Terraform
-/terraform
-
-This contains Terraform code for infrastructure management.
-
-## Serverless Functions
-/serverless
-
-This contains serverless functions to support the web application.
+Terraform for AWS resource management.
