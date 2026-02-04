@@ -2,9 +2,9 @@
   <v-sheet min-width="240">
     <!--  TODO: if a field is unknown, prompt user to edit it -->
     <div class="position-relative">
-      <v-img v-if="imageUrl" cover width="100%" height="150px" :src="imageUrl" class="rounded mt-5" />
+      <v-img v-if="imageUrl" cover width="100%" height="150px" :src="imageUrl" class="rounded mt-5" position="top" />
       <div v-if="imageUrl" class="position-absolute bottom-0 left-0 right-0 text-center text-white text-caption" style="background: rgba(0, 0, 0, 0.5);">
-        {{ manufacturer }} LPR
+        {{ manufacturer }} {{ manufacturer.endsWith(' LPR') ? '' : ' LPR' }}
       </div>
     </div>
     <v-list density="compact" class="my-2">
@@ -45,7 +45,7 @@
 
     <div class="text-center">
       <v-btn target="_blank" size="x-small" :href="osmNodeLink(props.alpr.id)" variant="text" color="grey"><v-icon start>mdi-open-in-new</v-icon>View on OSM</v-btn>
-      <v-btn v-if="imageLink" target="_blank" size="x-small" :href="imageLink" variant="text" color="grey"><v-icon start>mdi-image</v-icon>View image</v-btn>
+      <v-btn v-if="wikimediaImages" target="_blank" size="x-small" :href="wikimediaImages.wiki" variant="text" color="grey"><v-icon start>mdi-image</v-icon>View image</v-btn>
     </div>
   </v-sheet>
 </template>
@@ -56,6 +56,7 @@ import type { PropType } from 'vue';
 import type { ALPR } from '@/types';
 import { VIcon, VList, VSheet, VListItem, VBtn, VImg, VListItemSubtitle, VDivider } from 'vuetify/components';
 import { useVendorStore } from '@/stores/vendorStore';
+import { md5 } from 'js-md5';
 
 const props = defineProps({
   alpr: {
@@ -73,11 +74,15 @@ const manufacturer = computed(() => (
 ));
 
 const store = useVendorStore();
-const imageUrl = ref<string | undefined | null>(undefined);
+const vendorImageUrl = ref<string | undefined | null>(undefined);
 
 onMounted(async () => {
   const url = await store.getFirstImageForManufacturer(manufacturer.value as string);
-  if (url) imageUrl.value = url;
+  if (url) vendorImageUrl.value = url;
+});
+
+const imageUrl = computed(() => {
+  return wikimediaImages.value?.thumbnail ?? vendorImageUrl.value;
 });
 
 const abbreviatedOperator = computed(() => {
@@ -105,12 +110,24 @@ const abbreviatedOperator = computed(() => {
   return operator;
 });
 
-const imageLink = computed(() => {
+const wikimediaImages = computed(() => {
   if (!props.alpr.tags.hasOwnProperty("wikimedia_commons")) {
     return;
   }
-  const file_uri_encoded = encodeURIComponent(props.alpr.tags["wikimedia_commons"]);
-  return `https://commons.wikimedia.org/wiki/${file_uri_encoded}`;
+  const filename = props.alpr.tags["wikimedia_commons"];
+  const thumbnailWidth = 300;
+
+  const cleanFilename = filename.replace(/^File:/, '').replace(/ /g, '_');
+
+  const md5Hash = md5(cleanFilename);
+  const hashPath = `${md5Hash[0]}/${md5Hash.slice(0, 2)}`;
+  
+  const encodedFilename = encodeURIComponent(cleanFilename);
+  
+  const wiki = `https://commons.wikimedia.org/wiki/${encodeURIComponent(filename)}`;
+  const thumbnail = `https://upload.wikimedia.org/wikipedia/commons/thumb/${hashPath}/${encodedFilename}/${thumbnailWidth}px-${encodedFilename}`;
+
+  return { wiki, thumbnail };
 });
 
 function osmNodeLink(id: string): string {
