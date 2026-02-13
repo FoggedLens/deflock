@@ -3,6 +3,8 @@ name: DeFlock API Deploy
 on:
   push:
     branches: [master]
+    paths:
+      - 'api/**'
 
 jobs:
   deploy:
