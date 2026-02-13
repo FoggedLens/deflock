@@ -1,0 +1,31 @@
+{
+	"name": "purge-cf-cache",
+	"description": "A Directus extension to purge Cloudflare cache",
+	"icon": "extension",
+	"version": "1.0.0",
+	"license": "UNLICENSED",
+	"keywords": [
+		"directus",
+		"directus-extension",
+		"directus-extension-hook"
+	],
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"directus:extension": {
+		"type": "hook",
+		"path": "dist/index.js",
+		"source": "src/index.js",
+		"host": "^10.10.0"
+	},
+	"scripts": {
+		"build": "directus-extension build",
+		"dev": "directus-extension build -w --no-minify",
+		"link": "directus-extension link",
+		"validate": "directus-extension validate"
+	},
+	"devDependencies": {
+		"@directus/extensions-sdk": "^10.1.0"
+	}
+}

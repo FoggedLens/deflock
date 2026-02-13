@@ -1,0 +1,19 @@
+services:
+  directus:
+    image: directus/directus:11.5.1
+    ports:
+      - 8055:8055
+    volumes:
+      - ./database:/directus/database
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+    environment:
+      SECRET: ${DIRECTUS_SECRET}
+      DB_CLIENT: "sqlite3"
+      DB_FILENAME: "/directus/database/directus.db"
+      WEBSOCKETS_ENABLED: "true"
+      CORS_ENABLED: true
+      CORS_ORIGIN: true
+      EXTENSIONS_AUTO_RELOAD: true
+      CF_API_KEY: ${CF_API_KEY}
+      CF_ZONE_ID: ${CF_ZONE_ID}
