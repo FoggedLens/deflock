@@ -130,7 +130,8 @@
                     </div>
                     <div class="text-center mt-3">
                       <v-btn 
-                        color="primary" 
+                        color="var(--df-blue)" 
+                        class="text-white"
                         variant="elevated"
                         size="large"
                         :disabled="!hasOsmTags(vendor.osmTags)"
@@ -173,7 +174,7 @@
 
           <div v-else>
             <div v-for="(devices, category) in devicesByCategory" :key="category" class="mb-8">
-              <h2 class="text-h4 text-center mt-6 mb-4">{{ category }}</h2>
+              <h2 class="text-h4 text-center mt-6 mb-6">{{ category }}</h2>
               
               <v-row>
                 <v-col cols="12" md="6" v-for="device in devices" :key="device.id" class="mb-4">
@@ -217,7 +218,8 @@
                         </div>
                         <div class="text-center mt-3">
                           <v-btn 
-                            color="primary" 
+                            color="var(--df-blue)" 
+                            class="text-white"
                             variant="elevated"
                             size="large"
                             :disabled="!hasOsmTags(device.osmTags)"
@@ -233,6 +235,9 @@
                 </v-col>
               </v-row>
             </div>
+            <div class="text-center text-body-1">
+              Don't see a device you know about? We're always adding more, so check back later!
+            </div>
           </div>
         </v-container>
       </v-window-item>
@@ -245,11 +250,11 @@
         <v-card-text>
           <v-btn 
             size="x-large" 
-            color="primary" 
+            color="var(--df-blue)" 
             to="/report"
             prepend-icon="mdi-map-marker-plus"
             variant="elevated"
-            class="mr-4"
+            class="text-white"
           >
             Add to Map
           </v-btn>
