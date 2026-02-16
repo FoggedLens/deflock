@@ -1,5 +1,7 @@
 <template>
   <NewVisitor v-if="!isIframe" />
+  <ShareDialog v-model="shareDialogOpen" />
+  
   <div class="map-container" @keyup="handleKeyUp">
     <leaflet-map
       v-if="center"
@@ -36,8 +38,13 @@
         </form>
       </template>
 
-      <!-- CURRENT LOCATION -->
       <template v-slot:bottomright>
+        <v-btn icon @click="shareDialogOpen = true" v-if="!isIframe">
+          <v-icon>mdi-share-variant</v-icon>
+        </v-btn>
+        <v-btn icon to="/report" style="color: unset" v-if="!isIframe">
+          <v-icon size="large">mdi-map-marker-plus</v-icon>
+        </v-btn>
         <v-btn icon @click="goToUserLocation">
           <v-icon>mdi-crosshairs-gps</v-icon>
         </v-btn>
@@ -52,12 +59,12 @@
 
 <script setup lang="ts">
 import 'leaflet/dist/leaflet.css';
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router'
 import type { Ref } from 'vue';
 import { BoundingBox } from '@/services/apiService';
 import { geocodeQuery } from '@/services/apiService';
-import { useDisplay, useTheme } from 'vuetify';
+import { useDisplay } from 'vuetify';
 import { useGlobalStore } from '@/stores/global';
 import { useTilesStore } from '@/stores/tiles';
 import { useVendorStore } from '@/stores/vendorStore';
@@ -66,6 +73,7 @@ globalThis.L = L;
 import 'leaflet/dist/leaflet.css'
 import LeafletMap from '@/components/LeafletMap.vue';
 import NewVisitor from '@/components/NewVisitor.vue';
+import ShareDialog from '@/components/ShareDialog.vue';
 
 const DEFAULT_ZOOM = 12;
 
@@ -76,6 +84,7 @@ const searchField: Ref<any|null> = ref(null);
 const searchInput: Ref<string> = ref(''); // For the text input field
 const searchQuery: Ref<string> = ref(''); // For URL and boundaries (persistent)
 const geojson: Ref<GeoJSON.GeoJsonObject | null> = ref(null);
+const shareDialogOpen = ref(false);
 const tilesStore = useTilesStore();
 
 const isIframe = computed(() => window.self !== window.top);
@@ -103,7 +112,7 @@ function onSearch() {
   if (!searchInput.value) {
     return;
   }
-  geocodeQuery(searchInput.value, center.value)
+  geocodeQuery(searchInput.value)
     .then((result: any) => {
       if (!result) {
         alert('No results found');

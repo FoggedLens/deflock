@@ -56,9 +56,6 @@
     </div>
 
     <div class="bottomright">
-      <v-btn icon to="/report" style="color: unset" v-if="!isIframe">
-        <v-icon size="large">mdi-map-marker-plus</v-icon>
-      </v-btn>
       <slot name="bottomright"></slot>
     </div>
     
