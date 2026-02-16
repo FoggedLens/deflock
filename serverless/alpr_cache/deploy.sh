@@ -20,7 +20,7 @@ docker buildx build --platform linux/arm64 -t $ECR_REPO_URL:latest --load .
 docker push $ECR_REPO_URL:latest
 
 # update lambda function
-# export AWS_PAGER=""
-# aws lambda update-function-code --function-name alpr_cache --image-uri $ECR_REPO_URL:latest
+export AWS_PAGER=""
+aws lambda update-function-code --function-name alpr_cache --image-uri $ECR_REPO_URL:latest
 
 echo "Deployed!"
