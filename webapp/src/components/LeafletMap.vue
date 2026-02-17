@@ -1,7 +1,7 @@
 <template>
   <div id="map" :style="{
-    height: isFullScreen ? '100dvh' : 'calc(100dvh - 64px)',
-    marginTop: isFullScreen ? '0' : '64px',
+    height: isIframe ? '100dvh' : 'calc(100dvh - 64px)',
+    marginTop: isIframe ? '0' : '64px',
   }">
     <div class="topleft">
       <slot name="topleft"></slot>
@@ -9,7 +9,7 @@
 
     <div class="topright">
       <!-- Controls -->
-      <div v-if="!isFullScreen" class="d-flex flex-column ga-2">
+      <div v-if="!isIframe" class="d-flex flex-column ga-2">
         <!-- Clustering Toggle Switch -->
         <v-card variant="elevated">
           <v-card-text class="py-0">
@@ -51,10 +51,11 @@
       </div>
     </div>
 
+    <div v-if="isIframe" class="bottomleft">
+      <img src="/deflock-logo-grey.svg" alt="Deflock Logo" style="height: 24px; opacity: 0.75;" />
+    </div>
+
     <div class="bottomright">
-      <v-btn icon to="/report" style="color: unset">
-        <v-icon size="large">mdi-map-marker-plus</v-icon>
-      </v-btn>
       <slot name="bottomright"></slot>
     </div>
     
@@ -89,7 +90,6 @@ import L, { type LatLngTuple, type FeatureGroup, type MarkerClusterGroup, type M
 import type { ALPR } from '@/types';
 import DFMapPopup from './DFMapPopup.vue';
 import { createVuetify } from 'vuetify'
-import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
@@ -103,8 +103,7 @@ const CLUSTER_DISABLE_ZOOM = 16; // Clustering disabled at zoom 16 and above
 // Internal State Management
 const markerMap = new Map<string, Marker | CircleMarker>();
 const isInternalUpdate = ref(false);
-const route = useRoute();
-const isFullScreen = computed(() => route.query.fullscreen === 'true');
+const isIframe = computed(() => window.self !== window.top);
 
 // Clustering Control
 const clusteringEnabled = ref(true);
@@ -581,6 +580,13 @@ function registerMapEvents() {
   position: absolute;
   top: 10px;
   right: 10px;
+  z-index: 1000;
+}
+
+.bottomleft {
+  position: absolute;
+  bottom: 0px;
+  left: 4px;
   z-index: 1000;
 }
 

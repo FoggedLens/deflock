@@ -1,4 +1,4 @@
-import type { LprVendor } from "@/types";
+import type { LprVendor, OtherSurveillanceDevice } from "@/types";
 import axios from "axios";
 
 export interface Chapter {
@@ -41,6 +41,15 @@ export const cmsService = {
 		} catch (error) {
 			console.error("Error fetching LPR vendors:", error);
 			throw new Error("Failed to fetch LPR vendors");
+		}
+	},
+	async getOtherSurveillanceDevices(): Promise<OtherSurveillanceDevice[]> {
+		try {
+			const response = await cmsApiService.get("/items/nonLprVendors");
+			return response.data.data as OtherSurveillanceDevice[];
+		} catch (error) {
+			console.error("Error fetching other surveillance devices:", error);
+			throw new Error("Failed to fetch other surveillance devices");
 		}
 	}
 };

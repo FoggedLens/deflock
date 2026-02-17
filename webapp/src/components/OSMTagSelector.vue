@@ -32,16 +32,10 @@
     
       <v-col cols="12" sm="6">
         <h3 class="text-center serif">Tags to Copy</h3>
-        <DFCode>
-          <span v-for="(value, key) in lprBaseTags" :key="key">{{ key }}={{ value }}<br></span>
-          <span v-for="(value, key) in selectedLprVendor?.osmTags" :key="key">{{ key }}=<span :class="highlightClass(selectedLprVendor)">{{ value }}</span><br></span>
-        </DFCode>
+        <DFCode :osm-tags="mergedTags" :highlight-values-for-keys="vendorTagKeys" />
 
         <h5 class="text-center mt-4 serif">and if operator is known</h5>
-        <DFCode :show-copy-button="false">
-          operator=<span class="placeholder">[Enter operator name]</span><br>
-          operator:wikidata=<span class="placeholder">[Enter WikiData ID]</span>
-        </DFCode>
+        <DFCode :osm-tags="operatorTags" :highlight-values-for-keys="['operator', 'operator:wikidata']" :show-copy-button="false" />
         <div class="text-caption text-center mt-1">
           <a href="https://www.wikidata.org/wiki/Wikidata:Main_Page" target="_blank" rel="noopener" class="text-decoration-none text-grey-darken-1">
             What is WikiData? <v-icon size="x-small">mdi-open-in-new</v-icon>
@@ -53,7 +47,7 @@
 
 <script setup lang="ts">
 import DFCode from '@/components/DFCode.vue';
-import { ref, type Ref, onMounted } from 'vue';
+import { ref, type Ref, onMounted, computed } from 'vue';
 import { type LprVendor } from '@/types';
 import { lprBaseTags } from '@/constants';
 import { useVendorStore } from '@/stores/vendorStore';
@@ -62,10 +56,19 @@ const lprVendors = ref<LprVendor[]>([]);
 const selectedLprVendor: Ref<LprVendor | null> = ref(null);
 const vendorStore = useVendorStore();
 
-function highlightClass(item: LprVendor | null): string {
-  if (!item) return 'placeholder';
-  return item.shortName === 'Generic' ? 'placeholder' : 'highlight';
-}
+const operatorTags: Record<string, string> = {
+  'operator': '[Enter operator name]',
+  'operator:wikidata': '[Enter WikiData ID]'
+};
+
+const mergedTags = computed(() => ({
+  ...lprBaseTags,
+  ...(selectedLprVendor.value?.osmTags ?? {})
+}));
+
+const vendorTagKeys = computed(() => 
+  Object.keys(selectedLprVendor.value?.osmTags ?? {})
+);
 
 onMounted(async () => {
   const genericLprVendor: LprVendor = {
@@ -84,22 +87,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.highlight {
-  background-color: #0081ac;
-  padding: 0.15rem;
-  border-radius: 0.25rem;
-  font-weight: bold;
-}
-
-.placeholder {
-  background-color: #ffe066;
-  color: #333;
-  padding: 0.15rem;
-  border-radius: 0.25rem;
-  font-weight: bold;
-  font-style: italic;
-}
-
 .info-icon {
   cursor: help;
 }

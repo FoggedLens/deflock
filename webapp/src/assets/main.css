@@ -2,6 +2,7 @@
 :root {
   --df-background-color: white;
   --df-blue: rgb(18, 151, 195);
+  --df-blue-dark: #0081ac;
   
   /* Modern Typography Scale */
   --font-size-base: 1rem;
