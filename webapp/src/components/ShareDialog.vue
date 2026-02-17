@@ -77,9 +77,17 @@
     </v-card>
   </v-dialog>
 
-  <!-- Copy Success Snackbar -->
-  <v-snackbar v-model="snackbarOpen" :timeout="3000" color="var(--df-blue)">
-    Copied to clipboard!
+  <v-snackbar v-model="snackbarOpen" :timeout="3000" color="var(--df-blue-dark)">
+    <span class="text-white">Copied to clipboard!</span>
+    <template v-slot:actions>
+      <v-btn
+        variant="text"
+        @click="snackbarOpen = false"
+        color="white"
+      >
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </template>
   </v-snackbar>
 </template>
 

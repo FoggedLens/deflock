@@ -87,7 +87,7 @@
 
           <v-row v-else>
             <v-col cols="12" md="6" v-for="vendor in vendorStore.lprVendors" :key="vendor.id" class="mb-4">
-              <v-card class="vendor-card h-100" elevation="2">
+              <v-card class="vendor-card h-100 d-flex flex-column justify-space-between" elevation="2">
                 <v-card-title class="text-center" style="background-color: #f5f5f5;">
                   <v-img v-if="vendor.logoUrl" contain :src="vendor.logoUrl" :alt="`${vendor.shortName} Logo`" style="height: 48px;" />
                   <div
@@ -101,7 +101,7 @@
                 <v-card-subtitle class="text-center pa-4 text-h6" style="white-space: normal; word-break: break-word;">
                   {{ vendor.identificationHints }}
                 </v-card-subtitle>
-                <v-card-text class="pa-4">
+                <v-card-text class="pa-4 d-flex flex-column justify-space-between">
                   <v-row>
                     <v-col v-for="{ url: imageUrl } in vendor.urls" :key="imageUrl" cols="6">
                       <v-card class="image-card" elevation="1" @click="openImageInNewTab(imageUrl)">
@@ -131,7 +131,7 @@
                     <div class="text-center mt-3">
                       <v-btn 
                         color="var(--df-blue)" 
-                        class="text-white"
+                        class="text-white mt-3"
                         variant="elevated"
                         size="large"
                         :disabled="!hasOsmTags(vendor.osmTags)"
@@ -141,6 +141,7 @@
                         Import to App
                       </v-btn>
                     </div>
+                    <div class="text-center text-caption mt-1">Requires app v2.7.1+</div>
                   </div>
                 </v-card-text>
               </v-card>
@@ -178,7 +179,7 @@
               
               <v-row>
                 <v-col cols="12" md="6" v-for="device in devices" :key="device.id" class="mb-4">
-                  <v-card class="vendor-card h-100" elevation="2">
+                  <v-card class="vendor-card h-100 d-flex flex-column justify-space-between" elevation="2">
                     <v-card-title class="text-center" style="background-color: #f5f5f5;">
                       <div
                         style="height: 48px; display: flex; align-items: center; justify-content: center;"
@@ -190,7 +191,7 @@
                     <v-card-subtitle v-if="device.capabilities" class="text-center pa-4 text-h6" style="white-space: normal; word-break: break-word;">
                       {{ device.capabilities }}
                     </v-card-subtitle>
-                    <v-card-text class="pa-4">
+                    <v-card-text class="pa-4 d-flex flex-column justify-space-between">
                       <v-row>
                         <v-col v-for="{ url: imageUrl } in device.urls" :key="imageUrl" cols="6">
                           <v-card class="image-card" elevation="1" @click="openImageInNewTab(imageUrl)">
@@ -219,7 +220,7 @@
                         <div class="text-center mt-3">
                           <v-btn 
                             color="var(--df-blue)" 
-                            class="text-white"
+                            class="text-white mt-3"
                             variant="elevated"
                             size="large"
                             :disabled="!hasOsmTags(device.osmTags)"
@@ -229,6 +230,7 @@
                             Import to App
                           </v-btn>
                         </div>
+                        <div class="text-center text-caption text-grey-darken-1 mt-1">Requires app v2.7.1+</div>
                       </div>
                     </v-card-text>
                   </v-card>
@@ -270,7 +272,7 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
 import DFCode from '@/components/DFCode.vue';
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useVendorStore } from '@/stores/vendorStore';
 import { createDeflockProfileUrl } from '@/services/deflockAppUrls';
 import { lprBaseTags } from '@/constants';
@@ -280,7 +282,22 @@ function openImageInNewTab(url: string) {
   window.open(url, '_blank');
 }
 
-const activeTab = ref('alprs');
+const router = useRouter();
+const route = useRoute();
+
+const activeTab = computed({
+  get: () => {
+    const tab = route.query.tab as string;
+    return tab === 'other' ? 'other' : 'alprs';
+  },
+  set: (tab: string) => {
+    router.push({
+      path: route.path,
+      query: { ...route.query, tab: tab === 'alprs' ? undefined : tab }
+    });
+  }
+});
+
 const loading = ref(true);
 const loadingOther = ref(true);
 const vendorStore = useVendorStore();
@@ -318,8 +335,6 @@ onMounted(async () => {
   ]);
 });
 
-const router = useRouter();
-
 async function onAddToApp(
   name: string, 
   osmTags: Record<string, string>, 
@@ -350,10 +365,6 @@ async function onAddToApp(
 
 .vendor-card {
   transition: transform 0.2s ease-in-out;
-}
-
-.vendor-card:hover {
-  transform: translateY(-2px);
 }
 
 .image-card {
