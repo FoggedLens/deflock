@@ -46,10 +46,11 @@ serverless/*/lambda.zip
 serverless/*/.build/
 serverless/*/src/*
 !serverless/*/src/alpr_cache.py
-!serverless/*/src/alpr_clusters.py
+!serverless/*/src/alpr_counts.py
 !serverless/*/src/requirements.txt
 !serverless/*/src/Dockerfile
 
 # TODO: need a better way to handle python packages
 
 .env
+.claude/
