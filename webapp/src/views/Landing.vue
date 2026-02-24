@@ -1,6 +1,22 @@
 <template>
 <DefaultLayout no-bottom-margin>
   <template #header>
+    <!-- Service Alert Banner -->
+    <v-alert
+      v-show="serviceAlert?.active"
+      color="orange-darken-2"
+      variant="tonal"
+      class="service-alert-banner mb-0"
+      closable
+    >
+      <div class="d-flex align-center">
+        <v-icon class="mr-6">mdi-alert</v-icon>
+        <div>
+          <div class="font-weight-bold">{{ serviceAlert?.Title }}</div>
+          <div v-html="serviceAlert?.description"></div>
+        </div>
+      </div>
+    </v-alert>
     <div class="hero-background">
       <v-container class="text-center py-8">
         <v-row justify="center">
@@ -208,10 +224,21 @@
 .flock-resources-section {
   margin: 0 auto;
 }
+
+.service-alert-banner {
+  border-radius: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.service-alert-banner :deep(a) {
+  color: inherit;
+  text-decoration: underline;
+}
 </style>
 
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ALPRCounter from '@/components/ALPRCounter.vue';
 import { useGlobalStore } from '@/stores/global';
@@ -219,6 +246,33 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue';
 
 const router = useRouter();
 const { setCurrentLocation } = useGlobalStore();
+
+interface ServiceAlert {
+  id: number;
+  date_updated: string | null;
+  Title: string;
+  description: string;
+  active: boolean;
+}
+
+const serviceAlert = ref<ServiceAlert | null>(null);
+
+async function fetchServiceAlert() {
+  try {
+    const response = await fetch('https://cms.deflock.me/items/ServiceAlert');
+    if (response.ok) {
+      const json = await response.json();
+      serviceAlert.value = json.data;
+    }
+  } catch (error) {
+    // Silently fail - don't show banner if request fails
+    console.error('Failed to fetch service alert:', error);
+  }
+}
+
+onMounted(() => {
+  fetchServiceAlert();
+});
 
 interface GoToMapOptions {
   withCurrentLocation?: boolean;
