@@ -24,7 +24,7 @@ def fetch_alpr_surveillance_nodes(usOnly=True):
     raise RuntimeError(f"Failed to fetch data from Overpass API. Status code: {response.status_code}")
 
 def fetch_wins_count():
-  cms_url = "https://cms.deflock.me/items/RecentWins"
+  cms_url = "https://cms.deflock.me/items/flockWins"
   headers = {'User-Agent': 'deflock-alpr-counts/1.0'}
   
   response = requests.get(cms_url, headers=headers)
@@ -32,10 +32,9 @@ def fetch_wins_count():
   if response.status_code == 200:
     response_json = response.json()
     try:
-      win_instances = response_json['data']['WinInstances']
-      return len(win_instances)
+      return len(response_json['data'])
     except (KeyError, TypeError) as e:
-      raise RuntimeError("Could not find 'data.WinInstances' in the response.")
+      raise RuntimeError("Could not find 'data' array in the response.")
   else:
     raise RuntimeError(f"Failed to fetch data from CMS. Status code: {response.status_code}")
 
