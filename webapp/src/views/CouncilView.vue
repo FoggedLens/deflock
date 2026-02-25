@@ -259,14 +259,14 @@
               </div>
             </template>
 
-            <template v-slot:header.MonthYear="{ column }">
+            <template v-slot:header.monthYear="{ column }">
               <div class="d-flex align-center text-medium-emphasis">
                 <v-icon icon="mdi-calendar-month" size="18" class="mr-2" />
                 <span class="text-caption font-weight-medium">{{ column.title }}</span>
               </div>
             </template>
 
-            <template v-slot:header.Outcome="{ column }">
+            <template v-slot:header.outcome="{ column }">
               <div class="d-flex align-center text-medium-emphasis">
                 <v-icon icon="mdi-trophy-outline" size="18" class="mr-2" />
                 <span class="text-caption font-weight-medium">{{ column.title }}</span>
@@ -299,13 +299,13 @@
               <span class="font-weight-bold">{{ item.cityState }}</span>
             </template>
             
-            <template v-slot:item.MonthYear="{ item }">
-              {{ item.MonthYear }}
+            <template v-slot:item.monthYear="{ item }">
+              {{ item.monthYear }}
             </template>
             
-            <template v-slot:item.Outcome="{ item }">
+            <template v-slot:item.outcome="{ item }">
               <v-icon icon="mdi-check-bold" size="18" class="mr-2" />
-              <span class="font-weight-bold">{{ item.Outcome }}</span>
+              <span class="font-weight-bold">{{ item.outcome }}</span>
             </template>
             
             <template v-slot:loading>
@@ -384,15 +384,9 @@ const sortMonthYearByDateDesc = (a: string, b: string) => {
 
 interface CityRejection {
   cityState: string;
-  MonthYear: string;
+  monthYear: string;
   description: string;
-  Outcome: string;
-}
-
-interface CMSResponse {
-  id: number;
-  WinInstances: CityRejection[];
-  date_updated: string;
+  outcome: string;
 }
 
 // Reactive data for CMS content
@@ -415,13 +409,13 @@ const headers = [
   },
   { 
     title: 'Date',
-    key: 'MonthYear', 
+    key: 'monthYear', 
     width: '25%',
     sortable: false,
   },
   { 
     title: 'Outcome',
-    key: 'Outcome', 
+    key: 'outcome', 
     width: '35%',
     sortable: false
   }
@@ -431,13 +425,12 @@ const headers = [
 const fetchRecentWins = async () => {
   loading.value = true;
   try {
-    const response = await fetch('https://cms.deflock.me/items/RecentWins');
-    const result: CMSResponse = (await response.json()).data;
+    const response = await fetch('https://cms.deflock.me/items/flockWins');
+    const result: CityRejection[] = (await response.json()).data;
 
-    const sortedResult = result.WinInstances.sort((a, b) => sortMonthYearByDateDesc(a.MonthYear, b.MonthYear));
+    const sortedResult = result.sort((a, b) => sortMonthYearByDateDesc(a.monthYear, b.monthYear));
 
     citiesRejectingFlock.value = sortedResult;
-    lastUpdated.value = result.date_updated;
   } catch (error) {
     console.error('Error fetching recent wins:', error);
     // Fallback to empty array if fetch fails
