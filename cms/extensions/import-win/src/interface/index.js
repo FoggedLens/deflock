@@ -9,8 +9,7 @@ export default defineInterface({
   component: InterfaceComponent,
   types: ['alias'],
   localTypes: ['presentation'],
-  group: 'presentation',
   options: null,
-  hideLabel: false,
+  hideLabel: true,
   hideLoader: true,
 });
