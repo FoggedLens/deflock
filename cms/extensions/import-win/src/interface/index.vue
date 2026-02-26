@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import { useApi } from '@directus/extensions-sdk';
 
 const emit = defineEmits(['setFieldValue']);
@@ -37,10 +37,19 @@ async function importWin() {
   try {
     const { data } = await api.post('/import-win', { url: articleUrl.value });
 
-    emit('setFieldValue', { field: 'cityState', value: data.cityState });
-    emit('setFieldValue', { field: 'monthYear', value: data.monthYear });
-    emit('setFieldValue', { field: 'description', value: data.description });
-    emit('setFieldValue', { field: 'outcome', value: data.outcome });
+    console.log('[import-win] setting fields:', data);
+
+    const fields = [
+      { field: 'cityState', value: data.cityState },
+      { field: 'monthYear', value: data.monthYear },
+      { field: 'description', value: data.description },
+      { field: 'outcome', value: data.outcome },
+    ];
+
+    for (const payload of fields) {
+      emit('setFieldValue', payload);
+      await nextTick();
+    }
 
     articleUrl.value = '';
   } catch (err) {
