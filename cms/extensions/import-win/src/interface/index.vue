@@ -22,12 +22,7 @@
 import { ref } from 'vue';
 import { useApi } from '@directus/extensions-sdk';
 
-const props = defineProps({
-  setFieldValue: {
-    type: Function,
-    default: null,
-  },
-});
+const emit = defineEmits(['setFieldValue']);
 
 const api = useApi();
 const articleUrl = ref('');
@@ -42,12 +37,10 @@ async function importWin() {
   try {
     const { data } = await api.post('/import-win', { url: articleUrl.value });
 
-    if (props.setFieldValue) {
-      props.setFieldValue('cityState', data.cityState);
-      props.setFieldValue('monthYear', data.monthYear);
-      props.setFieldValue('description', data.description);
-      props.setFieldValue('outcome', data.outcome);
-    }
+    emit('setFieldValue', { field: 'cityState', value: data.cityState });
+    emit('setFieldValue', { field: 'monthYear', value: data.monthYear });
+    emit('setFieldValue', { field: 'description', value: data.description });
+    emit('setFieldValue', { field: 'outcome', value: data.outcome });
 
     articleUrl.value = '';
   } catch (err) {
