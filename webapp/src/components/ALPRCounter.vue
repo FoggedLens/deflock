@@ -12,7 +12,12 @@
         <div class="d-flex flex-column align-center text-center">
           <v-icon :size="isMobile ? 24 : 32" color="white" class="mb-2">mdi-trophy-outline</v-icon>
           <div ref="winsCounterEl" class="font-weight-bold mb-2" :class="isMobile ? 'text-h3' : 'text-h2'">0</div>
-          <div class="text-body-1">Cities Rejecting LPRs</div>
+          <div class="text-body-1">
+            <v-btn to="/council#wins" variant="text">
+              Cities Rejecting LPRs
+              <v-icon class="ml-1">mdi-arrow-right-thick</v-icon>
+            </v-btn>
+          </div>
         </div>
       </v-col>
     </v-row>

@@ -226,7 +226,7 @@
     </v-row>
 
     <!-- Success Stories -->
-    <v-row class="mb-12">
+    <v-row class="mb-12" id="wins">
       <v-col cols="12" md="10" lg="8" class="mx-auto">
         <div ref="tableRef" class="intersection-target">
           <v-card class="pa-6" elevation="3" rounded="lg">
@@ -236,7 +236,7 @@
               </v-avatar>
               <div>
                 <h3 class="text-h5 font-weight-bold mb-1">Recent Victories</h3>
-                <p class="text-body-2 text-medium-emphasis mb-0">Communities across the country are winning</p>
+                <p class="text-body-2 text-medium-emphasis mb-0">Communities across the country are rejecting ALPRs</p>
               </div>
             </div>
           

@@ -1,0 +1,49 @@
+{
+	"name": "directus-extension-import-win",
+	"description": "Directus extension to import a Flock Safety contract-loss win from a URL using OpenAI",
+	"icon": "file_download",
+	"version": "1.0.0",
+	"license": "UNLICENSED",
+	"keywords": [
+		"directus",
+		"directus-extension",
+		"directus-custom-bundle"
+	],
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"directus:extension": {
+		"type": "bundle",
+		"path": {
+			"app": "dist/app.js",
+			"api": "dist/api.js"
+		},
+		"entries": [
+			{
+				"type": "endpoint",
+				"name": "import-win",
+				"source": "src/api/index.js"
+			},
+			{
+				"type": "interface",
+				"name": "win-importer",
+				"source": "src/interface/index.js"
+			}
+		],
+		"host": "^10.3.4"
+	},
+	"scripts": {
+		"build": "directus-extension build",
+		"dev": "directus-extension build -w --no-minify",
+		"link": "directus-extension link",
+		"add": "directus-extension add"
+	},
+	"dependencies": {
+		"cheerio": "^1.0.0",
+		"openai": "^4.0.0"
+	},
+	"devDependencies": {
+		"@directus/extensions-sdk": "10.3.4"
+	}
+}

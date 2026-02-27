@@ -17,3 +17,4 @@ services:
       EXTENSIONS_AUTO_RELOAD: true
       CF_API_KEY: ${CF_API_KEY}
       CF_ZONE_ID: ${CF_ZONE_ID}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}

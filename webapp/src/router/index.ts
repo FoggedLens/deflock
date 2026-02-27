@@ -9,6 +9,7 @@ const router = createRouter({
     if (to.hash && !to.hash.startsWith('#map')) {
       return {
         el: to.hash,
+        top: 64,
         behavior: 'smooth',
       }
     }
