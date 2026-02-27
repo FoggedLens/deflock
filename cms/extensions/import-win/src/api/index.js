@@ -13,7 +13,7 @@ Extract the following fields and return ONLY valid JSON with no additional text:
   "city": <string — name of the city that is the primary subject>,
   "state": <string — two-letter US state abbreviation>,
   "outcome": <one of exactly: "Contract Canceled", "Contract Rejected", or "Cameras Deactivated">,
-  "description": <string — 1–2 sentence summary of the outcome, ending with an HTML anchor tag linking to the article>
+  "description": <string — 1–2 sentence summary of the outcome, including an HTML anchor tag linking to the article>
 }
 
 Outcome definitions:
