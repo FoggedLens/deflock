@@ -21,22 +21,20 @@ See photos of common ALPRs and learn about their capabilities.
 
 ## Tech Stack
 
-### Backend
-* Scala
-* PekkoHTTP
-* Nginx
+### API
+* Fastify + TypeScript (Bun runtime)
 
 ### Cloud
-* AWS Lambda (for [region segmenting](serverless/alpr_clusters) and [counts](serverless/alpr_counts))
+* AWS Lambda (for [map tile caching](serverless/alpr_cache), [counts](serverless/alpr_counts), and [blog sync](serverless/blog_scraper))
 * AWS S3
 * AWS ECR
-* Cloudflare as DNS + Proxy
-* Directus CDN
+* Cloudflare DNS + Proxy
+* Directus CMS
 
 ### Frontend
 * Vue3
 * Vuetify (UI component library)
-* Vue Leaflet (mapping library)
+* Leaflet (mapping library)
 
 ### Services
 * OpenStreetMap - Overpass API, Basic Map Tiles
@@ -45,8 +43,8 @@ See photos of common ALPRs and learn about their capabilities.
 ## Usage
 
 ### Requirements
-* node/npm
-* scala/sbt
+* node/npm (frontend)
+* [Bun](https://bun.sh/) (API)
 
 ### Running Frontend
 
@@ -54,18 +52,11 @@ See photos of common ALPRs and learn about their capabilities.
 2. `npm i`
 3. `npm run dev`
 
-### Running Backend
+### Running API
 
-#### Prerequisites
-* JDK 11
-* SBT
-
-1. `cd shotgun`
-2. `sbt run`
-
-### Building for Production
-
-See [Dockerfile](./Dockerfile).
+1. `cd api`
+2. `bun install`
+3. `bun server.ts`
 
 ## Contributing
 
