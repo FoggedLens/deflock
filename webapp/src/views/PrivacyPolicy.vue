@@ -28,7 +28,7 @@
       If you have any questions or concerns about this privacy policy, please contact us at:
     </p>
     <p>
-      Email: <a href="mailto:contact@deflock.me">contact@deflock.me</a>
+      Email: <a href="mailto:contact@deflock.org">contact@deflock.org</a>
     </p>
 
     <h2>Policy Updates</h2>

@@ -87,11 +87,11 @@
                   <div class="text-center">
                     <p class="text-body-1 mb-2">Send us an email at:</p>
                     <a 
-                      href="mailto:contact@deflock.me"
+                      href="mailto:contact@deflock.org"
                       class="text-h6 font-weight-bold text-decoration-none"
                       style="color: rgb(var(--v-theme-secondary));"
                     >
-                      contact@deflock.me
+                      contact@deflock.org
                     </a>
                   </div>
                 </div>
