@@ -50,13 +50,15 @@
               </v-list>
             </div>
 
-            <v-divider />
+            <v-divider class="mb-8" />
 
             <div class="text-center">
-              <p>Don't see a group near you?</p>
-              <v-btn color="primary" variant="outlined" to="/contact">
-                <v-icon start>mdi-plus</v-icon>Submit a Group
-              </v-btn>
+              <v-alert>
+                <p class="text-h5 my-0 pt-0 font-weight-bold">Don't see a group near you?</p>
+                <p>
+                  Write to us at <a href="mailto:groups@deflock.org">groups@deflock.org</a> for info on starting your own chapter.
+                </p>
+              </v-alert>
             </div>
           </div>
 
