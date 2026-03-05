@@ -12,12 +12,11 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
-    "@types/leaflet.markercluster": "^1.5.5",
     "@unhead/vue": "^1.11.14",
     "axios": "^1.7.7",
     "countup.js": "^2.8.0",
     "js-md5": "^0.8.3",
-    "leaflet.markercluster": "^1.5.3",
+    "maplibre-gl": "^5.19.0",
     "pinia": "^2.3.0",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3",
@@ -26,11 +25,9 @@
   "devDependencies": {
     "@mdi/font": "^7.4.47",
     "@tsconfig/node20": "^20.1.4",
-    "@types/leaflet": "^1.9.15",
     "@types/node": "^20.14.5",
     "@vitejs/plugin-vue": "^6.0.2",
     "@vue/tsconfig": "^0.5.1",
-    "leaflet": "^1.9.4",
     "npm-run-all2": "^6.2.0",
     "typescript": "~5.4.0",
     "vite": "^7.2.6",
