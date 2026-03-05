@@ -1,16 +1,18 @@
 <template>
   <NewVisitor v-if="!isIframe" />
   <ShareDialog v-model="shareDialogOpen" />
-  
+
   <div class="map-container" @keyup="handleKeyUp">
-    <leaflet-map
+    <MapLibreMap
       v-if="center"
+      ref="mapRef"
       v-model:center="center"
       v-model:zoom="zoom"
+      :geojson-data="geojsonData"
+      :loading="geojsonLoading"
+      :progress="geojsonProgress"
+      :search-geojson="geojson"
       :current-location="currentLocation"
-      @update:bounds="updateBounds"
-      :alprs
-      :geojson
     >
       <!-- SEARCH -->
       <template v-slot:topleft>
@@ -49,7 +51,7 @@
           <v-icon>mdi-crosshairs-gps</v-icon>
         </v-btn>
       </template>
-    </leaflet-map>
+    </MapLibreMap>
     <div v-else class="loader">
       <span class="mb-4 text-grey">Loading Map</span>
       <v-progress-circular indeterminate color="primary" />
@@ -58,20 +60,16 @@
 </template>
 
 <script setup lang="ts">
-import 'leaflet/dist/leaflet.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router'
 import type { Ref } from 'vue';
-import { BoundingBox } from '@/services/apiService';
 import { geocodeQuery } from '@/services/apiService';
 import { useDisplay } from 'vuetify';
 import { useGlobalStore } from '@/stores/global';
-import { useTilesStore } from '@/stores/tiles';
+import { useGeojsonStore } from '@/stores/geojson';
 import { useVendorStore } from '@/stores/vendorStore';
-import L from 'leaflet';
-globalThis.L = L;
-import 'leaflet/dist/leaflet.css'
-import LeafletMap from '@/components/LeafletMap.vue';
+import MapLibreMap from '@/components/MapLibreMap.vue';
 import NewVisitor from '@/components/NewVisitor.vue';
 import ShareDialog from '@/components/ShareDialog.vue';
 
@@ -79,18 +77,19 @@ const DEFAULT_ZOOM = 12;
 
 const zoom: Ref<number> = ref(DEFAULT_ZOOM);
 const center: Ref<any|null> = ref(null);
-const bounds: Ref<BoundingBox|null> = ref(null);
+const mapRef = ref<InstanceType<typeof MapLibreMap> | null>(null);
 const searchField: Ref<any|null> = ref(null);
 const searchInput: Ref<string> = ref(''); // For the text input field
 const searchQuery: Ref<string> = ref(''); // For URL and boundaries (persistent)
 const geojson: Ref<GeoJSON.GeoJsonObject | null> = ref(null);
 const shareDialogOpen = ref(false);
-const tilesStore = useTilesStore();
+
+const geojsonStore = useGeojsonStore();
+const geojsonData = computed(() => geojsonStore.data);
+const geojsonLoading = computed(() => geojsonStore.loading);
+const geojsonProgress = computed(() => geojsonStore.progress);
 
 const isIframe = computed(() => window.self !== window.top);
-
-const { fetchVisibleTiles } = tilesStore;
-const alprs = computed(() => tilesStore.allNodes);
 
 const router = useRouter();
 const { xs } = useDisplay();
@@ -120,34 +119,20 @@ function onSearch() {
       }
       const { lat, lon: lng } = result;
       center.value = { lat: parseFloat(lat), lng: parseFloat(lng) };
-      
+
       // If we have GeoJSON with bounds, zoom to fit the bounds
       if (result.geojson) {
         geojson.value = result.geojson;
-        
-        // Calculate bounds from GeoJSON to zoom to fit
-        const geoJsonLayer = L.geoJSON(result.geojson);
-        const bounds = geoJsonLayer.getBounds();
-        
+
+        // Use MapLibre component's fitGeoJSON to zoom to fit
         setTimeout(() => {
-          const latDiff = bounds.getNorth() - bounds.getSouth();
-          const lngDiff = bounds.getEast() - bounds.getWest();
-          const maxDiff = Math.max(latDiff, lngDiff);
-          
-          // Rough zoom calculation based on bounds size
-          if (maxDiff > 10) zoom.value = 6;
-          else if (maxDiff > 5) zoom.value = 7;
-          else if (maxDiff > 2) zoom.value = 8;
-          else if (maxDiff > 1) zoom.value = 9;
-          else if (maxDiff > 0.5) zoom.value = 10;
-          else if (maxDiff > 0.2) zoom.value = 11;
-          else zoom.value = DEFAULT_ZOOM;
+          mapRef.value?.fitGeoJSON(result.geojson);
         }, 100);
       } else {
         // No bounds, just use default zoom
         zoom.value = DEFAULT_ZOOM;
       }
-      
+
       searchQuery.value = searchInput.value; // Store the successful search query
       updateURL();
       searchInput.value = ''; // Clear the input field
@@ -168,29 +153,15 @@ function goToUserLocation() {
     });
 }
 
-function updateBounds(newBounds: any) {
-  updateURL();
-  
-  const newBoundingBox = new BoundingBox({
-    minLat: newBounds.getSouth(),
-    maxLat: newBounds.getNorth(),
-    minLng: newBounds.getWest(),
-    maxLng: newBounds.getEast(),
-  });
-  bounds.value = newBoundingBox;
-
-  updateMarkers();
-}
-
 function updateURL() {
   if (!center.value) {
     return;
   }
-  
+
   const currentRoute = router.currentRoute.value;
   // URL encode searchQuery.value
   const encodedSearchValue = searchQuery.value ? encodeURIComponent(searchQuery.value) : null;
-  
+
   const baseHash = `#map=${zoom.value}/${center.value.lat.toFixed(6)}/${center.value.lng.toFixed(6)}`;
   const maybeSuffix = encodedSearchValue ? `/${encodedSearchValue}` : '';
   const newHash = baseHash + maybeSuffix;
@@ -202,16 +173,10 @@ function updateURL() {
   });
 }
 
-function updateMarkers() {
-  // Fetch ALPRs in the current view
-  if (!bounds.value) {
-    return;
-  }
-
-  fetchVisibleTiles(bounds.value);
-}
-
 onMounted(() => {
+  // Load GeoJSON data
+  geojsonStore.load();
+
   // Expected hash format like #map=<ZOOM_LEVEL:int>/<LATITUDE:float>/<LONGITUDE:float>/<QUERY:text>
   const hash = router.currentRoute.value.hash;
   if (hash) {
@@ -252,7 +217,6 @@ onMounted(() => {
 
 .map-container {
   width: 100%;
-  overflow: auto;
 }
 
 .map-search {

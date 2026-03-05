@@ -47,6 +47,7 @@ serverless/*/lambda.zip
 serverless/*/.build/
 serverless/*/src/*
 !serverless/*/src/alpr_cache.py
+!serverless/*/src/alpr_geojson.py
 !serverless/*/src/alpr_clusters.py
 !serverless/*/src/requirements.txt
 !serverless/*/src/Dockerfile
@@ -54,3 +55,9 @@ serverless/*/src/*
 # TODO: need a better way to handle python packages
 
 .env
+
+# Migration reference (local only)
+migration/
+
+# Local dev GeoJSON fixture (large file)
+webapp/public/all_alpr.geojson

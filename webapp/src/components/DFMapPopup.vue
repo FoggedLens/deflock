@@ -1,8 +1,8 @@
 <template>
-  <v-sheet min-width="240">
+  <v-sheet min-width="240" color="transparent">
     <!--  TODO: if a field is unknown, prompt user to edit it -->
     <div class="position-relative">
-      <v-img v-if="imageUrl" cover width="100%" height="150px" :src="imageUrl" class="rounded mt-5" position="top" />
+      <v-img v-if="imageUrl" cover width="100%" height="150px" :src="imageUrl" class="rounded" position="top" />
       <div v-if="imageUrl" class="position-absolute bottom-0 left-0 right-0 text-center text-white text-caption" style="background: rgba(0, 0, 0, 0.5);">
         {{ manufacturer }} {{ manufacturer.endsWith(' LPR') ? '' : ' LPR' }}
       </div>

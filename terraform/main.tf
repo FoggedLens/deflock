@@ -23,6 +23,14 @@ module "alpr_cache" {
   sns_topic_arn        = aws_sns_topic.lambda_alarms.arn
 }
 
+module "alpr_geojson" {
+  module_name          = "alpr_geojson"
+  source               = "./modules/alpr_geojson"
+  deflock_cdn_bucket   = var.deflock_cdn_bucket
+  rate                 = "rate(60 minutes)"
+  sns_topic_arn        = aws_sns_topic.lambda_alarms.arn
+}
+
 module "blog_scraper" {
   module_name         = "blog_scraper"
   source              = "./modules/blog_scraper"
