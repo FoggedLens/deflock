@@ -142,7 +142,7 @@ function onSearch() {
 function goToUserLocation() {
   setCurrentLocation()
     .then((cl) => {
-      center.value = cl;
+      center.value = { lat: cl[0], lng: cl[1] };
       setTimeout(() => {
         zoom.value = DEFAULT_ZOOM;
         updateURL();

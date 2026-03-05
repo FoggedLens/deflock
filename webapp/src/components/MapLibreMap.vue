@@ -19,62 +19,78 @@
 
     <div class="topright">
       <div v-if="!isIframe" class="d-flex flex-column ga-2">
-        <!-- Clustering Toggle Switch -->
-        <v-card variant="elevated">
-          <v-card-text class="py-0">
-            <div class="d-flex align-center justify-space-between">
-              <span>
-                <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
-                <span class="text-caption mr-2">Grouping</span>
-              </span>
-              <v-switch
-                v-model="clusteringEnabled"
-                hide-details
-                density="compact"
-                color="primary"
-                class="mx-1"
-              />
-            </div>
-          </v-card-text>
-        </v-card>
+        <!-- Mobile layer toggle button -->
+        <v-btn
+          class="layer-toggle-btn"
+          icon
+          size="small"
+          variant="elevated"
+          @click="layerMenuOpen = !layerMenuOpen"
+        >
+          <v-icon>mdi-layers</v-icon>
+        </v-btn>
 
-        <!-- Heatmap Toggle Switch -->
-        <v-card variant="elevated">
-          <v-card-text class="py-0">
-            <div class="d-flex align-center justify-space-between">
-              <span>
-                <v-icon size="small" class="mr-2">mdi-fire</v-icon>
-                <span class="text-caption mr-2">Heatmap</span>
-              </span>
-              <v-switch
-                v-model="heatmapEnabled"
-                hide-details
-                density="compact"
-                color="primary"
-                class="mx-1"
-              />
-            </div>
-          </v-card-text>
-        </v-card>
+        <!-- Toggle cards (always visible on desktop, expandable on mobile) -->
+        <v-expand-transition>
+          <div v-show="layerMenuOpen" class="layer-toggles">
+            <!-- Clustering Toggle Switch -->
+            <v-card variant="elevated">
+              <v-card-text class="py-0">
+                <div class="d-flex align-center justify-space-between">
+                  <span>
+                    <v-icon size="small" class="mr-2">mdi-chart-bubble</v-icon>
+                    <span class="text-caption mr-2">Grouping</span>
+                  </span>
+                  <v-switch
+                    v-model="clusteringEnabled"
+                    hide-details
+                    density="compact"
+                    color="primary"
+                    class="mx-1"
+                  />
+                </div>
+              </v-card-text>
+            </v-card>
 
-        <!-- City Boundaries Toggle Switch -->
-        <v-card v-if="searchGeojson" variant="elevated">
-          <v-card-text class="py-0">
-            <div class="d-flex align-center justify-space-between">
-              <span>
-                <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
-                <span class="text-caption mr-2">City Boundaries</span>
-              </span>
-              <v-switch
-                v-model="cityBoundariesVisible"
-                hide-details
-                density="compact"
-                color="primary"
-                class="mx-1"
-              />
-            </div>
-          </v-card-text>
-        </v-card>
+            <!-- Heatmap Toggle Switch -->
+            <v-card variant="elevated">
+              <v-card-text class="py-0">
+                <div class="d-flex align-center justify-space-between">
+                  <span>
+                    <v-icon size="small" class="mr-2">mdi-fire</v-icon>
+                    <span class="text-caption mr-2">Heatmap</span>
+                  </span>
+                  <v-switch
+                    v-model="heatmapEnabled"
+                    hide-details
+                    density="compact"
+                    color="primary"
+                    class="mx-1"
+                  />
+                </div>
+              </v-card-text>
+            </v-card>
+
+            <!-- City Boundaries Toggle Switch -->
+            <v-card v-if="searchGeojson" variant="elevated">
+              <v-card-text class="py-0">
+                <div class="d-flex align-center justify-space-between">
+                  <span>
+                    <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
+                    <span class="text-caption mr-2">City Boundaries</span>
+                  </span>
+                  <v-switch
+                    v-model="cityBoundariesVisible"
+                    hide-details
+                    density="compact"
+                    color="primary"
+                    class="mx-1"
+                  />
+                </div>
+              </v-card-text>
+            </v-card>
+          </div>
+        </v-expand-transition>
       </div>
     </div>
 
@@ -185,6 +201,9 @@ const heatmapEnabled = ref(false);
 
 // City boundaries control
 const cityBoundariesVisible = ref(true);
+
+// Mobile layer menu control
+const layerMenuOpen = ref(false);
 
 const theme = useTheme();
 
@@ -944,6 +963,23 @@ onUnmounted(() => {
   text-align: center;
 }
 
+/* Desktop: hide layer button, always show toggles */
+.layer-toggle-btn {
+  display: none;
+}
+
+.layer-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 769px) {
+  .layer-toggles {
+    display: flex !important;
+  }
+}
+
 /* Mobile-specific improvements */
 @media (max-width: 768px) {
   .clustering-status-bar {
@@ -954,6 +990,11 @@ onUnmounted(() => {
 
   .topright {
     top: 60px;
+  }
+
+  .layer-toggle-btn {
+    display: flex;
+    align-self: flex-end;
   }
 }
 </style>
