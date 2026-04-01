@@ -30,21 +30,16 @@
           </v-card-text>
         </v-card>
         
-        <!-- City Boundaries Toggle Switch -->
+        <!-- City Boundaries Mode Toggle -->
         <v-card v-if="geojson" variant="elevated">
-          <v-card-text class="py-0">
+          <v-card-text class="py-2 px-3">
             <div class="d-flex align-center justify-space-between">
-              <span>
-                <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
-                <span class="text-caption mr-2">City Boundaries</span>
-              </span>
-              <v-switch
-                v-model="cityBoundariesVisible"
-                hide-details
-                density="compact"
-                color="primary"
-                class="mx-1"
-              />
+              <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
+              <v-btn-toggle v-model="boundaryMode" mandatory density="compact" divided variant="outlined" color="primary">
+                <v-btn value="mask" size="x-small">Mask</v-btn>
+                <v-btn value="off" size="x-small">Off</v-btn>
+                <v-btn value="boundary" size="x-small">Border</v-btn>
+              </v-btn-toggle>
             </div>
           </v-card-text>
         </v-card>
@@ -111,7 +106,8 @@ const currentZoom = ref(0);
 const zoomWarningDismissed = ref(false);
 
 // City Boundaries Control
-const cityBoundariesVisible = ref(true);
+type BoundaryMode = 'mask' | 'off' | 'boundary';
+const boundaryMode = ref<BoundaryMode>('boundary');
 
 // Computed property to determine if clustering should be active based on zoom and user preference
 const shouldCluster = computed(() => {
@@ -403,6 +399,29 @@ function updateMarkers(newAlprs: ALPR[]): void {
   clusterLayer.addLayer(circlesLayer);
 }
 
+function createMaskGeoJson(geojson: GeoJSON.GeoJsonObject): GeoJSON.Polygon {
+  // World-covering exterior ring
+  const worldRing: number[][] = [
+    [-180, -90], [180, -90], [180, 90], [-180, 90], [-180, -90]
+  ];
+
+  // Collect exterior rings from the city boundary to use as holes
+  const holes: number[][][] = [];
+
+  if (geojson.type === 'Polygon') {
+    holes.push((geojson as GeoJSON.Polygon).coordinates[0]);
+  } else if (geojson.type === 'MultiPolygon') {
+    for (const polygon of (geojson as GeoJSON.MultiPolygon).coordinates) {
+      holes.push(polygon[0]);
+    }
+  }
+
+  return {
+    type: 'Polygon',
+    coordinates: [worldRing, ...holes],
+  };
+}
+
 function updateGeoJson(newGeoJson: GeoJSON.GeoJsonObject | null): void {
   map.eachLayer((layer) => {
     if (layer instanceof L.GeoJSON) {
@@ -410,17 +429,30 @@ function updateGeoJson(newGeoJson: GeoJSON.GeoJsonObject | null): void {
     }
   });
 
-  if (newGeoJson && cityBoundariesVisible.value) {
-    const geoJsonLayer = L.geoJSON(newGeoJson, {
+  if (!newGeoJson || boundaryMode.value === 'off') return;
+
+  if (boundaryMode.value === 'mask') {
+    const maskGeoJson = createMaskGeoJson(newGeoJson);
+    L.geoJSON(maskGeoJson, {
+      style: {
+        color: '#3388ff',
+        weight: 2,
+        opacity: 1,
+        fillColor: '#000000',
+        fillOpacity: 0.3,
+      },
+      interactive: false,
+    }).addTo(map);
+  } else {
+    L.geoJSON(newGeoJson, {
       style: {
         color: '#3388ff',
         weight: 2,
         opacity: 1,
         fillOpacity: 0.2,
       },
-      interactive: false, // Make unclickable
-    });
-    geoJsonLayer.addTo(map);
+      interactive: false,
+    }).addTo(map);
   }
 }
 
@@ -515,11 +547,11 @@ onMounted(() => {
 
   watch(() => props.geojson, (newGeoJson) => {
     updateGeoJson(newGeoJson);
-    cityBoundariesVisible.value = true;
+    boundaryMode.value = 'boundary';
   }, { deep: true });
 
-  // Watch for city boundaries visibility changes
-  watch(() => cityBoundariesVisible.value, () => {
+  // Watch for boundary mode changes
+  watch(() => boundaryMode.value, () => {
     updateGeoJson(props.geojson);
   });
 
