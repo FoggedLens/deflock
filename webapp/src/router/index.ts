@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Landing from '../views/Landing.vue'
-import Map from '../views/Map.vue'
 import { useHead } from '@unhead/vue'
 
 const router = createRouter({
@@ -27,7 +26,7 @@ const router = createRouter({
     {
       path: '/map',
       name: 'map',
-      component: Map,
+      component: () => import('../views/Map.vue'),
       meta: {
         title: 'ALPR Map | DeFlock'
       }

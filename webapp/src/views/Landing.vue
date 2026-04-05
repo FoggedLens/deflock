@@ -28,7 +28,7 @@
             
             <ALPRCounter class="my-6" />
     
-            <v-btn size="large" color="rgb(18, 151, 195)" large @click="goToMap({ withCurrentLocation: true })">
+            <v-btn size="large" color="rgb(18, 151, 195)" large href="https://maps.deflock.org">
               Explore the Map
               <v-icon end>mdi-map</v-icon>
             </v-btn>
@@ -131,7 +131,7 @@
   <!-- Map Section -->
   <v-container fluid class="map-section py-10 text-center">
     <h2 class="display-2 mb-4">Explore ALPR Locations Near You</h2>
-    <v-btn color="white" large @click="goToMap({ withCurrentLocation: true })">
+    <v-btn color="white" large href="https://maps.deflock.org">
       View the Map
       <v-icon end>mdi-map</v-icon>
     </v-btn>
@@ -239,13 +239,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import ALPRCounter from '@/components/ALPRCounter.vue';
-import { useGlobalStore } from '@/stores/global';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
-
-const router = useRouter();
-const { setCurrentLocation } = useGlobalStore();
 
 interface ServiceAlert {
   id: number;
@@ -274,22 +269,4 @@ onMounted(() => {
   fetchServiceAlert();
 });
 
-interface GoToMapOptions {
-  withCurrentLocation?: boolean;
-}
-
-async function goToMap(options: GoToMapOptions = {}) {
-  if (options.withCurrentLocation) {
-    setCurrentLocation()
-    .then((currentLocation) => {
-      const [lat, lon] = currentLocation;
-      router.push({ path: '/map', hash: `#map=12/${lat.toFixed(6)}/${lon.toFixed(6)}` });
-    })
-    .catch(() => {
-      router.push({ path: '/map' });
-    });
-  } else {
-    router.push({ path: '/map' });
-  }
-}
 </script>

@@ -35,7 +35,7 @@ onMounted(() => {
 
 const items = [
   { title: 'Home', icon: 'mdi-home', to: '/' },
-  { title: 'Map', icon: 'mdi-map', to: '/map' },
+  { title: 'Map', icon: 'mdi-map', href: 'https://maps.deflock.org' },
   { title: 'Learn', icon: 'mdi-school', to: '/what-is-an-alpr' },
   { title: 'News', icon: 'mdi-newspaper', to: '/blog' },
 ]
@@ -95,10 +95,11 @@ watch(() => theme.global.name.value, (newTheme) => {
         <div class="d-none d-md-flex ml-8 flex-grow-1">
           <!-- Main navigation items -->
           <div class="d-flex align-center">
-            <v-btn 
-              v-for="item in items.slice(1)" 
+            <v-btn
+              v-for="item in items.slice(1)"
               :key="item.title"
               :to="item.to"
+              :href="item.href"
               variant="text"
               class="mx-1"
               :prepend-icon="item.icon"
@@ -196,6 +197,7 @@ watch(() => theme.global.name.value, (newTheme) => {
             :key="item.title"
             link
             :to="item.to"
+            :href="item.href"
             role="option"
           >
             <v-icon start>{{ item.icon }}</v-icon>
