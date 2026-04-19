@@ -41,7 +41,8 @@ const start = async () => {
         'http://localhost:5173', // DeFlock Legacy
         'http://localhost:3000', // FlockHopper
         'https://deflock.org',
-        'https://www.deflock.org'
+        'https://www.deflock.org',
+        'https://maps.deflock.org'
       ];
       
       if (!origin || allowedOrigins.includes(origin) || /^https:\/\/.*\.deflock\.pages\.dev$/.test(origin)) {
