@@ -8,10 +8,10 @@ export const NominatimResultSchema = Type.Object({
   boundingbox: Type.Tuple([Type.String(), Type.String(), Type.String(), Type.String()]),
   class: Type.String(),
   display_name: Type.String(),
-  geojson: Type.Object({
+  geojson: Type.Optional(Type.Object({
     coordinates: Type.Any(),
     type: Type.String(),
-  }),
+  })),
   importance: Type.Number(),
   lat: Type.String(),
   licence: Type.String(),
@@ -39,16 +39,17 @@ const cache: Cache = createCache({
 export class NominatimClient {
   baseUrl = 'https://nominatim.openstreetmap.org/search';
 
-  async geocodePhrase(query: string): Promise<NominatimResult[]> {
+  async geocodePhrase(query: string, includeGeoJson: boolean = false): Promise<NominatimResult[]> {
     const cacheKey = `geocode:${query}`;
     const cached = await cache.get(cacheKey);
     if (cached) {
       return cached as NominatimResult[];
     }
-    const url = `${this.baseUrl}?q=${encodeURIComponent(query)}&polygon_geojson=1&format=json`;
+    const geojsonParam = includeGeoJson ? '&polygon_geojson=1' : '';
+    const url = `${this.baseUrl}?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=8&countrycodes=us&dedupe=1${geojsonParam}`;
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'DeFlock/1.1',
+        'User-Agent': 'DeFlock/1.2',
       },
     });
     if (!response.ok) {
@@ -60,7 +61,7 @@ export class NominatimClient {
   }
 
   async geocodeSingleResult(query: string): Promise<NominatimResult | null> {
-    const results = await this.geocodePhrase(query);
+    const results = await this.geocodePhrase(query, true);
     
     if (!results.length) return null;
 

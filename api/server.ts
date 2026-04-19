@@ -34,11 +34,12 @@ const start = async () => {
     });
   });
 
-  // Coors Light Config
+  // Coors Banquet Config
   await server.register(cors, {
     origin: (origin, cb) => {
       const allowedOrigins = [
-        'http://localhost:5173', // vite dev server
+        'http://localhost:5173', // DeFlock Legacy
+        'http://localhost:3000', // FlockHopper
         'https://deflock.org',
         'https://www.deflock.org'
       ];
@@ -80,8 +81,32 @@ const start = async () => {
     },
   }, async (request, reply) => {
     const { query } = request.query as { query: string };
-    reply.header('Cache-Control', 'public, max-age=300, s-maxage=86400');
+    reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
     const result = await nominatim.geocodeSingleResult(query);
+    return result;
+  });
+
+  server.get('/geocode/multi', {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          query: { type: 'string' },
+        },
+        required: ['query'],
+      },
+      response: {
+        200: {
+          type: 'array',
+          items: NominatimResultSchema,
+        },
+        500: { type: 'object', properties: { error: { type: 'string' } } },
+      },
+    },
+  }, async (request, reply) => {
+    const { query } = request.query as { query: string };
+    reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+    const result = await nominatim.geocodePhrase(query);
     return result;
   });
 
@@ -110,8 +135,10 @@ const start = async () => {
   });
 
   try {
-    await server.listen({ host: '0.0.0.0', port: 3000 });
-    console.log('Server listening on port 3000');
+    const defaultPort = process.env.NODE_ENV === 'development' ? 3420 : 3000;
+    const port = process.env.PORT ? parseInt(process.env.PORT, 10) : defaultPort;
+    await server.listen({ host: '0.0.0.0', port });
+    console.log(`Server listening on port ${port}`);
   } catch (err) {
     console.error('Failed to start server:', err);
     server.log.error(err);

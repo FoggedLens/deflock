@@ -19,7 +19,7 @@ bun install
 
 ### Run locally
 ```sh
-bun server.ts
+bun dev
 ```
 
 ## Deployment
