@@ -11,15 +11,11 @@
       close-icon="mdi-close"
       style="position: sticky; top: 0; z-index: 1000; --v-alert-close-color: #000000;"
     >
-      <div class="d-flex align-center justify-center" style="color: #000000;">
-        <span class="font-weight-bold text-uppercase">
-          Join DeFlock for a national week of action. Learn more:&nbsp;
-        </span>
-        <a
+      <div class="text-center font-weight-bold text-uppercase" style="color: #000000;">
+        Join DeFlock for a national week of action. Learn more:&nbsp;<a
           href="https://noalprs.com"
           target="_blank"
           rel="noopener noreferrer"
-          class="font-weight-bold text-uppercase"
           style="color: #000000; text-decoration: underline;"
         >NoALPRs.com</a>
       </div>
