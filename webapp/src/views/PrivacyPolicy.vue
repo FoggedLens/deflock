@@ -13,6 +13,11 @@
       DeFlock does not collect, store, or process any personal information about our users. We use local storage in your browser to anonymously identify first-time visitors for the purpose of showing an introductory message as well as to persist application state, including your dark/light theme preference. This data cannot be used to identify you personally. We do not use cookies, analytics, or tracking technologies on our website.
     </p>
 
+    <h2>Route Calculation (maps.deflock.org)</h2>
+    <p>
+      On our maps page (<a href="https://maps.deflock.org">maps.deflock.org</a>), we offer a route planning feature that calculates routes designed to avoid ALPR cameras. When you request a route, your start and end coordinates are sent to our server solely for the purpose of computing the route. These coordinates are not logged or retained long-term.
+    </p>
+
     <h2>Third-Party Services</h2>
     <p>
       DeFlock relies on OpenStreetMap (OSM) for map data and functionality. If you choose to contribute Automatic License Plate Recognition (ALPR) data or other content to OSM, you will interact directly with their platform. OSM may request personal information, such as your email address and name, to facilitate your contributions. Please refer to the OpenStreetMap Privacy Policy for details on their data practices.
