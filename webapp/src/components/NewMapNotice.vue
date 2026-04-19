@@ -38,10 +38,11 @@ import { ref, computed, onMounted } from 'vue';
 const STORAGE_KEY = 'new-map-notice-dismissed';
 
 const comingFromNewMap = document.referrer.includes('maps.deflock.org');
+const isIframe = window.self !== window.top;
 const show = ref(false);
 
 onMounted(() => {
-  if (!comingFromNewMap && !localStorage.getItem(STORAGE_KEY)) {
+  if (!comingFromNewMap && !isIframe && !localStorage.getItem(STORAGE_KEY)) {
     show.value = true;
   }
 });
