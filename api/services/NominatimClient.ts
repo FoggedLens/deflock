@@ -8,10 +8,6 @@ export const NominatimResultSchema = Type.Object({
   boundingbox: Type.Tuple([Type.String(), Type.String(), Type.String(), Type.String()]),
   class: Type.String(),
   display_name: Type.String(),
-  geojson: Type.Object({
-    coordinates: Type.Any(),
-    type: Type.String(),
-  }),
   importance: Type.Number(),
   lat: Type.String(),
   licence: Type.String(),
@@ -45,10 +41,10 @@ export class NominatimClient {
     if (cached) {
       return cached as NominatimResult[];
     }
-    const url = `${this.baseUrl}?q=${encodeURIComponent(query)}&polygon_geojson=1&format=json`;
+    const url = `${this.baseUrl}?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=8&countrycodes=us&dedupe=1`;
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'DeFlock/1.1',
+        'User-Agent': 'DeFlock/1.2',
       },
     });
     if (!response.ok) {
