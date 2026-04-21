@@ -21,6 +21,7 @@
     "pinia": "^2.3.0",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3",
+    "vue-turnstile": "^1.0.11",
     "vuetify": "^3.7.2"
   },
   "devDependencies": {
