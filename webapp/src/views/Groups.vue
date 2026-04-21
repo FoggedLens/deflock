@@ -56,7 +56,7 @@
               <v-alert>
                 <p class="text-h5 my-0 pt-0 font-weight-bold">Don't see a group near you?</p>
                 <p>
-                  Write to us at <a href="mailto:groups@deflock.org">groups@deflock.org</a> for info on starting your own chapter.
+                  <router-link to="/contact?topic=local-groups">Send us a message</router-link> for info on starting your own chapter.
                 </p>
               </v-alert>
             </div>
