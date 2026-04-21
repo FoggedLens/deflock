@@ -3,6 +3,8 @@ import Fastify, { FastifyInstance, FastifyError } from 'fastify';
 import cors from '@fastify/cors';
 import { NominatimClient, NominatimResultSchema } from './services/NominatimClient';
 import { GithubClient, SponsorsResponseSchema } from './services/GithubClient';
+import { TurnstileClient } from './services/TurnstileClient';
+import { ZammadClient, ContactMessageBodySchema, ContactMessageBody } from './services/ZammadClient';
 
 const start = async () => {
   const server: FastifyInstance = Fastify({
@@ -51,11 +53,13 @@ const start = async () => {
         cb(null, false);
       }
     },
-    methods: ['GET', 'HEAD'],
+    methods: ['GET', 'HEAD', 'POST'],
   });
 
   const nominatim = new NominatimClient();
   const githubClient = new GithubClient();
+  const turnstileClient = new TurnstileClient();
+  const zammadClient = new ZammadClient();
 
   const shutdown = async () => {
     server.log.info("Shutting down");
@@ -129,6 +133,28 @@ const start = async () => {
     reply.header('Cache-Control', 'public, max-age=60, s-maxage=600');
     const result = await githubClient.getSponsors(username || 'frillweeman');
     return result;
+  });
+
+  server.post('/contact/message', {
+    schema: {
+      body: ContactMessageBodySchema,
+      response: {
+        201: { type: 'object', properties: {} },
+        400: { type: 'object', properties: { error: { type: 'string' } } },
+        500: { type: 'object', properties: { error: { type: 'string' } } },
+      },
+    },
+  }, async (request, reply) => {
+    const { name, email, topic, subject, message, turnstileToken } = request.body as ContactMessageBody;
+
+    const remoteIp = request.ip;
+    const valid = await turnstileClient.verify(turnstileToken, remoteIp);
+    if (!valid) {
+      return reply.status(400).send({ error: 'Invalid captcha' });
+    }
+
+    await zammadClient.createTicket({ name, email, topic, subject, message });
+    return reply.status(201).send({});
   });
 
   server.head('/healthcheck', async (request, reply) => {
