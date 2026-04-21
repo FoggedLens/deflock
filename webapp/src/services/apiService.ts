@@ -87,3 +87,17 @@ export const geocodeQuery = async (query: string) => {
   const result = (await apiService.get(`/geocode?query=${encodedQuery}`)).data;
   return result;
 }
+
+export interface ContactMessagePayload {
+  name: string;
+  email: string;
+  topic: string;
+  subject: string;
+  message: string;
+  turnstileToken: string;
+}
+
+export const postContactMessage = async (payload: ContactMessagePayload) => {
+  const response = await apiService.post("/contact/message", payload);
+  return response.data;
+}

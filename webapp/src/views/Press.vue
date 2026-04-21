@@ -43,7 +43,7 @@
 
     <h2>Contact Us</h2>
     <p>
-      For media inquiries and interview requests, send us an email at <a href="mailto:media@deflock.org">media@deflock.org</a>.
+      For media inquiries and interview requests, send us an email <router-link to="/contact?topic=media">using this form</router-link>.
     </p>
 
   </v-container>
