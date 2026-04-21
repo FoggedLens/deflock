@@ -71,6 +71,13 @@
                   density="comfortable"
                 ></v-select>
               </v-col>
+              <v-col v-if="fields.topic === REPORT_CAMERA_TOPIC" cols="12">
+                <v-alert type="info" variant="tonal" icon="mdi-camera">
+                  We don't accept camera submissions by email — but you can
+                  <RouterLink :to="{ name: 'report' }" class="font-weight-bold text-decoration-none">report a camera yourself</RouterLink>
+                  directly on the site. If you're having trouble with the reporting tool, feel free to send us a message below.
+                </v-alert>
+              </v-col>
               <v-col cols="12">
                 <v-text-field
                   v-model="fields.subject"
@@ -149,11 +156,14 @@ const topicItems = [
   { label: 'Questions & Comments', value: 'questions-comments' },
   { label: 'Technical Support - Website/Map', value: 'website-support' },
   { label: 'Technical Support - DeFlock App', value: 'app-support' },
+  { label: 'Reporting a Camera', value: 'report-camera' },
   { label: 'Local Groups', value: 'local-groups' },
   { label: 'Media/Press', value: 'media' },
 ] as const;
 
 type TopicValue = typeof topicItems[number]['value'];
+
+const REPORT_CAMERA_TOPIC = 'report-camera' as const;
 
 const validTopics = topicItems.map((t) => t.value) as string[];
 
@@ -216,7 +226,7 @@ const handleSubmit = async () => {
     await postContactMessage({
       name: fields.name,
       email: fields.email,
-      topic: fields.topic!,
+      topic: fields.topic === REPORT_CAMERA_TOPIC ? 'app-support' : fields.topic!,
       subject: fields.subject,
       message: fields.message,
       turnstileToken: turnstileToken.value,
