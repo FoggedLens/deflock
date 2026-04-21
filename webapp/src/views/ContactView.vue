@@ -74,7 +74,7 @@
               <v-col v-if="fields.topic === REPORT_CAMERA_TOPIC" cols="12">
                 <v-alert type="info" variant="tonal" icon="mdi-camera">
                   We don't accept camera submissions by email — but you can
-                  <RouterLink :to="{ name: 'report' }" class="font-weight-bold text-decoration-none">report a camera yourself</RouterLink>
+                  <router-link :to="{ name: 'report' }">report a camera yourself</router-link>
                   directly on the site. If you're having trouble with the reporting tool, feel free to send us a message below.
                 </v-alert>
               </v-col>
