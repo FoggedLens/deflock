@@ -81,6 +81,7 @@ const start = async () => {
       },
       response: {
         200: NominatimResultSchema,
+        404: { type: 'object', properties: { error: { type: 'string' } } },
         500: { type: 'object', properties: { error: { type: 'string' } } },
       },
     },
@@ -88,6 +89,9 @@ const start = async () => {
     const { query } = request.query as { query: string };
     reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
     const result = await nominatim.geocodeSingleResult(query);
+    if (!result) {
+      return reply.status(404).send({ error: 'No results found' });
+    }
     return result;
   });
 
