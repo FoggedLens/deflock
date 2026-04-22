@@ -49,7 +49,7 @@
             <ALPRCounter class="my-6" />
     
             <v-btn size="large" color="rgb(18, 151, 195)" large href="https://maps.deflock.org">
-              Explore the Map
+              Launch the Map
               <v-icon end>mdi-map</v-icon>
             </v-btn>
           </v-col>
@@ -152,7 +152,7 @@
   <v-container fluid class="map-section py-10 text-center">
     <h2 class="display-2 mb-4">Explore ALPR Locations Near You</h2>
     <v-btn color="white" large href="https://maps.deflock.org">
-      View the Map
+      Launch the Map
       <v-icon end>mdi-map</v-icon>
     </v-btn>
   </v-container>
