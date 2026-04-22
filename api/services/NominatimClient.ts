@@ -17,9 +17,9 @@ export const NominatimResultSchema = Type.Object({
   licence: Type.String(),
   lon: Type.String(),
   name: Type.String(),
-  osm_id: Type.Number(),
-  osm_type: Type.String(),
-  place_id: Type.Number(),
+  osm_id: Type.Optional(Type.Number()),
+  osm_type: Type.Optional(Type.String()),
+  place_id: Type.Optional(Type.Number()),
   place_rank: Type.Number(),
   type: Type.String(),
 });
