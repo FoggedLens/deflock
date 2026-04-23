@@ -44,15 +44,53 @@ export interface CreateTicketPayload {
 }
 
 export class ZammadClient {
+  private async upsertCustomer(name: string, email: string): Promise<number> {
+    const normalizedEmail = email.toLowerCase();
+
+    // Search for existing user by email
+    const searchResponse = await fetch(
+      `${ZAMMAD_URL}/api/v1/users/search?query=${encodeURIComponent(normalizedEmail)}&limit=1`,
+      {
+        headers: { 'Authorization': `Token token=${ZAMMAD_TOKEN}` },
+      }
+    );
+
+    if (searchResponse.ok) {
+      const users = await searchResponse.json() as Array<{ id: number; email: string }>;
+      const match = users.find(u => u.email?.toLowerCase() === normalizedEmail);
+      if (match) return match.id;
+    }
+
+    // Create the customer if not found
+    const createResponse = await fetch(`${ZAMMAD_URL}/api/v1/users`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token token=${ZAMMAD_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ firstname: name, email: normalizedEmail, roles: ['Customer'] }),
+    });
+
+    if (!createResponse.ok) {
+      const text = await createResponse.text();
+      throw new Error(`Zammad customer creation failed: ${createResponse.status} ${text}`);
+    }
+
+    const user = await createResponse.json() as { id: number };
+    return user.id;
+  }
+
   async createTicket(payload: CreateTicketPayload): Promise<void> {
     const { name, email, topic, subject, message } = payload;
     const group = TOPIC_GROUP_MAP[topic];
+
+    const customerId = await this.upsertCustomer(name, email);
 
     const body = JSON.stringify({
       title: subject,
       group,
       priority: topic === 'media' ? '3 high' : '2 normal',
-      customer: email,
+      customer_id: customerId,
       article: {
         subject,
         body: message,
