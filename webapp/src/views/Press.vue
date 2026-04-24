@@ -28,17 +28,7 @@
 
     <h2>Embedding our Map</h2>
     <p>
-      You are welcome to embed our map on your website. Use the following HTML snippet:
-    </p>
-
-    <p>
-      <DFCode>
-        &lt;iframe src=&quot;https://deflock.org/map&quot; width=&quot;100%&quot; height=&quot;600&quot; style=&quot;border: none;&quot;&gt;&lt;/iframe&gt;
-      </DFCode>
-    </p>
-
-    <p>
-      If you would like to <b>localize the URL</b> to a specific region, please zoom to the area at <router-link to="/map">https://deflock.org/map</router-link> and copy the URL from your browser's address bar.
+      You are welcome to embed our map on your website. Simply <a href="https://maps.deflock.org" target="_blank">click the share button on our map</a>, and copy the embed code.
     </p>
 
     <h2>Contact Us</h2>
@@ -53,5 +43,4 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
-import DFCode from "@/components/DFCode.vue";
 </script>
