@@ -6,7 +6,7 @@ Wants=network.target
 [Service]
 Type=simple
 User=otelcol
-Group=otelcol
+Group=deflock
 
 ExecStart=/usr/local/bin/otelcol-contrib --config /etc/otelcol/config.yaml
 
