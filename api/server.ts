@@ -1,5 +1,34 @@
 
+import './telemetry';
+import { tracer, otelLogger, SeverityNumber, meter } from './telemetry';
+import { type Span, SpanKind, SpanStatusCode, context, trace } from '@opentelemetry/api';
 import Fastify, { FastifyInstance, FastifyError } from 'fastify';
+
+declare module 'fastify' {
+  interface FastifyRequest {
+    span?: Span;
+    traceId?: string;
+    errorHandled?: boolean;
+  }
+}
+
+function classifyError(error: FastifyError): string {
+  if (error.code === 'FST_ERR_VALIDATION') return 'validation_error';
+  const msg = error.message.toLowerCase();
+  if (msg.includes('geocode') || msg.includes('nominatim')) return 'upstream_error:nominatim';
+  if (msg.includes('sponsors') || msg.includes('github')) return 'upstream_error:github';
+  if (msg.includes('zammad') || msg.includes('ticket')) return 'upstream_error:zammad';
+  if (msg.includes('turnstile') || msg.includes('siteverify')) return 'upstream_error:turnstile';
+  return 'internal_error';
+}
+
+function classifyByStatus(statusCode: number): string {
+  if (statusCode === 404) return 'not_found';
+  if (statusCode === 400) return 'client_error';
+  if (statusCode === 401 || statusCode === 403) return 'auth_error';
+  if (statusCode >= 400 && statusCode < 500) return 'client_error';
+  return 'internal_error';
+}
 import cors from '@fastify/cors';
 import { NominatimClient, NominatimResultSchema } from './services/NominatimClient';
 import { GithubClient, SponsorsResponseSchema } from './services/GithubClient';
@@ -24,16 +53,42 @@ const start = async () => {
 
   // Global error handler
   server.setErrorHandler((error: FastifyError, request, reply) => {
+    const errorType = classifyError(error);
+    const statusCode = error.statusCode ?? 500;
+    const { span } = request;
+
+    if (span) {
+      span.setAttribute('error.type', errorType);
+      span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+      span.recordException(error);
+    }
+
+    otelLogger.emit({
+      severityNumber: SeverityNumber.ERROR,
+      severityText: 'ERROR',
+      body: error.message,
+      attributes: {
+        'error.type': errorType,
+        'http.route': (request.routeOptions as { url?: string })?.url ?? '',
+        'http.request.method': request.method,
+        'http.response.status_code': statusCode,
+        'exception.message': error.message,
+        'exception.stacktrace': error.stack ?? '',
+        'trace.id': request.traceId ?? '',
+      },
+    });
+
+    request.errorHandled = true;
+
     server.log.error({
       url: request.url,
       method: request.method,
+      traceId: request.traceId,
       error: error.message,
       stack: error.stack,
     }, 'Request error');
-    
-    reply.status(error.statusCode || 500).send({
-      error: 'Internal Server Error',
-    });
+
+    reply.status(statusCode).send({ error: 'Internal Server Error' });
   });
 
   // Coors Banquet Config
@@ -54,6 +109,59 @@ const start = async () => {
       }
     },
     methods: ['GET', 'HEAD', 'POST'],
+  });
+
+  server.addHook('onRequest', (request, _reply, done) => {
+    const route = (request.routeOptions as { url?: string })?.url ?? request.url.split('?')[0];
+    const span = tracer.startSpan(`${request.method} ${route}`, {
+      kind: SpanKind.SERVER,
+      attributes: {
+        'http.request.method': request.method,
+        'http.route': route,
+        'http.url': request.url,
+        'network.peer.address': request.ip,
+      },
+    });
+    request.span = span;
+    request.traceId = span.spanContext().traceId;
+    done();
+  });
+
+  server.addHook('onResponse', (request, reply, done) => {
+    const { span } = request;
+    if (span) {
+      const statusCode = reply.statusCode;
+      const route = (request.routeOptions as { url?: string })?.url ?? request.url.split('?')[0];
+      requestCounter.add(1, {
+        'http.route': route,
+        'http.request.method': request.method,
+        'http.response.status_code': statusCode,
+      });
+      span.setAttribute('http.response.status_code', statusCode);
+      if (statusCode >= 500) {
+        span.setStatus({ code: SpanStatusCode.ERROR });
+      }
+      if (!request.errorHandled && statusCode >= 400) {
+        otelLogger.emit({
+          severityNumber: statusCode >= 500 ? SeverityNumber.ERROR : SeverityNumber.WARN,
+          severityText: statusCode >= 500 ? 'ERROR' : 'WARN',
+          body: `HTTP ${statusCode} ${request.method} ${(request.routeOptions as { url?: string })?.url ?? request.url}`,
+          attributes: {
+            'error.type': classifyByStatus(statusCode),
+            'http.route': (request.routeOptions as { url?: string })?.url ?? '',
+            'http.request.method': request.method,
+            'http.response.status_code': statusCode,
+            'trace.id': request.traceId ?? '',
+          },
+        });
+      }
+      span.end();
+    }
+    done();
+  });
+
+  const requestCounter = meter.createCounter('http.server.requests.total', {
+    description: 'Total number of HTTP requests, by route, method, and status code',
   });
 
   const nominatim = new NominatimClient();
@@ -88,7 +196,7 @@ const start = async () => {
   }, async (request, reply) => {
     const { query } = request.query as { query: string };
     reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
-    const result = await nominatim.geocodeSingleResult(query);
+    const result = await nominatim.geocodeSingleResult(query, request.span);
     if (!result) {
       return reply.status(404).send({ error: 'No results found' });
     }
@@ -115,7 +223,7 @@ const start = async () => {
   }, async (request, reply) => {
     const { query } = request.query as { query: string };
     reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
-    const result = await nominatim.geocodePhrase(query);
+    const result = await nominatim.geocodePhrase(query, false, request.span);
     return result;
   });
 
@@ -135,7 +243,7 @@ const start = async () => {
   }, async (request, reply) => {
     const { username } = request.query as { username?: string };
     reply.header('Cache-Control', 'public, max-age=60, s-maxage=600');
-    const result = await githubClient.getSponsors(username || 'frillweeman');
+    const result = await githubClient.getSponsors(username || 'frillweeman', request.span);
     return result;
   });
 
@@ -152,12 +260,12 @@ const start = async () => {
     const { name, email, topic, subject, message, turnstileToken } = request.body as ContactMessageBody;
 
     const remoteIp = request.ip;
-    const valid = await turnstileClient.verify(turnstileToken, remoteIp);
+    const valid = await turnstileClient.verify(turnstileToken, remoteIp, request.span);
     if (!valid) {
       return reply.status(400).send({ error: 'Invalid captcha' });
     }
 
-    await zammadClient.createTicket({ name, email, topic, subject, message });
+    await zammadClient.createTicket({ name, email, topic, subject, message }, request.span);
     return reply.status(201).send({});
   });
 

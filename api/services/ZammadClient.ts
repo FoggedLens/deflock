@@ -1,4 +1,6 @@
 import { Type, Static } from '@sinclair/typebox';
+import { type Span, SpanKind, SpanStatusCode, context, trace } from '@opentelemetry/api';
+import { tracer } from '../telemetry';
 
 const ZAMMAD_URL = process.env.ZAMMAD_URL || '';
 const ZAMMAD_TOKEN = process.env.ZAMMAD_TOKEN || '';
@@ -44,7 +46,7 @@ export interface CreateTicketPayload {
 }
 
 export class ZammadClient {
-  async createTicket(payload: CreateTicketPayload): Promise<void> {
+  async createTicket(payload: CreateTicketPayload, parentSpan?: Span): Promise<void> {
     const { name, email, topic, subject, message } = payload;
     const group = TOPIC_GROUP_MAP[topic];
 
@@ -64,18 +66,32 @@ export class ZammadClient {
       },
     });
 
-    const response = await fetch(`${ZAMMAD_URL}/api/v1/tickets`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token token=${ZAMMAD_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body,
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Zammad ticket creation failed: ${response.status} ${text}`);
+    const ctx = parentSpan ? trace.setSpan(context.active(), parentSpan) : context.active();
+    const span = tracer.startSpan('zammad.createTicket', {
+      kind: SpanKind.CLIENT,
+      attributes: { 'peer.service': 'zammad', 'http.request.method': 'POST' },
+    }, ctx);
+    try {
+      const response = await fetch(`${ZAMMAD_URL}/api/v1/tickets`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token token=${ZAMMAD_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body,
+      });
+      span.setAttribute('http.response.status_code', response.status);
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Zammad ticket creation failed: ${response.status} ${text}`);
+      }
+    } catch (err) {
+      span.recordException(err as Error);
+      span.setStatus({ code: SpanStatusCode.ERROR, message: (err as Error).message });
+      span.setAttribute('error.type', 'upstream_error');
+      throw err;
+    } finally {
+      span.end();
     }
   }
 }
