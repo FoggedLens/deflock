@@ -33,6 +33,13 @@ processors:
       span:
         - 'status.code != STATUS_CODE_ERROR'
 
+  # Drop 404 log records to reduce noise
+  filter/drop_404_logs:
+    error_mode: ignore
+    logs:
+      log_record:
+        - 'attributes["http.response.status_code"] == 404'
+
 exporters:
   otlp_http/grafana:
     endpoint: ${env:GRAFANA_OTLP_ENDPOINT}
@@ -60,7 +67,7 @@ service:
       exporters: [otlp_http/grafana]
     logs:
       receivers: [otlp]
-      processors: [batch]
+      processors: [filter/drop_404_logs, batch]
       exporters: [otlp_http/grafana]
     metrics:
       receivers: [otlp]

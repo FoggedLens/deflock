@@ -9,6 +9,7 @@ declare module 'fastify' {
     span?: Span;
     traceId?: string;
     errorHandled?: boolean;
+    meta?: Record<string, unknown>;
   }
 }
 
@@ -31,6 +32,7 @@ function classifyByStatus(statusCode: number): string {
 }
 import cors from '@fastify/cors';
 import { NominatimClient, NominatimResultSchema } from './services/NominatimClient';
+import { isZipCode } from './services/ZipCodeService';
 import { GithubClient, SponsorsResponseSchema } from './services/GithubClient';
 import { TurnstileClient } from './services/TurnstileClient';
 import { ZammadClient, ContactMessageBodySchema, ContactMessageBody } from './services/ZammadClient';
@@ -80,13 +82,15 @@ const start = async () => {
 
     request.errorHandled = true;
 
-    server.log.error({
-      url: request.url,
-      method: request.method,
-      traceId: request.traceId,
-      error: error.message,
-      stack: error.stack,
-    }, 'Request error');
+    if (statusCode !== 404) {
+      server.log.error({
+        url: request.url,
+        method: request.method,
+        traceId: request.traceId,
+        error: error.message,
+        stack: error.stack,
+      }, 'Request error');
+    }
 
     reply.status(statusCode).send({ error: 'Internal Server Error' });
   });
@@ -136,6 +140,7 @@ const start = async () => {
         'http.route': route,
         'http.request.method': request.method,
         'http.response.status_code': statusCode,
+        ...(request.meta?.geocodeSource ? { 'geocode.source': request.meta.geocodeSource as string } : {}),
       });
       span.setAttribute('http.response.status_code', statusCode);
       if (statusCode >= 500) {
@@ -222,6 +227,7 @@ const start = async () => {
     },
   }, async (request, reply) => {
     const { query } = request.query as { query: string };
+    request.meta = { geocodeSource: isZipCode(query) ? 'local_zip' : 'nominatim' };
     reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
     const result = await nominatim.geocodePhrase(query, false, request.span);
     return result;

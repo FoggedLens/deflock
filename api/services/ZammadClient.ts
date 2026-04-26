@@ -106,14 +106,15 @@ export class ZammadClient {
     }
   }
 
-  async createTicket(payload: CreateTicketPayload): Promise<void> {
+  async createTicket(payload: CreateTicketPayload, parentSpan?: Span): Promise<void> {
     const { name, email, topic, subject, message } = payload;
     const group = TOPIC_GROUP_MAP[topic];
 
+    const ctx = parentSpan ? trace.setSpan(context.active(), parentSpan) : context.active();
     const span = tracer.startSpan('zammad.createTicket', {
       kind: SpanKind.CLIENT,
       attributes: { 'peer.service': 'zammad', 'http.request.method': 'POST' },
-    });
+    }, ctx);
     try {
       const customerId = await this.upsertCustomer(name, email, span);
 

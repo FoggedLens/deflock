@@ -3,6 +3,7 @@ import { createCache, Cache } from 'cache-manager';
 import { Type, Static } from '@sinclair/typebox';
 import { type Span, SpanKind, SpanStatusCode, context, trace } from '@opentelemetry/api';
 import { tracer, otelLogger, SeverityNumber } from '../telemetry';
+import { isZipCode, lookupZipCode } from './ZipCodeService';
 const { DiskStore } = require('cache-manager-fs-hash');
 
 export const NominatimResultSchema = Type.Object({
@@ -56,6 +57,12 @@ export class NominatimClient {
   baseUrl = 'https://nominatim.openstreetmap.org/search';
 
   async geocodePhrase(query: string, includeGeoJson: boolean = false, parentSpan?: Span): Promise<NominatimResult[]> {
+    // Short-circuit for ZIP codes — serve from local data, no Nominatim call needed
+    if (isZipCode(query)) {
+      const zipResult = lookupZipCode(query.trim());
+      return zipResult ? [zipResult] : [];
+    }
+
     const cacheKey = `geocode:${query}`;
     const cached = await cache.get(cacheKey);
     if (cached) {
