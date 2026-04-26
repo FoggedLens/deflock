@@ -46,40 +46,102 @@ export interface CreateTicketPayload {
 }
 
 export class ZammadClient {
-  async createTicket(payload: CreateTicketPayload, parentSpan?: Span): Promise<void> {
-    const { name, email, topic, subject, message } = payload;
-    const group = TOPIC_GROUP_MAP[topic];
+  private async upsertCustomer(name: string, email: string, parentSpan: Span): Promise<number> {
+    const normalizedEmail = email.toLowerCase();
+    const ctx = trace.setSpan(context.active(), parentSpan);
 
-    const body = JSON.stringify({
-      title: subject,
-      group,
-      priority: topic === 'media' ? '3 high' : '2 normal',
-      customer: email,
-      article: {
-        subject,
-        body: message,
-        type: 'email',
-        sender: 'Customer',
-        from: `${name} <${email}>`,
-        to: 'contact@deflock.org',
-        internal: false,
-      },
-    });
+    // Search for existing user by email
+    const searchSpan = tracer.startSpan('zammad.upsertCustomer.search', {
+      kind: SpanKind.CLIENT,
+      attributes: { 'peer.service': 'zammad', 'http.request.method': 'GET' },
+    }, ctx);
+    try {
+      const searchResponse = await fetch(
+        `${ZAMMAD_URL}/api/v1/users/search?query=${encodeURIComponent(normalizedEmail)}&limit=1`,
+        {
+          headers: { 'Authorization': `Token token=${ZAMMAD_TOKEN}` },
+        }
+      );
+      searchSpan.setAttribute('http.response.status_code', searchResponse.status);
+      if (searchResponse.ok) {
+        const users = await searchResponse.json() as Array<{ id: number; email: string }>;
+        const match = users.find(u => u.email?.toLowerCase() === normalizedEmail);
+        if (match) return match.id;
+      }
+    } catch (err) {
+      searchSpan.recordException(err as Error);
+      searchSpan.setStatus({ code: SpanStatusCode.ERROR, message: (err as Error).message });
+      throw err;
+    } finally {
+      searchSpan.end();
+    }
 
-    const ctx = parentSpan ? trace.setSpan(context.active(), parentSpan) : context.active();
-    const span = tracer.startSpan('zammad.createTicket', {
+    // Create the customer if not found
+    const createSpan = tracer.startSpan('zammad.upsertCustomer.create', {
       kind: SpanKind.CLIENT,
       attributes: { 'peer.service': 'zammad', 'http.request.method': 'POST' },
     }, ctx);
     try {
-      const response = await fetch(`${ZAMMAD_URL}/api/v1/tickets`, {
+      const createResponse = await fetch(`${ZAMMAD_URL}/api/v1/users`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token token=${ZAMMAD_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ firstname: name, email: normalizedEmail, roles: ['Customer'] }),
+      });
+      createSpan.setAttribute('http.response.status_code', createResponse.status);
+      if (!createResponse.ok) {
+        const text = await createResponse.text();
+        throw new Error(`Zammad customer creation failed: ${createResponse.status} ${text}`);
+      }
+      const user = await createResponse.json() as { id: number };
+      return user.id;
+    } catch (err) {
+      createSpan.recordException(err as Error);
+      createSpan.setStatus({ code: SpanStatusCode.ERROR, message: (err as Error).message });
+      throw err;
+    } finally {
+      createSpan.end();
+    }
+  }
+
+  async createTicket(payload: CreateTicketPayload): Promise<void> {
+    const { name, email, topic, subject, message } = payload;
+    const group = TOPIC_GROUP_MAP[topic];
+
+    const span = tracer.startSpan('zammad.createTicket', {
+      kind: SpanKind.CLIENT,
+      attributes: { 'peer.service': 'zammad', 'http.request.method': 'POST' },
+    });
+    try {
+      const customerId = await this.upsertCustomer(name, email, span);
+
+      const body = JSON.stringify({
+        title: subject,
+        group,
+        priority: topic === 'media' ? '3 high' : '2 normal',
+        customer_id: customerId,
+        article: {
+          subject,
+          body: message,
+          type: 'email',
+          sender: 'Customer',
+          from: `${name} <${email}>`,
+          to: 'contact@deflock.org',
+          internal: false,
+        },
+      });
+
+      const ctx = trace.setSpan(context.active(), span);
+      const response = await context.with(ctx, () => fetch(`${ZAMMAD_URL}/api/v1/tickets`, {
         method: 'POST',
         headers: {
           'Authorization': `Token token=${ZAMMAD_TOKEN}`,
           'Content-Type': 'application/json',
         },
         body,
-      });
+      }));
       span.setAttribute('http.response.status_code', response.status);
       if (!response.ok) {
         const text = await response.text();
