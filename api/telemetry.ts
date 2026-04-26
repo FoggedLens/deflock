@@ -38,7 +38,7 @@ const meterProvider = new MeterProvider({
   readers: [
     new PeriodicExportingMetricReader({
       exporter: new OTLPMetricExporter({ url: `${OTEL_ENDPOINT}/v1/metrics` }),
-      exportIntervalMillis: 10_000,
+      exportIntervalMillis: 60_000,
     }),
   ],
 });
