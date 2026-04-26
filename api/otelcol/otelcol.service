@@ -1,0 +1,25 @@
+[Unit]
+Description=OpenTelemetry Collector (deflock)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=otelcol
+Group=deflock
+
+ExecStart=/usr/local/bin/otelcol-contrib --config /etc/otelcol/config.yaml
+
+EnvironmentFile=/home/nullplate/secrets/api/.env
+
+Restart=on-failure
+RestartSec=5s
+
+# Harden the service
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/otelcol
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,68 @@
+# OpenTelemetry Collector configuration for deflock-api
+# Receives traces and logs from the API, forwards to Grafana Cloud via the
+# unified OTLP gateway (routes traces → Tempo, logs → Loki automatically).
+#
+# Required environment variables (set in /etc/systemd/system/otelcol.service):
+#   GRAFANA_OTLP_ENDPOINT   e.g. https://otlp-gateway-prod-us-east-0.grafana.net/otlp
+#                           Found in Grafana Cloud portal → OpenTelemetry
+#   GRAFANA_INSTANCE_ID     numeric stack ID (same for all signals)
+#   GRAFANA_API_KEY         Grafana Cloud API key (Metrics Publisher role is sufficient)
+
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 127.0.0.1:4318
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 256
+
+  # Drop healthcheck spans to reduce noise
+  filter/drop_healthcheck:
+    error_mode: ignore
+    traces:
+      span:
+        - 'attributes["http.route"] == "/healthcheck"'
+
+  # Only forward spans that resulted in an error
+  filter/errors_only:
+    error_mode: ignore
+    traces:
+      span:
+        - 'status.code != STATUS_CODE_ERROR'
+
+exporters:
+  otlp_http/grafana:
+    endpoint: ${env:GRAFANA_OTLP_ENDPOINT}
+    auth:
+      authenticator: basicauth/grafana
+
+extensions:
+  basicauth/grafana:
+    client_auth:
+      username: ${env:GRAFANA_INSTANCE_ID}
+      password: ${env:GRAFANA_API_KEY}
+
+  health_check:
+    endpoint: 127.0.0.1:13133
+
+service:
+  telemetry:
+    metrics:
+      level: none
+  extensions: [basicauth/grafana, health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [filter/drop_healthcheck, filter/errors_only, batch]
+      exporters: [otlp_http/grafana]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp_http/grafana]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp_http/grafana]
