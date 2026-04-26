@@ -26,6 +26,13 @@ processors:
       span:
         - 'attributes["http.route"] == "/healthcheck"'
 
+  # Only forward spans that resulted in an error
+  filter/errors_only:
+    error_mode: ignore
+    traces:
+      span:
+        - 'status.code != STATUS_CODE_ERROR'
+
 exporters:
   otlp_http/grafana:
     endpoint: ${env:GRAFANA_OTLP_ENDPOINT}
@@ -49,7 +56,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [filter/drop_healthcheck, batch]
+      processors: [filter/drop_healthcheck, filter/errors_only, batch]
       exporters: [otlp_http/grafana]
     logs:
       receivers: [otlp]
