@@ -5,7 +5,7 @@
       title="Support DeFlock"
       image-url="/donate.webp"
       background-position="0 25%"
-      button-text="Donate Now"
+      button-text="Send us a Tip"
       button-href="https://buymeacoffee.com/deflock"
       :opacity="0.25"
     />
@@ -17,7 +17,7 @@
       <v-col cols="12" md="10">
         <h2 class="mb-2">Founding Sponsors</h2>
         <p class="mb-8">
-          <a target="_blank" href="https://buymeacoffee.com/deflock">We've made donating easier</a>, but if you want to see your name on this list, <a target="_blank" href="https://github.com/sponsors/frillweeman">sponsor us on GitHub!</a>
+          <a target="_blank" href="https://buymeacoffee.com/deflock">We've made supporting us easier</a>, but if you want to see your name on this list, <a target="_blank" href="https://github.com/sponsors/frillweeman">sponsor us on GitHub!</a>
         </p>
 
         <v-row>

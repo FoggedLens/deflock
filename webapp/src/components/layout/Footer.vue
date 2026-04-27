@@ -83,7 +83,7 @@ const internalLinks = [
 
 const externalLinks = [
   { title: 'Discord', href: 'https://discord.gg/aV7v4R3sKT', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg', alt: 'Discord Logo' },
-  { title: 'Donate', to: '/donate', icon: 'mdi-heart', alt: 'Donate' },
+  { title: 'Support Us', to: '/donate', icon: 'mdi-cash-multiple', alt: 'Support Us' },
   { title: 'GitHub', href: 'https://github.com/FoggedLens/deflock', icon: 'mdi-github', alt: 'GitHub Logo' },
   { title: 'Contact', to: '/contact', icon: 'mdi-email', alt: 'Contact' },
 ]

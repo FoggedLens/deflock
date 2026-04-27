@@ -52,7 +52,7 @@ const metaItems = [
   { title: 'Local Groups', icon: 'mdi-account-group', to: '/groups' },
   { title: 'Contact', icon: 'mdi-email-outline', to: '/contact' },
   { title: 'GitHub', icon: 'mdi-github', href: 'https://github.com/frillweeman/deflock'},
-  { title: 'Donate', icon: 'mdi-heart', to: '/donate'},
+  { title: 'Support Us', icon: 'mdi-cash-multiple', to: '/donate'},
 ];
 const drawer = ref(false)
 

@@ -132,7 +132,7 @@ const router = createRouter({
       name: 'donate',
       component: () => import('../views/Donate.vue'),
       meta: {
-        title: 'Donate | DeFlock'
+        title: 'Support Us | DeFlock'
       }
     },
     {
