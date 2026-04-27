@@ -37,7 +37,7 @@ const items = [
   { title: 'Home', icon: 'mdi-home', to: '/' },
   { title: 'Map', icon: 'mdi-map', href: 'https://maps.deflock.org' },
   { title: 'Learn', icon: 'mdi-school', to: '/what-is-an-alpr' },
-  { title: 'News', icon: 'mdi-newspaper', to: '/blog' },
+  { title: 'News', icon: 'mdi-newspaper', href: 'https://footnote4a.org/', target: '_blank' },
 ]
 
 const contributeItems = [
@@ -100,6 +100,7 @@ watch(() => theme.global.name.value, (newTheme) => {
               :key="item.title"
               :to="item.to"
               :href="item.href"
+              :target="item.target"
               variant="text"
               class="mx-1"
               :prepend-icon="item.icon"
@@ -198,6 +199,7 @@ watch(() => theme.global.name.value, (newTheme) => {
             link
             :to="item.to"
             :href="item.href"
+            :target="item.target"
             role="option"
           >
             <v-icon start>{{ item.icon }}</v-icon>
