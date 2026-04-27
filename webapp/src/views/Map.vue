@@ -61,6 +61,12 @@
 import 'leaflet/dist/leaflet.css';
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router'
+import { useHead } from '@unhead/vue'
+
+useHead({
+  link: [{ rel: 'canonical', href: 'https://maps.deflock.org' }],
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }]
+})
 import type { Ref } from 'vue';
 import { BoundingBox } from '@/services/apiService';
 import { geocodeQuery } from '@/services/apiService';

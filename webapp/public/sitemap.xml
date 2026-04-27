@@ -5,10 +5,6 @@
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://deflock.org/map</loc>
-    <changefreq>daily</changefreq>
-  </url>
-  <url>
     <loc>https://deflock.org/about</loc>
     <changefreq>weekly</changefreq>
   </url>
