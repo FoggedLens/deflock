@@ -13,59 +13,57 @@ I created this project after noticing the mass deployment of ALPRs in cities, to
 ### View ALPRs on a Map
 Uses OpenStreetMap data to populate a map with crowdsourced locations of ALPRs, along with their type and direction they face.
 
-### Report ALPRs
-Provides OSM tags for easy reporting of ALPRs based on brand on OSM's editing site. Eventually, this will be a native feature of the site.
+The map has become a separate repository, [deflockhopper_maps](https://github.com/FoggedLens/deflockhopper_maps).
 
-### Learn About ALPRs
-See photos of common ALPRs and learn about their capabilities.
+
+### Report ALPRs
+Provides instructions for using the [DeFlock App](https://deflock.org/app) or OpenStreetMap's [iD web editor](https://www.openstreetmap.org/edit) to report ALPRs using a standardized tagging system.
+
+### Identify ALPRs
+A constantly-growing repository of ALPR makes, models, and tagging instructions for OpenStreetMap, along with images for identifying them.
 
 ## Tech Stack
 
 ### Backend
-* Scala
-* PekkoHTTP
-* Nginx
+* TypeScript
+* Fastify API server
+* Cloudflare R2 for ALPR points and vector tiles
+* OpenTelemetry
 
 ### Cloud
-* AWS Lambda (for [region segmenting](serverless/alpr_clusters) and [counts](serverless/alpr_counts))
-* AWS S3
+* AWS Lambda (for [region segmenting \[deprecated\]](serverless/alpr_clusters) and [counts](serverless/alpr_counts))
+* AWS S3 - phasing out for R2
 * AWS ECR
 * Cloudflare as DNS + Proxy
 * Directus CDN
+* Zammad helpdesk
 
 ### Frontend
 * Vue3
-* Vuetify (UI component library)
-* Vue Leaflet (mapping library)
+* Vuetify
+* MapLibre GL
+* Vue Leaflet \[deprecated\] - phasing out for MapLibre GL
 
 ### Services
-* OpenStreetMap - Overpass API, Basic Map Tiles
+* OpenStreetMap - Overpass API, Basic Map Tiles \[deprecated\]
 * Nominatim - Geocoding
 
-## Usage
+## Development
 
 ### Requirements
-* node/npm
-* scala/sbt
+* [bun](https://bun.sh/)
 
 ### Running Frontend
 
 1. `cd webapp`
-2. `npm i`
-3. `npm run dev`
+2. `bun i`
+3. `bun dev`
 
 ### Running Backend
 
-#### Prerequisites
-* JDK 11
-* SBT
-
-1. `cd shotgun`
-2. `sbt run`
-
-### Building for Production
-
-See [Dockerfile](./Dockerfile).
+1. `cd api`
+2. `bun i`
+3. `bun dev`
 
 ## Contributing
 
