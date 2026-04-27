@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Landing from '../views/Landing.vue'
-import Map from '../views/Map.vue'
 import { useHead } from '@unhead/vue'
 
 const router = createRouter({
@@ -25,11 +24,11 @@ const router = createRouter({
       }
     },
     {
-      path: '/map',
+      path: '/legacy-map',
       name: 'map',
-      component: Map,
+      component: () => import('../views/Map.vue'),
       meta: {
-        title: 'ALPR Map | DeFlock'
+        title: 'ALPR Map (Legacy) | DeFlock'
       }
     },
     {
@@ -204,7 +203,7 @@ router.beforeEach((to, from, next) => {
   }
   
   if (to.path === '/' && to.hash) {
-    next({ path: '/map', hash: to.hash })
+    next({ path: '/legacy-map', hash: to.hash })
   } else {
     next()
   }

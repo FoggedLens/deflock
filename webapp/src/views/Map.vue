@@ -1,5 +1,4 @@
 <template>
-  <NewVisitor v-if="!isIframe" />
   <ShareDialog v-model="shareDialogOpen" />
   
   <div class="map-container" @keyup="handleKeyUp">
@@ -61,6 +60,12 @@
 import 'leaflet/dist/leaflet.css';
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router'
+import { useHead } from '@unhead/vue'
+
+useHead({
+  link: [{ rel: 'canonical', href: 'https://maps.deflock.org' }],
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }]
+})
 import type { Ref } from 'vue';
 import { BoundingBox } from '@/services/apiService';
 import { geocodeQuery } from '@/services/apiService';
@@ -72,7 +77,6 @@ import L from 'leaflet';
 globalThis.L = L;
 import 'leaflet/dist/leaflet.css'
 import LeafletMap from '@/components/LeafletMap.vue';
-import NewVisitor from '@/components/NewVisitor.vue';
 import ShareDialog from '@/components/ShareDialog.vue';
 
 const DEFAULT_ZOOM = 12;

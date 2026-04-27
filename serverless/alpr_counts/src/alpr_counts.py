@@ -3,8 +3,11 @@ import requests
 import boto3
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+DF_USER_AGENT = 'deflock-alpr-counts/1.0'
+
 def fetch_alpr_surveillance_nodes(usOnly=True):
   overpass_url = "http://overpass-api.de/api/interpreter"
+  headers = {'User-Agent': DF_USER_AGENT}
   overpass_query = """
   [out:json][timeout:180];
   area["ISO3166-1"="US"]->.searchArea;
@@ -12,7 +15,7 @@ def fetch_alpr_surveillance_nodes(usOnly=True):
   out count;
   """
 
-  response = requests.get(overpass_url, params={'data': overpass_query})
+  response = requests.get(overpass_url, params={'data': overpass_query}, headers=headers)
 
   if response.status_code == 200:
     response_json = response.json()
@@ -25,7 +28,7 @@ def fetch_alpr_surveillance_nodes(usOnly=True):
 
 def fetch_wins_count():
   cms_url = "https://cms.deflock.me/items/flockWins"
-  headers = {'User-Agent': 'deflock-alpr-counts/1.0'}
+  headers = {'User-Agent': DF_USER_AGENT}
   
   response = requests.get(cms_url, headers=headers)
   

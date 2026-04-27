@@ -3,11 +3,10 @@
   <template #header>
     <Hero
       title="Support DeFlock"
-      subtitle="Your contributions help us fight for privacy and raise awareness about ALPR technology."
       image-url="/donate.webp"
       background-position="0 25%"
       button-text="Donate Now"
-      button-href="https://github.com/sponsors/frillweeman"
+      button-href="https://buymeacoffee.com/deflock"
       :opacity="0.25"
     />
   </template>
@@ -16,9 +15,9 @@
     <!-- GitHub Sponsors Section -->
     <v-row justify="center" class="sponsors-section text-center">
       <v-col cols="12" md="10">
-        <h2 class="mb-2">Our Amazing Sponsors</h2>
+        <h2 class="mb-2">Founding Sponsors</h2>
         <p class="mb-8">
-          Want to see your name here? <a target="_blank" href="https://github.com/sponsors/frillweeman">Become a sponsor</a>, and your name will appear on this page!
+          <a target="_blank" href="https://buymeacoffee.com/deflock">We've made donating easier</a>, but if you want to see your name on this list, <a target="_blank" href="https://github.com/sponsors/frillweeman">sponsor us on GitHub!</a>
         </p>
 
         <v-row>
@@ -37,7 +36,7 @@
       </v-col>
     </v-row>
 
-    <!-- GitHub Sponsors Section -->
+    <!-- Special Thanks Section -->
     <v-row justify="center" class="sponsors-section text-center mt-4">
       <v-col cols="12" md="10">
         <h2 class="mb-2">Special Thanks</h2>
