@@ -1,5 +1,4 @@
 <template>
-  <NewMapNotice v-if="!isIframe" />
   <ShareDialog v-model="shareDialogOpen" />
   
   <div class="map-container" @keyup="handleKeyUp">
@@ -78,7 +77,6 @@ import L from 'leaflet';
 globalThis.L = L;
 import 'leaflet/dist/leaflet.css'
 import LeafletMap from '@/components/LeafletMap.vue';
-import NewMapNotice from '@/components/NewMapNotice.vue';
 import ShareDialog from '@/components/ShareDialog.vue';
 
 const DEFAULT_ZOOM = 12;
