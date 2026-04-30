@@ -194,9 +194,9 @@ const start = async () => {
     const { query, source } = request.query as { query: string, source?: string };
     const geoType = classifyGeoQuery(query);
     request.meta = {
-      geocodeSource: geoType === 'zip_code' ? 'local_zip' : 'nominatim',
-      geocodeInitiator: source ?? '',
-      geocodeQueryType: geoType,
+      'geocode.source': geoType === 'zip_code' ? 'local_zip' : 'nominatim',
+      'geocode.initiator': source ?? '',
+      'geocode.query_type': geoType,
     };
     reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
     const result = await nominatim.geocodePhrase(query, false);
