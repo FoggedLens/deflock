@@ -1,11 +1,9 @@
-import { NodeTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-node';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { LoggerProvider, BatchLogRecordProcessor } from '@opentelemetry/sdk-logs';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import { trace, metrics } from '@opentelemetry/api';
+import { metrics } from '@opentelemetry/api';
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 
 export { SeverityNumber };
@@ -16,14 +14,6 @@ const resource = resourceFromAttributes({
   'service.name': 'deflock-api',
   'deployment.environment': process.env.NODE_ENV ?? 'production',
 });
-
-const tracerProvider = new NodeTracerProvider({
-  resource,
-  spanProcessors: [
-    new BatchSpanProcessor(new OTLPTraceExporter({ url: `${OTEL_ENDPOINT}/v1/traces` })),
-  ],
-});
-tracerProvider.register();
 
 const loggerProvider = new LoggerProvider({
   resource,
@@ -44,6 +34,5 @@ const meterProvider = new MeterProvider({
 });
 metrics.setGlobalMeterProvider(meterProvider);
 
-export const tracer = trace.getTracer('deflock-api', '1.0.0');
 export const otelLogger = logs.getLogger('deflock-api', '1.0.0');
 export const meter = metrics.getMeter('deflock-api', '1.0.0');

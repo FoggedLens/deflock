@@ -1,6 +1,6 @@
 # OpenTelemetry Collector configuration for deflock-api
-# Receives traces and logs from the API, forwards to Grafana Cloud via the
-# unified OTLP gateway (routes traces → Tempo, logs → Loki automatically).
+# Receives logs and metrics from the API, forwards to Grafana Cloud via the
+# unified OTLP gateway (routes logs → Loki, metrics → Mimir automatically).
 #
 # Required environment variables (set in /etc/systemd/system/otelcol.service):
 #   GRAFANA_OTLP_ENDPOINT   e.g. https://otlp-gateway-prod-us-east-0.grafana.net/otlp
@@ -18,20 +18,6 @@ processors:
   batch:
     timeout: 5s
     send_batch_size: 256
-
-  # Drop healthcheck spans to reduce noise
-  filter/drop_healthcheck:
-    error_mode: ignore
-    traces:
-      span:
-        - 'attributes["http.route"] == "/healthcheck"'
-
-  # Only forward spans that resulted in an error
-  filter/errors_only:
-    error_mode: ignore
-    traces:
-      span:
-        - 'status.code != STATUS_CODE_ERROR'
 
   # Drop 404 log records to reduce noise
   filter/drop_404_logs:
@@ -61,10 +47,6 @@ service:
       level: none
   extensions: [basicauth/grafana, health_check]
   pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [filter/drop_healthcheck, filter/errors_only, batch]
-      exporters: [otlp_http/grafana]
     logs:
       receivers: [otlp]
       processors: [filter/drop_404_logs, batch]

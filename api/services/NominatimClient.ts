@@ -1,9 +1,9 @@
 
 import { createCache, Cache } from 'cache-manager';
 import { Type, Static } from '@sinclair/typebox';
-import { type Span, SpanKind, SpanStatusCode, context, trace } from '@opentelemetry/api';
-import { tracer, otelLogger, SeverityNumber } from '../telemetry';
-import { isZipCode, lookupZipCode } from './ZipCodeService';
+import { otelLogger, SeverityNumber } from '../telemetry';
+import { classifyGeoQuery } from './GeoQueryClassifier';
+import { lookupZipCode } from './ZipCodeService';
 const { DiskStore } = require('cache-manager-fs-hash');
 
 export const NominatimResultSchema = Type.Object({
@@ -56,9 +56,9 @@ const cache: Cache = createCache({
 export class NominatimClient {
   baseUrl = 'https://nominatim.openstreetmap.org/search';
 
-  async geocodePhrase(query: string, includeGeoJson: boolean = false, parentSpan?: Span): Promise<NominatimResult[]> {
+  async geocodePhrase(query: string, includeGeoJson: boolean = false): Promise<NominatimResult[]> {
     // Short-circuit for ZIP codes — serve from local data, no Nominatim call needed
-    if (isZipCode(query)) {
+    if (classifyGeoQuery(query) === 'zip_code') {
       const zipResult = lookupZipCode(query.trim());
       return zipResult ? [zipResult] : [];
     }
@@ -70,16 +70,10 @@ export class NominatimClient {
     }
     const geojsonParam = includeGeoJson ? '&polygon_geojson=1' : '';
     const url = `${this.baseUrl}?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=8&countrycodes=us&dedupe=1${geojsonParam}`;
-    const ctx = parentSpan ? trace.setSpan(context.active(), parentSpan) : context.active();
-    const span = tracer.startSpan('nominatim.geocode', {
-      kind: SpanKind.CLIENT,
-      attributes: { 'peer.service': 'nominatim', 'http.request.method': 'GET' },
-    }, ctx);
     try {
       const response = await fetch(url, {
         headers: { 'User-Agent': 'DeFlock/1.2' },
       });
-      span.setAttribute('http.response.status_code', response.status);
       if (!response.ok) {
         const body = await response.text();
         otelLogger.emit({
@@ -91,7 +85,6 @@ export class NominatimClient {
             'nominatim.response_body': body,
             'http.url': url,
           },
-          context: trace.setSpan(context.active(), span),
         });
         throw new Error(`Failed to geocode phrase: ${response.status}`);
       }
@@ -99,17 +92,12 @@ export class NominatimClient {
       await cache.set(cacheKey, json);
       return json;
     } catch (err) {
-      span.recordException(err as Error);
-      span.setStatus({ code: SpanStatusCode.ERROR, message: (err as Error).message });
-      span.setAttribute('error.type', 'upstream_error');
       throw err;
-    } finally {
-      span.end();
     }
   }
 
-  async geocodeSingleResult(query: string, parentSpan?: Span): Promise<NominatimResult | null> {
-    const results = await this.geocodePhrase(query, true, parentSpan);
+  async geocodeSingleResult(query: string): Promise<NominatimResult | null> {
+    const results = await this.geocodePhrase(query, true);
     
     if (!results.length) return null;
 
