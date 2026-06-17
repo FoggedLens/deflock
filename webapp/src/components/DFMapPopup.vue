@@ -101,7 +101,7 @@ const abbreviatedOperator = computed(() => {
     "Sheriffs Office": "SO",
   };
 
-  const operator = props.alpr.tags.operator;
+  const operator = props.alpr.tags[operatorTagKey];
   for (const [full, abbr] of Object.entries(replacements)) {
     if (operator.includes(full)) {
       return operator.replace(full, abbr);
