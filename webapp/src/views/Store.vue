@@ -9,211 +9,233 @@
     </template>
 
     <v-container>
-      <!-- Shop Section -->
-      <h2 class="text-h4 mb-2 font-weight-bold text-center">Shop</h2>
-      <p class="mb-4 text-center text-medium-emphasis">Physical goods shipped to your door.</p>
-
-      <!-- Category Navigation -->
-      <div class="d-flex flex-wrap justify-center ga-2 mb-6">
-        <v-btn
-          color="amber"
-          variant="flat"
-          size="small"
-          class="text-black"
-          @click="collectionId = ALL_COLLECTION_ID"
-        >
-          ALL
-        </v-btn>
-        <v-menu v-for="(items, groupName) in COLLECTIONS" :key="groupName">
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              color="amber"
-              variant="flat"
-              size="small"
-              class="text-black"
-              append-icon="mdi-chevron-down"
-            >
-              {{ groupName }}
-            </v-btn>
-          </template>
-          <v-list density="compact">
-            <v-list-item
-              v-for="(id, label) in items"
-              :key="label"
-              :title="String(label)"
-              @click="collectionId = id"
-            />
-          </v-list>
-        </v-menu>
-      </div>
-
-      <!-- Shopify Buy Button Mount -->
-      <div class="d-flex justify-center mb-8">
-        <div ref="shopifyContainer" style="width: 90%" />
-      </div>
-
-      <v-divider class="my-8" />
-
-      <!-- Printables Section -->
-      <div v-if="loading" class="text-center py-8">
-        <v-progress-circular indeterminate color="primary" size="64" />
-        <p class="mt-4 text-medium-emphasis">Loading printables...</p>
-      </div>
-
-      <v-alert
-        v-else-if="error"
-        type="error"
-        variant="tonal"
+      <v-tabs
+        v-model="activeTab"
+        align-tabs="center"
+        color="var(--df-blue)"
         class="mb-6"
-        closable
-        @click:close="error = null"
       >
-        <strong>Failed to load printables:</strong> {{ error }}
-      </v-alert>
+        <v-tab value="shop" prepend-icon="mdi-shopping">Shop</v-tab>
+        <v-tab value="printables" prepend-icon="mdi-printer">Printables</v-tab>
+      </v-tabs>
 
-      <div v-else-if="printables.length > 0">
-        <h2 class="text-h4 mb-2 font-weight-bold text-center">Printables</h2>
-        <p class="mb-6 text-center text-medium-emphasis">Signs, stickers, zines, and more!</p>
+      <v-window v-model="activeTab" :touch="false">
 
-        <v-row justify="center" class="mb-6">
-          <v-col cols="12" md="6" lg="4">
-            <v-select
-              v-model="selectedType"
-              :items="typeOptions"
-              label="Filter by type"
-              prepend-inner-icon="mdi-filter"
-              variant="outlined"
-              clearable
-              hide-details
-            >
-              <template #item="{ props, item }">
-                <v-list-item v-bind="props">
-                  <template #prepend>
-                    <v-icon :color="getTypeColor(item.raw.value)">{{ getTypeIcon(item.raw.value) }}</v-icon>
-                  </template>
-                </v-list-item>
-              </template>
-              <template #selection="{ item }">
-                <div class="d-flex align-center">
-                  <v-icon :color="getTypeColor(item.raw.value)" class="mr-2">{{ getTypeIcon(item.raw.value) }}</v-icon>
-                  <span class="text-capitalize">{{ item.raw.title }}</span>
-                </div>
-              </template>
-            </v-select>
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col
-            v-for="printable in filteredPrintables"
-            :key="printable.id"
-            cols="12"
-            md="6"
-            lg="4"
-          >
-            <v-card elevation="2" height="100%">
-              <v-img
-                :src="getImageUrl(printable.preview)"
-                :alt="`${printable.title} preview`"
-                aspect-ratio="1.414"
-                class="mt-4 mx-2"
-                contain
+        <!-- ── Shop tab ─────────────────────────────────────────────────────── -->
+        <v-window-item value="shop" eager>
+          <v-row justify="center" class="mt-4 mb-4">
+            <v-col cols="12" sm="8" md="5" lg="4">
+              <v-select
+                v-model="collectionId"
+                :items="collectionSelectItems"
+                item-title="title"
+                item-value="id"
+                :item-props="(item: CollectionSelectItem) => item.type === 'header' ? { disabled: true, class: 'font-weight-bold text-medium-emphasis text-caption' } : {}"
+                label="Browse by category"
+                variant="outlined"
+                prepend-inner-icon="mdi-tag-outline"
+                hide-details
               >
-                <template #placeholder>
-                  <div class="d-flex align-center justify-center fill-height">
-                    <v-progress-circular color="grey-lighten-4" indeterminate />
-                  </div>
+                <template #item="{ props, item }">
+                  <v-list-subheader v-if="item.raw.type === 'header'">
+                    {{ item.raw.title }}
+                  </v-list-subheader>
+                  <v-list-item v-else v-bind="props" />
                 </template>
-              </v-img>
+              </v-select>
+            </v-col>
+          </v-row>
 
-              <v-card-text class="pb-2">
-                <h3 class="text-h6 font-weight-bold mb-2">{{ printable.title }}</h3>
+          <!-- Skeleton while Shopify SDK initialises -->
+          <v-row v-if="!shopifyReady" class="mt-2">
+            <v-col
+              v-for="n in 4"
+              :key="n"
+              cols="12"
+              sm="6"
+              md="3"
+            >
+              <v-skeleton-loader type="image, list-item-two-line, actions" elevation="2" />
+            </v-col>
+          </v-row>
 
-                <v-chip
-                  :color="getTypeColor(printable.type)"
-                  size="small"
-                  class="text-capitalize mb-2 font-weight-bold"
+          <!-- Shopify Buy Button mount — always in DOM, hidden until ready -->
+          <div v-show="shopifyReady" class="d-flex justify-center mb-8">
+            <div ref="shopifyContainer" style="width: 100%" />
+          </div>
+        </v-window-item>
+
+        <!-- ── Printables tab ───────────────────────────────────────────────── -->
+        <v-window-item value="printables">
+
+          <!-- Skeleton while fetching -->
+          <v-row v-if="loading" class="mt-2">
+            <v-col
+              v-for="n in 4"
+              :key="n"
+              cols="12"
+              md="6"
+              lg="4"
+            >
+              <v-skeleton-loader type="image, list-item-two-line, actions" elevation="2" />
+            </v-col>
+          </v-row>
+
+          <v-alert
+            v-else-if="error"
+            type="error"
+            variant="tonal"
+            class="mb-6"
+            closable
+            @click:close="error = null"
+          >
+            <strong>Failed to load printables:</strong> {{ error }}
+          </v-alert>
+
+          <div v-else-if="printables.length > 0">
+            <p class="mb-6 text-center text-medium-emphasis">Signs, stickers, zines, and more — free to download and print!</p>
+
+            <v-row justify="center" class="mb-6">
+              <v-col cols="12" md="6" lg="4">
+                <v-select
+                  v-model="selectedType"
+                  :items="typeOptions"
+                  label="Filter by type"
+                  prepend-inner-icon="mdi-filter"
+                  variant="outlined"
+                  clearable
+                  hide-details
                 >
-                  <v-icon start size="small">{{ getTypeIcon(printable.type) }}</v-icon>
-                  {{ deCamel(printable.type) }}
-                </v-chip>
+                  <template #item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <template #prepend>
+                        <v-icon :color="getTypeColor(item.raw.value)">{{ getTypeIcon(item.raw.value) }}</v-icon>
+                      </template>
+                    </v-list-item>
+                  </template>
+                  <template #selection="{ item }">
+                    <div class="d-flex align-center">
+                      <v-icon :color="getTypeColor(item.raw.value)" class="mr-2">{{ getTypeIcon(item.raw.value) }}</v-icon>
+                      <span class="text-capitalize">{{ item.raw.title }}</span>
+                    </div>
+                  </template>
+                </v-select>
+              </v-col>
+            </v-row>
 
-                <div class="d-flex align-center text-caption text-medium-emphasis mb-3">
-                  <v-icon size="small" class="mr-1">mdi-account</v-icon>
-                  by {{ printable.author }}
-                  <v-tooltip text="Licensed under CC BY-NC 4.0">
-                    <template #activator="{ props }">
-                      <v-icon v-bind="props" size="small" class="ml-1" color="grey">mdi-creative-commons</v-icon>
+            <v-row>
+              <v-col
+                v-for="printable in filteredPrintables"
+                :key="printable.id"
+                cols="12"
+                md="6"
+                lg="4"
+              >
+                <v-card elevation="2" height="100%">
+                  <v-img
+                    :src="getImageUrl(printable.preview)"
+                    :alt="`${printable.title} preview`"
+                    aspect-ratio="1.414"
+                    class="mt-4 mx-2"
+                    contain
+                  >
+                    <template #placeholder>
+                      <div class="d-flex align-center justify-center fill-height">
+                        <v-progress-circular color="grey-lighten-4" indeterminate />
+                      </div>
                     </template>
-                  </v-tooltip>
-                  <v-spacer />
-                  <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
-                  {{ formatDate(printable.date_updated) }}
-                </div>
+                  </v-img>
 
-                <v-divider class="mb-3" />
+                  <v-card-text class="pb-2">
+                    <h3 class="text-h6 font-weight-bold mb-2">{{ printable.title }}</h3>
 
-                <div class="d-flex ga-2">
-                  <v-btn
-                    v-if="printable.front"
-                    :href="getImageUrl(printable.front)"
-                    target="_blank"
-                    download
-                    variant="tonal"
-                    color="primary"
-                    size="small"
-                    prepend-icon="mdi-download"
-                    class="flex-fill"
-                  >
-                    <span v-if="printable.back">Front Side</span>
-                    <span v-else>Download</span>
-                  </v-btn>
-                  <v-btn
-                    v-if="printable.back"
-                    :href="getImageUrl(printable.back)"
-                    target="_blank"
-                    download
-                    variant="tonal"
-                    color="secondary"
-                    size="small"
-                    prepend-icon="mdi-download"
-                    class="flex-fill"
-                  >
-                    Back Side
-                  </v-btn>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </div>
+                    <v-chip
+                      :color="getTypeColor(printable.type)"
+                      size="small"
+                      class="text-capitalize mb-2 font-weight-bold"
+                    >
+                      <v-icon start size="small">{{ getTypeIcon(printable.type) }}</v-icon>
+                      {{ deCamel(printable.type) }}
+                    </v-chip>
 
-      <div v-else class="text-center py-12">
-        <v-icon size="64" color="grey-lighten-1">mdi-inbox-outline</v-icon>
-        <h3 class="text-h5 mt-4 mb-2 text-medium-emphasis">No printables available</h3>
-        <p class="text-medium-emphasis">Check back later for new content!</p>
-      </div>
+                    <div class="d-flex align-center text-caption text-medium-emphasis mb-3">
+                      <v-icon size="small" class="mr-1">mdi-account</v-icon>
+                      by {{ printable.author }}
+                      <v-tooltip text="Licensed under CC BY-NC 4.0">
+                        <template #activator="{ props }">
+                          <v-icon v-bind="props" size="small" class="ml-1" color="grey">mdi-creative-commons</v-icon>
+                        </template>
+                      </v-tooltip>
+                      <v-spacer />
+                      <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
+                      {{ formatDate(printable.date_updated) }}
+                    </div>
 
-      <v-divider class="my-8" />
+                    <v-divider class="mb-3" />
 
-      <div class="text-center py-4">
-        <v-btn
-          href="https://forms.gle/bbNdsZ8iKv7VVFYi8"
-          target="_blank"
-          rel="noopener noreferrer"
-          color="primary"
-          variant="outlined"
-          size="large"
-          prepend-icon="mdi-upload"
-          class="text-none"
-        >
-          Submit Your Artwork
-        </v-btn>
-        <p class="text-caption text-medium-emphasis mt-2">
-          Have anti-ALPR artwork? Share it with the community!
-        </p>
-      </div>
+                    <div class="d-flex ga-2">
+                      <v-btn
+                        v-if="printable.front"
+                        :href="getImageUrl(printable.front)"
+                        target="_blank"
+                        download
+                        variant="tonal"
+                        color="primary"
+                        size="small"
+                        prepend-icon="mdi-download"
+                        class="flex-fill"
+                      >
+                        <span v-if="printable.back">Front Side</span>
+                        <span v-else>Download</span>
+                      </v-btn>
+                      <v-btn
+                        v-if="printable.back"
+                        :href="getImageUrl(printable.back)"
+                        target="_blank"
+                        download
+                        variant="tonal"
+                        color="secondary"
+                        size="small"
+                        prepend-icon="mdi-download"
+                        class="flex-fill"
+                      >
+                        Back Side
+                      </v-btn>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </div>
+
+          <div v-else class="text-center py-12">
+            <v-icon size="64" color="grey-lighten-1">mdi-inbox-outline</v-icon>
+            <h3 class="text-h5 mt-4 mb-2 text-medium-emphasis">No printables available</h3>
+            <p class="text-medium-emphasis">Check back later for new content!</p>
+          </div>
+
+          <v-divider class="my-8" />
+
+          <div class="text-center py-4">
+            <v-btn
+              href="https://forms.gle/bbNdsZ8iKv7VVFYi8"
+              target="_blank"
+              rel="noopener noreferrer"
+              color="primary"
+              variant="outlined"
+              size="large"
+              prepend-icon="mdi-upload"
+              class="text-none"
+            >
+              Submit Your Artwork
+            </v-btn>
+            <p class="text-caption text-medium-emphasis mt-2">
+              Have anti-ALPR artwork? Share it with the community!
+            </p>
+          </div>
+        </v-window-item>
+
+      </v-window>
     </v-container>
   </DefaultLayout>
 </template>
@@ -221,13 +243,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import type { Ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
 
 // ── Shopify constants ───────────────────────────────────────────────────────────
 
 const ALL_COLLECTION_ID = '519581958426';
-const DEFAULT_COLLECTION_ID = '519582056730'; // Yard Signs
 
 const COLLECTIONS: Record<string, Record<string, string>> = {
   Apparel: {
@@ -280,10 +302,10 @@ const SHOPIFY_OPTIONS = {
         'font-size': '16px',
         'padding-top': '16px',
         'padding-bottom': '16px',
-        ':hover': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
-        'background-color': 'rgb(255, 193, 7)',
-        color: 'black',
-        ':focus': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
+        'background-color': 'rgb(18, 151, 195)',
+        color: '#ffffff',
+        ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
         'border-radius': '0px',
         'padding-left': '20px',
         'padding-right': '20px',
@@ -304,6 +326,9 @@ const SHOPIFY_OPTIONS = {
     styles: {
       products: { '@media (min-width: 601px)': { 'margin-left': '-20px' } },
     },
+    text: {
+      nextPageButton: 'Load more',
+    },
   },
   modalProduct: {
     contents: { img: false, imgWithCarousel: true, button: false, buttonWithQuantity: true },
@@ -315,10 +340,10 @@ const SHOPIFY_OPTIONS = {
         'font-size': '16px',
         'padding-top': '16px',
         'padding-bottom': '16px',
-        ':hover': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
-        'background-color': 'rgb(255, 193, 7)',
-        color: 'black',
-        ':focus': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
+        'background-color': 'rgb(18, 151, 195)',
+        color: '#ffffff',
+        ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
         'border-radius': '0px',
         'padding-left': '20px',
         'padding-right': '20px',
@@ -348,10 +373,10 @@ const SHOPIFY_OPTIONS = {
         'font-size': '16px',
         'padding-top': '16px',
         'padding-bottom': '16px',
-        ':hover': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
-        'background-color': 'rgb(255, 193, 7)',
-        color: 'black',
-        ':focus': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
+        'background-color': 'rgb(18, 151, 195)',
+        color: '#ffffff',
+        ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
         'border-radius': '0px',
       },
     },
@@ -368,10 +393,10 @@ const SHOPIFY_OPTIONS = {
       toggle: {
         'font-family': 'Raleway, sans-serif',
         'font-weight': 'bold',
-        'background-color': 'rgb(255, 193, 7)',
-        color: 'black',
-        ':hover': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
-        ':focus': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        'background-color': 'rgb(18, 151, 195)',
+        color: '#ffffff',
+        ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
+        ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
       },
       count: { 'font-size': '16px' },
     },
@@ -379,10 +404,52 @@ const SHOPIFY_OPTIONS = {
   },
 };
 
+// ── Tabs ────────────────────────────────────────────────────────────────────────
+
+const route = useRoute();
+const router = useRouter();
+
+const activeTab = ref((route.query.tab as string) || 'shop');
+
 // ── Shopify state ───────────────────────────────────────────────────────────────
 
-const collectionId = ref(DEFAULT_COLLECTION_ID);
+interface CollectionSelectItem {
+  id: string;
+  title: string;
+  type: 'item' | 'header';
+  group: string | null;
+}
+
+const collectionSelectItems = computed<CollectionSelectItem[]>(() => {
+  const items: CollectionSelectItem[] = [
+    { id: ALL_COLLECTION_ID, title: 'All Products', type: 'item', group: null },
+  ];
+  for (const [groupName, subItems] of Object.entries(COLLECTIONS)) {
+    items.push({ id: `__header__${groupName}`, title: groupName, type: 'header', group: null });
+    for (const [label, id] of Object.entries(subItems)) {
+      items.push({ id, title: label, type: 'item', group: groupName });
+    }
+  }
+  return items;
+});
+
+const collectionId = ref((route.query.category as string) || ALL_COLLECTION_ID);
+const shopifyReady = ref(false);
 const shopifyContainer = ref<HTMLElement | null>(null);
+
+// Sync tab + category to URL so back/forward/refresh restores state
+watch([activeTab, collectionId], ([tab, category]) => {
+  router.replace({
+    query: {
+      ...(tab !== 'shop' ? { tab } : {}),
+      ...(category !== ALL_COLLECTION_ID ? { category } : {}),
+    },
+  });
+}, { flush: 'post' });
+
+watch(collectionId, (id) => {
+  if (window.ShopifyBuy?.UI) initShopify(id);
+});
 
 declare global {
   interface Window { ShopifyBuy: any }
@@ -391,6 +458,7 @@ declare global {
 function initShopify(id: string) {
   const container = shopifyContainer.value;
   if (!container) return;
+  shopifyReady.value = false;
   container.innerHTML = '';
   const client = window.ShopifyBuy.buildClient({
     domain: 'ccf325.myshopify.com',
@@ -403,6 +471,7 @@ function initShopify(id: string) {
       moneyFormat: '%24%7B%7Bamount%7D%7D',
       options: SHOPIFY_OPTIONS,
     });
+    shopifyReady.value = true;
   });
 }
 
@@ -417,10 +486,6 @@ function loadShopifySDK() {
   script.onload = () => initShopify(collectionId.value);
   document.head.appendChild(script);
 }
-
-watch(collectionId, (id) => {
-  if (window.ShopifyBuy?.UI) initShopify(id);
-});
 
 // ── Printables ──────────────────────────────────────────────────────────────────
 
@@ -486,8 +551,14 @@ const getTypeIcon = (type: string): string =>
 const formatDate = (dateString: string) =>
   new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
+// Watch the container ref so we initialise only once the DOM element exists.
+// The `eager` prop on the window item makes it available immediately, but
+// watching is more robust than relying on onMounted timing.
+watch(shopifyContainer, (el) => {
+  if (el) loadShopifySDK();
+}, { once: true });
+
 onMounted(() => {
-  loadShopifySDK();
   fetchPrintables();
 });
 </script>
