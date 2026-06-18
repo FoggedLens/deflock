@@ -2,20 +2,65 @@
   <DefaultLayout>
     <template #header>
       <Hero
-        title="DeFlock Store (Coming Soon)"
-        description="Full store coming soon! In the meantime, check out our free Downloads."
+        title="DeFlock Store"
+        description="Shop physical goods or download free printables — signs, stickers, zines, and more."
         gradient="linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%)"
       />
     </template>
 
     <v-container>
-      <!-- Loading State -->
-      <div v-if="loading" class="text-center py-8">
-        <v-progress-circular indeterminate color="primary" size="64" />
-        <p class="mt-4 text-grey">Loading printables...</p>
+      <!-- Shop Section -->
+      <h2 class="text-h4 mb-2 font-weight-bold text-center">Shop</h2>
+      <p class="mb-4 text-center text-medium-emphasis">Physical goods shipped to your door.</p>
+
+      <!-- Category Navigation -->
+      <div class="d-flex flex-wrap justify-center ga-2 mb-6">
+        <v-btn
+          color="amber"
+          variant="flat"
+          size="small"
+          class="text-black"
+          @click="collectionId = ALL_COLLECTION_ID"
+        >
+          ALL
+        </v-btn>
+        <v-menu v-for="(items, groupName) in COLLECTIONS" :key="groupName">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              color="amber"
+              variant="flat"
+              size="small"
+              class="text-black"
+              append-icon="mdi-chevron-down"
+            >
+              {{ groupName }}
+            </v-btn>
+          </template>
+          <v-list density="compact">
+            <v-list-item
+              v-for="(id, label) in items"
+              :key="label"
+              :title="String(label)"
+              @click="collectionId = id"
+            />
+          </v-list>
+        </v-menu>
       </div>
 
-      <!-- Error State -->
+      <!-- Shopify Buy Button Mount -->
+      <div class="d-flex justify-center mb-8">
+        <div ref="shopifyContainer" style="width: 90%" />
+      </div>
+
+      <v-divider class="my-8" />
+
+      <!-- Printables Section -->
+      <div v-if="loading" class="text-center py-8">
+        <v-progress-circular indeterminate color="primary" size="64" />
+        <p class="mt-4 text-medium-emphasis">Loading printables...</p>
+      </div>
+
       <v-alert
         v-else-if="error"
         type="error"
@@ -27,44 +72,37 @@
         <strong>Failed to load printables:</strong> {{ error }}
       </v-alert>
 
-      <!-- Printables Grid -->
       <div v-else-if="printables.length > 0">
         <h2 class="text-h4 mb-2 font-weight-bold text-center">Printables</h2>
-        <p class="mb-6 text-center">
-          Signs, stickers, zines, and more!
-        </p>
-        
-        <!-- Filter Section -->
-        <div class="filter-section mb-6">
-          <v-row justify="center">
-            <v-col cols="12" md="6" lg="4">
-              <v-select
-                v-model="selectedType"
-                :items="typeOptions"
-                label="Filter by type"
-                prepend-inner-icon="mdi-filter"
-                variant="outlined"
-                clearable
-                hide-details
-                class="filter-select"
-              >
-                <template v-slot:item="{ props, item }">
-                  <v-list-item v-bind="props">
-                    <template v-slot:prepend>
-                      <v-icon :color="getTypeColor(item.raw.value)">{{ getTypeIcon(item.raw.value) }}</v-icon>
-                    </template>
-                  </v-list-item>
-                </template>
-                <template v-slot:selection="{ item }">
-                  <div class="d-flex align-center">
-                    <v-icon :color="getTypeColor(item.raw.value)" class="mr-2">{{ getTypeIcon(item.raw.value) }}</v-icon>
-                    <span class="text-capitalize">{{ item.raw.title }}</span>
-                  </div>
-                </template>
-              </v-select>
-            </v-col>
-          </v-row>
-        </div>
+        <p class="mb-6 text-center text-medium-emphasis">Signs, stickers, zines, and more!</p>
+
+        <v-row justify="center" class="mb-6">
+          <v-col cols="12" md="6" lg="4">
+            <v-select
+              v-model="selectedType"
+              :items="typeOptions"
+              label="Filter by type"
+              prepend-inner-icon="mdi-filter"
+              variant="outlined"
+              clearable
+              hide-details
+            >
+              <template #item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template #prepend>
+                    <v-icon :color="getTypeColor(item.raw.value)">{{ getTypeIcon(item.raw.value) }}</v-icon>
+                  </template>
+                </v-list-item>
+              </template>
+              <template #selection="{ item }">
+                <div class="d-flex align-center">
+                  <v-icon :color="getTypeColor(item.raw.value)" class="mr-2">{{ getTypeIcon(item.raw.value) }}</v-icon>
+                  <span class="text-capitalize">{{ item.raw.title }}</span>
+                </div>
+              </template>
+            </v-select>
+          </v-col>
+        </v-row>
 
         <v-row>
           <v-col
@@ -74,37 +112,24 @@
             md="6"
             lg="4"
           >
-            <v-card
-              elevation="2"
-              height="100%"
-            >
-              <!-- Preview Image -->
-              <div class="position-relative">
-                <v-img
-                  :src="getImageUrl(printable.preview)"
-                  :alt="`${printable.title} preview`"
-                  aspect-ratio="1.414"
-                  class="mt-4 mx-2"
-                  contain
-                >
-                  <template v-slot:placeholder>
-                    <div class="d-flex align-center justify-center fill-height">
-                      <v-progress-circular
-                        color="grey-lighten-4"
-                        indeterminate
-                      />
-                    </div>
-                  </template>
-                </v-img>
-              </div>
+            <v-card elevation="2" height="100%">
+              <v-img
+                :src="getImageUrl(printable.preview)"
+                :alt="`${printable.title} preview`"
+                aspect-ratio="1.414"
+                class="mt-4 mx-2"
+                contain
+              >
+                <template #placeholder>
+                  <div class="d-flex align-center justify-center fill-height">
+                    <v-progress-circular color="grey-lighten-4" indeterminate />
+                  </div>
+                </template>
+              </v-img>
 
-              <!-- Card Content -->
               <v-card-text class="pb-2">
-                <h3 class="text-h6 font-weight-bold mb-2">
-                  {{ printable.title }}
-                </h3>
+                <h3 class="text-h6 font-weight-bold mb-2">{{ printable.title }}</h3>
 
-                <!-- Type Badge -->
                 <v-chip
                   :color="getTypeColor(printable.type)"
                   size="small"
@@ -113,20 +138,13 @@
                   <v-icon start size="small">{{ getTypeIcon(printable.type) }}</v-icon>
                   {{ deCamel(printable.type) }}
                 </v-chip>
-                
-                <div class="d-flex align-center text-caption text-grey mb-3">
+
+                <div class="d-flex align-center text-caption text-medium-emphasis mb-3">
                   <v-icon size="small" class="mr-1">mdi-account</v-icon>
                   by {{ printable.author }}
                   <v-tooltip text="Licensed under CC BY-NC 4.0">
-                    <template v-slot:activator="{ props }">
-                      <v-icon 
-                        v-bind="props"
-                        size="small" 
-                        class="ml-1"
-                        color="grey"
-                      >
-                        mdi-creative-commons
-                      </v-icon>
+                    <template #activator="{ props }">
+                      <v-icon v-bind="props" size="small" class="ml-1" color="grey">mdi-creative-commons</v-icon>
                     </template>
                   </v-tooltip>
                   <v-spacer />
@@ -134,38 +152,36 @@
                   {{ formatDate(printable.date_updated) }}
                 </div>
 
-                <!-- Download Options -->
-                <div class="download-section">
-                  <div class="d-flex gap-2">
-                    <v-btn
-                      v-if="printable.front"
-                      :href="getImageUrl(printable.front)"
-                      target="_blank"
-                      download
-                      variant="tonal"
-                      color="primary"
-                      size="small"
-                      prepend-icon="mdi-download"
-                      class="flex-1-1-50"
-                    >
-                      <span v-if="printable.back">Front Side</span>
-                      <span v-else>Download</span>
-                    </v-btn>
-                    
-                    <v-btn
-                      v-if="printable.back"
-                      :href="getImageUrl(printable.back)"
-                      target="_blank"
-                      download
-                      variant="tonal"
-                      color="secondary"
-                      size="small"
-                      prepend-icon="mdi-download"
-                      class="flex-1-1-50"
-                    >
-                      Back Side
-                    </v-btn>
-                  </div>
+                <v-divider class="mb-3" />
+
+                <div class="d-flex ga-2">
+                  <v-btn
+                    v-if="printable.front"
+                    :href="getImageUrl(printable.front)"
+                    target="_blank"
+                    download
+                    variant="tonal"
+                    color="primary"
+                    size="small"
+                    prepend-icon="mdi-download"
+                    class="flex-fill"
+                  >
+                    <span v-if="printable.back">Front Side</span>
+                    <span v-else>Download</span>
+                  </v-btn>
+                  <v-btn
+                    v-if="printable.back"
+                    :href="getImageUrl(printable.back)"
+                    target="_blank"
+                    download
+                    variant="tonal"
+                    color="secondary"
+                    size="small"
+                    prepend-icon="mdi-download"
+                    class="flex-fill"
+                  >
+                    Back Side
+                  </v-btn>
                 </div>
               </v-card-text>
             </v-card>
@@ -173,15 +189,14 @@
         </v-row>
       </div>
 
-      <!-- Empty State -->
       <div v-else class="text-center py-12">
         <v-icon size="64" color="grey-lighten-1">mdi-inbox-outline</v-icon>
-        <h3 class="text-h5 mt-4 mb-2 text-grey">No printables available</h3>
-        <p class="text-grey">Check back later for new content!</p>
+        <h3 class="text-h5 mt-4 mb-2 text-medium-emphasis">No printables available</h3>
+        <p class="text-medium-emphasis">Check back later for new content!</p>
       </div>
 
-      <!-- Submit Artwork Section -->
       <v-divider class="my-8" />
+
       <div class="text-center py-4">
         <v-btn
           href="https://forms.gle/bbNdsZ8iKv7VVFYi8"
@@ -195,7 +210,7 @@
         >
           Submit Your Artwork
         </v-btn>
-        <p class="text-caption text-grey mt-2">
+        <p class="text-caption text-medium-emphasis mt-2">
           Have anti-ALPR artwork? Share it with the community!
         </p>
       </div>
@@ -204,12 +219,211 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import type { Ref } from 'vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
 
-// Types
+// ── Shopify constants ───────────────────────────────────────────────────────────
+
+const ALL_COLLECTION_ID = '519581958426';
+const DEFAULT_COLLECTION_ID = '519582056730'; // Yard Signs
+
+const COLLECTIONS: Record<string, Record<string, string>> = {
+  Apparel: {
+    'T-Shirts':      '519582155034',
+    Hoodies:         '519582220570',
+    Hats:            '519582253338',
+    'Youth Apparel': '519708311834',
+  },
+  Drinkware: {
+    Mugs:            '519582482714',
+    Tumblers:        '519583793434',
+    'Water Bottles': '519708475674',
+    Koozies:         '519583826202',
+  },
+  Accessories: {
+    Bags:     '519708541210',
+    Patches:  '519582318874',
+    Stickers: '519582515482',
+    Buttons:  '519582548250',
+    Magnets:  '519582089498',
+  },
+  'Home Accessories': {
+    'Yard Signs': '519582056730',
+  },
+  'Car Accessories': {
+    Magnets:          '519582089498',
+    'License Plates': '519708410138',
+  },
+  'Tech Accessories': {
+    'Phone Cases':    '519708147994',
+    'Laptop Sleeves': '519708213530',
+  },
+};
+
+const SHOPIFY_OPTIONS = {
+  product: {
+    styles: {
+      product: {
+        '@media (min-width: 601px)': {
+          'max-width': 'calc(25% - 20px)',
+          'margin-left': '20px',
+          'margin-bottom': '50px',
+          width: 'calc(25% - 20px)',
+        },
+      },
+      title: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: '#ffffff' },
+      button: {
+        'font-family': 'Raleway, sans-serif',
+        'font-weight': 'bold',
+        'font-size': '16px',
+        'padding-top': '16px',
+        'padding-bottom': '16px',
+        ':hover': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        'background-color': 'rgb(255, 193, 7)',
+        color: 'black',
+        ':focus': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        'border-radius': '0px',
+        'padding-left': '20px',
+        'padding-right': '20px',
+      },
+      quantityInput: { 'font-size': '16px', 'padding-top': '16px', 'padding-bottom': '16px' },
+      price: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: '#ffffff' },
+      compareAt: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: '#ffffff' },
+      unitPrice: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: '#ffffff' },
+      description: { 'font-family': 'Raleway, sans-serif' },
+    },
+    buttonDestination: 'modal',
+    contents: { button: false, options: false },
+    isButton: true,
+    text: { button: 'View Item' },
+    googleFonts: ['Raleway'],
+  },
+  productSet: {
+    styles: {
+      products: { '@media (min-width: 601px)': { 'margin-left': '-20px' } },
+    },
+  },
+  modalProduct: {
+    contents: { img: false, imgWithCarousel: true, button: false, buttonWithQuantity: true },
+    styles: {
+      product: { '@media (min-width: 601px)': { 'max-width': '100%', 'margin-left': '0px', 'margin-bottom': '0px' } },
+      button: {
+        'font-family': 'Raleway, sans-serif',
+        'font-weight': 'bold',
+        'font-size': '16px',
+        'padding-top': '16px',
+        'padding-bottom': '16px',
+        ':hover': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        'background-color': 'rgb(255, 193, 7)',
+        color: 'black',
+        ':focus': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        'border-radius': '0px',
+        'padding-left': '20px',
+        'padding-right': '20px',
+      },
+      quantityInput: { 'font-size': '16px', 'padding-top': '16px', 'padding-bottom': '16px' },
+      title: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'bold', 'font-size': '26px', color: '#4c4c4c' },
+      price: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '18px', color: '#4c4c4c' },
+      compareAt: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '15.3px', color: '#4c4c4c' },
+      unitPrice: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '15.3px', color: '#4c4c4c' },
+      description: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '14px', color: '#4c4c4c' },
+    },
+    googleFonts: ['Raleway'],
+    text: { button: 'Add to cart' },
+  },
+  option: {
+    styles: {
+      label: { 'font-family': 'Raleway, sans-serif' },
+      select: { 'font-family': 'Raleway, sans-serif' },
+    },
+    googleFonts: ['Raleway'],
+  },
+  cart: {
+    styles: {
+      button: {
+        'font-family': 'Raleway, sans-serif',
+        'font-weight': 'bold',
+        'font-size': '16px',
+        'padding-top': '16px',
+        'padding-bottom': '16px',
+        ':hover': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        'background-color': 'rgb(255, 193, 7)',
+        color: 'black',
+        ':focus': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        'border-radius': '0px',
+      },
+    },
+    text: {
+      total: 'Subtotal',
+      notice: 'Shipping and discount codes are added at checkout - powered by Agora Markets',
+      button: 'Checkout',
+      noteDescription: 'Additional Information for the deflock.org team',
+    },
+    googleFonts: ['Raleway'],
+  },
+  toggle: {
+    styles: {
+      toggle: {
+        'font-family': 'Raleway, sans-serif',
+        'font-weight': 'bold',
+        'background-color': 'rgb(255, 193, 7)',
+        color: 'black',
+        ':hover': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+        ':focus': { 'background-color': 'black', color: 'rgb(255, 193, 7)' },
+      },
+      count: { 'font-size': '16px' },
+    },
+    googleFonts: ['Raleway'],
+  },
+};
+
+// ── Shopify state ───────────────────────────────────────────────────────────────
+
+const collectionId = ref(DEFAULT_COLLECTION_ID);
+const shopifyContainer = ref<HTMLElement | null>(null);
+
+declare global {
+  interface Window { ShopifyBuy: any }
+}
+
+function initShopify(id: string) {
+  const container = shopifyContainer.value;
+  if (!container) return;
+  container.innerHTML = '';
+  const client = window.ShopifyBuy.buildClient({
+    domain: 'ccf325.myshopify.com',
+    storefrontAccessToken: '78991208f7fea14aa4ac02a58f8025dd',
+  });
+  window.ShopifyBuy.UI.onReady(client).then((ui: any) => {
+    ui.createComponent('collection', {
+      id,
+      node: container,
+      moneyFormat: '%24%7B%7Bamount%7D%7D',
+      options: SHOPIFY_OPTIONS,
+    });
+  });
+}
+
+function loadShopifySDK() {
+  if (window.ShopifyBuy?.UI) {
+    initShopify(collectionId.value);
+    return;
+  }
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
+  script.onload = () => initShopify(collectionId.value);
+  document.head.appendChild(script);
+}
+
+watch(collectionId, (id) => {
+  if (window.ShopifyBuy?.UI) initShopify(id);
+});
+
+// ── Printables ──────────────────────────────────────────────────────────────────
+
 interface Printable {
   id: number;
   date_updated: string;
@@ -225,40 +439,30 @@ interface CMSResponse {
   data: Printable[];
 }
 
-// Reactive state
 const printables: Ref<Printable[]> = ref([]);
 const loading = ref(true);
 const error: Ref<string | null> = ref(null);
 const selectedType: Ref<string | null> = ref(null);
 
-// Computed properties
 const typeOptions = computed(() => {
   const types = [...new Set(printables.value.map(p => p.type))];
   return types.map(type => ({
     title: type.charAt(0).toUpperCase() + type.slice(1),
-    value: type
+    value: type,
   }));
 });
 
 const filteredPrintables = computed(() => {
-  if (!selectedType.value) {
-    return printables.value;
-  }
-  return printables.value.filter(printable => printable.type === selectedType.value);
+  if (!selectedType.value) return printables.value;
+  return printables.value.filter(p => p.type === selectedType.value);
 });
 
-// Methods
 const fetchPrintables = async (): Promise<void> => {
   try {
     loading.value = true;
     error.value = null;
-    
     const response = await fetch('https://cms.deflock.me/items/Printables');
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data: CMSResponse = await response.json();
     printables.value = data.data || [];
   } catch (err) {
@@ -269,73 +473,21 @@ const fetchPrintables = async (): Promise<void> => {
   }
 };
 
-const deCamel = (str: string): string => {
-  return str.replace(/([a-z])([A-Z])/g, '$1 $2');
-};
+const deCamel = (str: string) => str.replace(/([a-z])([A-Z])/g, '$1 $2');
 
-const getImageUrl = (imageId: string): string => {
-  if (!imageId) return '';
-  return `https://cms.deflock.me/assets/${imageId}`;
-};
+const getImageUrl = (imageId: string) => imageId ? `https://cms.deflock.me/assets/${imageId}` : '';
 
-const getTypeColor = (type: string): string => {
-  const colors: Record<string, string> = {
-    poster: 'primary',
-    zine: 'success',
-    yardSign: 'secondary',
-    sticker: 'accent',
-    bumperSticker: 'info'
-  };
-  return colors[type] || 'grey';
-};
+const getTypeColor = (type: string): string =>
+  ({ poster: 'primary', zine: 'success', yardSign: 'secondary', sticker: 'accent', bumperSticker: 'info' } as Record<string, string>)[type] ?? 'grey';
 
-const getTypeIcon = (type: string): string => {
-  const icons: Record<string, string> = {
-    poster: 'mdi-post',
-    zine: 'mdi-book-open-page-variant',
-    yardSign: 'mdi-sign-real-estate',
-    sticker: 'mdi-sticker-circle-outline',
-    bumperSticker: 'mdi-rectangle-outline',
-  };
-  return icons[type] || 'mdi-file';
-};
+const getTypeIcon = (type: string): string =>
+  ({ poster: 'mdi-post', zine: 'mdi-book-open-page-variant', yardSign: 'mdi-sign-real-estate', sticker: 'mdi-sticker-circle-outline', bumperSticker: 'mdi-rectangle-outline' } as Record<string, string>)[type] ?? 'mdi-file';
 
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-};
+const formatDate = (dateString: string) =>
+  new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
-// Lifecycle
 onMounted(() => {
+  loadShopifySDK();
   fetchPrintables();
 });
 </script>
-
-<style scoped>
-.filter-section {
-  background: rgba(var(--v-theme-surface-variant), 0.1);
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.filter-select {
-  max-width: 100%;
-}
-
-.download-section {
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  padding-top: 12px;
-  margin-top: 8px;
-}
-
-.gap-2 {
-  gap: 8px;
-}
-
-.flex-1-1-50 {
-  flex: 1 1 50%;
-}
-</style>

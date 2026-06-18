@@ -42,7 +42,7 @@ const items = [
 
 const contributeItems = [
   { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
-  { title: 'Hang Signs', icon: 'mdi-sign-direction', to: '/store' },
+  { title: 'Store', icon: 'mdi-shopping', to: '/store' },
   { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
   { title: 'City Council', icon: 'mdi-account-voice', to: '/council' },
 ]
