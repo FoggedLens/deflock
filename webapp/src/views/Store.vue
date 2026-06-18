@@ -422,15 +422,27 @@ const collectionSelectItems = computed<CollectionSelectItem[]>(() => {
 const collectionId = ref((route.query.category as string) || ALL_COLLECTION_ID);
 const shopifyContainer = ref<HTMLElement | null>(null);
 
-// Sync tab + category to URL so back/forward/refresh restores state
+// Sync tab + category to URL so back/forward/refresh restores state.
+// Guard prevents re-pushing when the ref update came FROM the router.
 watch([activeTab, collectionId], ([tab, category]) => {
-  router.replace({
+  const currentTab = (route.query.tab as string) || 'shop';
+  const currentCategory = (route.query.category as string) || ALL_COLLECTION_ID;
+  if (tab === currentTab && category === currentCategory) return;
+  router.push({
     query: {
       ...(tab !== 'shop' ? { tab } : {}),
       ...(category !== ALL_COLLECTION_ID ? { category } : {}),
     },
   });
 }, { flush: 'post' });
+
+// Sync refs back from URL when the user navigates with back/forward.
+watch(() => route.query, (query) => {
+  const newTab = (query.tab as string) || 'shop';
+  const newCategory = (query.category as string) || ALL_COLLECTION_ID;
+  if (activeTab.value !== newTab) activeTab.value = newTab;
+  if (collectionId.value !== newCategory) collectionId.value = newCategory;
+});
 
 watch(collectionId, (id) => {
   if (window.ShopifyBuy?.UI) initShopify(id);
