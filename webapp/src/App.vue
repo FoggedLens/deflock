@@ -44,6 +44,7 @@ const contributeItems = [
   { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
   { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
   { title: 'City Council', icon: 'mdi-account-voice', to: '/council' },
+  { title: 'Support Us', icon: 'mdi-cash-multiple', to: '/donate' },
 ]
 
 const metaItems = [
@@ -51,7 +52,6 @@ const metaItems = [
   { title: 'Local Groups', icon: 'mdi-account-group', to: '/groups' },
   { title: 'Contact', icon: 'mdi-email-outline', to: '/contact' },
   { title: 'GitHub', icon: 'mdi-github', href: 'https://github.com/frillweeman/deflock'},
-  { title: 'Support Us', icon: 'mdi-cash-multiple', to: '/donate'},
 ];
 const drawer = ref(false)
 

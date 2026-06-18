@@ -16,7 +16,7 @@
         class="mb-6"
       >
         <v-tab value="shop" prepend-icon="mdi-shopping">Shop</v-tab>
-        <v-tab value="printables" prepend-icon="mdi-printer">Printables</v-tab>
+        <v-tab value="printables" prepend-icon="mdi-download">Downloads</v-tab>
       </v-tabs>
 
       <v-window v-model="activeTab" :touch="false">
