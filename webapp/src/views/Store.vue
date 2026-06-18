@@ -200,28 +200,29 @@
             <p class="text-medium-emphasis">Check back later for new content!</p>
           </div>
 
-          <v-divider class="my-8" />
-
-          <div class="text-center py-4">
-            <v-btn
-              href="https://forms.gle/bbNdsZ8iKv7VVFYi8"
-              target="_blank"
-              rel="noopener noreferrer"
-              color="primary"
-              variant="outlined"
-              size="large"
-              prepend-icon="mdi-upload"
-              class="text-none"
-            >
-              Submit Your Artwork
-            </v-btn>
-            <p class="text-caption text-medium-emphasis mt-2">
-              Have anti-ALPR artwork? Share it with the community!
-            </p>
-          </div>
         </v-window-item>
 
       </v-window>
+
+      <v-divider class="my-8" />
+
+      <div class="text-center py-4">
+        <v-btn
+          href="https://forms.gle/bbNdsZ8iKv7VVFYi8"
+          target="_blank"
+          rel="noopener noreferrer"
+          color="primary"
+          variant="outlined"
+          size="large"
+          prepend-icon="mdi-upload"
+          class="text-none"
+        >
+          Submit Your Artwork
+        </v-btn>
+        <p class="text-caption text-medium-emphasis mt-2">
+          Have anti-ALPR artwork? Share it with the community!
+        </p>
+      </div>
     </v-container>
   </DefaultLayout>
 </template>
