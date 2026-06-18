@@ -46,21 +46,7 @@
             </v-col>
           </v-row>
 
-          <!-- Skeleton while Shopify SDK initialises -->
-          <v-row v-if="!shopifyReady" class="mt-2">
-            <v-col
-              v-for="n in 4"
-              :key="n"
-              cols="12"
-              sm="6"
-              md="3"
-            >
-              <v-skeleton-loader type="image, list-item-two-line, actions" elevation="2" />
-            </v-col>
-          </v-row>
-
-          <!-- Shopify Buy Button mount — always in DOM, hidden until ready -->
-          <div v-show="shopifyReady" class="d-flex justify-center mb-8">
+          <div class="d-flex justify-center mb-8">
             <div ref="shopifyContainer" style="width: 100%" />
           </div>
         </v-window-item>
@@ -434,7 +420,6 @@ const collectionSelectItems = computed<CollectionSelectItem[]>(() => {
 });
 
 const collectionId = ref((route.query.category as string) || ALL_COLLECTION_ID);
-const shopifyReady = ref(false);
 const shopifyContainer = ref<HTMLElement | null>(null);
 
 // Sync tab + category to URL so back/forward/refresh restores state
@@ -458,8 +443,9 @@ declare global {
 function initShopify(id: string) {
   const container = shopifyContainer.value;
   if (!container) return;
-  shopifyReady.value = false;
+
   container.innerHTML = '';
+
   const client = window.ShopifyBuy.buildClient({
     domain: 'ccf325.myshopify.com',
     storefrontAccessToken: '78991208f7fea14aa4ac02a58f8025dd',
@@ -471,8 +457,8 @@ function initShopify(id: string) {
       moneyFormat: '%24%7B%7Bamount%7D%7D',
       options: SHOPIFY_OPTIONS,
     });
-    shopifyReady.value = true;
   });
+
 }
 
 function loadShopifySDK() {

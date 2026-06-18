@@ -37,12 +37,11 @@ const items = [
   { title: 'Home', icon: 'mdi-home', to: '/' },
   { title: 'Map', icon: 'mdi-map', href: 'https://maps.deflock.org' },
   { title: 'Learn', icon: 'mdi-school', to: '/what-is-an-alpr' },
-  { title: 'News', icon: 'mdi-newspaper', href: 'https://footnote4a.org/', target: '_blank' },
+  { title: 'Store', icon: 'mdi-shopping', to: '/store' },
 ]
 
 const contributeItems = [
   { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
-  { title: 'Store', icon: 'mdi-shopping', to: '/store' },
   { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
   { title: 'City Council', icon: 'mdi-account-voice', to: '/council' },
 ]
