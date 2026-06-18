@@ -459,7 +459,7 @@ function initShopify(id: string) {
   container.innerHTML = '';
 
   const client = window.ShopifyBuy.buildClient({
-    domain: 'ccf325.myshopify.com',
+    domain: 'agora.markets',
     storefrontAccessToken: '78991208f7fea14aa4ac02a58f8025dd',
   });
   window.ShopifyBuy.UI.onReady(client).then((ui: any) => {
