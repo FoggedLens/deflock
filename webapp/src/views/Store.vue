@@ -262,7 +262,7 @@ const COLLECTIONS: Record<string, Record<string, string>> = {
     'Yard Signs': '519582056730',
   },
   'Car Accessories': {
-    Magnets:          '519582089498',
+    'Magnets':        '519582089498',
     'License Plates': '519708410138',
   },
   'Tech Accessories': {
@@ -278,7 +278,7 @@ const SHOPIFY_OPTIONS = {
     styles: {
       product: {
         '@media (min-width: 601px)': {
-          'max-width': 'calc(25% - 20px)',
+          'max-width': 'calc(33% - 20px)',
           'margin-left': '20px',
           'margin-bottom': '50px',
           width: 'calc(25% - 20px)',
