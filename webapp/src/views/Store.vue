@@ -281,7 +281,7 @@ const SHOPIFY_OPTIONS = {
           'max-width': 'calc(33% - 20px)',
           'margin-left': '20px',
           'margin-bottom': '50px',
-          width: 'calc(25% - 20px)',
+          width: 'calc(33% - 20px)',
         },
       },
       title: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: '#ffffff' },
