@@ -269,7 +269,8 @@ const COLLECTIONS: Record<string, Record<string, string>> = {
     'Phone Cases':    '519708147994',
     'Laptop Sleeves': '519708213530',
   }, 
-  'NO ALPRS': {'520528560410'},
+  'Featured': {
+    'No ALPRs':       '520528560410'},
 };
 
 const SHOPIFY_OPTIONS = {
