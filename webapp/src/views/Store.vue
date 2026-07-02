@@ -336,7 +336,14 @@ function buildShopifyOptions(dark: boolean) {
           'padding-left': '20px',
           'padding-right': '20px',
         },
-        quantityInput: { 'font-size': '16px', 'padding-top': '16px', 'padding-bottom': '16px' },
+        quantityInput: {
+          'font-size': '16px',
+          'padding-top': '16px',
+          'padding-bottom': '16px',
+          'background-color': surfaceBg2,
+          color: modalText,
+          'border-color': borderColor,
+        },
         price: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: modalText },
         compareAt: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: modalText2 },
         unitPrice: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: modalText2 },
@@ -378,7 +385,14 @@ function buildShopifyOptions(dark: boolean) {
           'padding-left': '20px',
           'padding-right': '20px',
         },
-        quantityInput: { 'font-size': '16px', 'padding-top': '16px', 'padding-bottom': '16px' },
+        quantityInput: {
+          'font-size': '16px',
+          'padding-top': '16px',
+          'padding-bottom': '16px',
+          'background-color': surfaceBg2,
+          color: modalText,
+          'border-color': borderColor,
+        },
         title:       { 'font-family': 'Raleway, sans-serif', 'font-weight': 'bold',   'font-size': '26px',   color: modalText },
         price:       { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '18px',   color: modalText },
         compareAt:   { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '15.3px', color: modalText2 },
@@ -502,62 +516,70 @@ watch(() => route.query, (query) => {
 });
 
 watch(collectionId, (id) => {
-  if (window.ShopifyBuy?.UI) initShopify(id);
+  if (window.ShopifyBuy?.UI) renderShopify(id);
 });
 
 declare global {
   interface Window { ShopifyBuy: any }
 }
 
-// Guards against overlapping initShopify calls. If the collection or theme
-// changes again before a previous onReady() promise resolves, the stale
-// callback below becomes a no-op instead of racing the newer one and
-// leaving the container half-rendered (some product images missing).
-let shopifyRenderToken = 0;
+// The cart drawer and product modal are singletons the SDK attaches outside
+// `shopifyContainer` (not as children of it), tied to the client for the
+// lifetime of the page. Destroying and recreating the collection component
+// on every theme change only rebuilds the product grid — the cart/modal
+// singletons are untouched and stay stuck on whatever theme was active the
+// first time they were created. Keeping a reference and calling
+// updateConfig() instead pushes new styles into all of them in place.
+let shopifyComponent: any = null;
 
-function initShopify(id: string) {
+function renderShopify(id: string) {
   const container = shopifyContainer.value;
-  if (!container) return;
+  if (!container || !window.ShopifyBuy?.UI) return;
 
-  const myToken = ++shopifyRenderToken;
+  const options = buildShopifyOptions(isDark.value);
+
+  if (shopifyComponent?.updateConfig) {
+    shopifyComponent.updateConfig({
+      id,
+      node: container,
+      moneyFormat: '%24%7B%7Bamount%7D%7D',
+      options,
+    });
+    shopifyReady.value = true;
+    return;
+  }
 
   shopifyReady.value = false;
-  container.innerHTML = '';
-
   const client = window.ShopifyBuy.buildClient({
     domain: 'agora.markets',
     storefrontAccessToken: '78991208f7fea14aa4ac02a58f8025dd',
   });
   window.ShopifyBuy.UI.onReady(client).then((ui: any) => {
-    if (myToken !== shopifyRenderToken) return; // a newer render superseded this one
-
-    ui.createComponent('collection', {
+    shopifyComponent = ui.createComponent('collection', {
       id,
       node: container,
       moneyFormat: '%24%7B%7Bamount%7D%7D',
-      options: buildShopifyOptions(isDark.value),
+      options,
     });
-    // The SDK renders synchronously into the node before this callback resolves,
-    // so flipping the flag here reliably hides the skeleton at the right moment.
     shopifyReady.value = true;
   });
 }
 
-// Re-render the Shopify embed whenever the Vuetify theme flips so the modal
-// text colours stay readable in both light and dark mode.
+// Push new styles into the existing component whenever the Vuetify theme
+// flips, instead of tearing down and rebuilding the whole widget.
 watch(isDark, () => {
-  if (window.ShopifyBuy?.UI) initShopify(collectionId.value);
+  renderShopify(collectionId.value);
 });
 
 function loadShopifySDK() {
   if (window.ShopifyBuy?.UI) {
-    initShopify(collectionId.value);
+    renderShopify(collectionId.value);
     return;
   }
   const script = document.createElement('script');
   script.async = true;
   script.src = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
-  script.onload = () => initShopify(collectionId.value);
+  script.onload = () => renderShopify(collectionId.value);
   document.head.appendChild(script);
 }
 
