@@ -340,8 +340,8 @@ function buildShopifyOptions(dark: boolean) {
           'font-size': '16px',
           'padding-top': '16px',
           'padding-bottom': '16px',
-          'background-color': surfaceBg2,
-          color: modalText,
+          'background-color': `${surfaceBg2} !important`,
+          color: `${modalText} !important`,
           'border-color': borderColor,
         },
         price: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: modalText },
@@ -366,7 +366,6 @@ function buildShopifyOptions(dark: boolean) {
     modalProduct: {
       contents: { img: false, imgWithCarousel: true, button: false, buttonWithQuantity: true },
       styles: {
-        modal: { 'background-color': surfaceBg },
         product: {
           'background-color': surfaceBg,
           '@media (min-width: 601px)': { 'max-width': '100%', 'margin-left': '0px', 'margin-bottom': '0px' },
@@ -389,8 +388,8 @@ function buildShopifyOptions(dark: boolean) {
           'font-size': '16px',
           'padding-top': '16px',
           'padding-bottom': '16px',
-          'background-color': surfaceBg2,
-          color: modalText,
+          'background-color': `${surfaceBg2} !important`,
+          color: `${modalText} !important`,
           'border-color': borderColor,
         },
         title:       { 'font-family': 'Raleway, sans-serif', 'font-weight': 'bold',   'font-size': '26px',   color: modalText },
@@ -413,7 +412,6 @@ function buildShopifyOptions(dark: boolean) {
       styles: {
         cart: { 'background-color': surfaceBg },
         header: { 'background-color': surfaceBg, color: modalText, 'border-color': borderColor },
-        lineItems: { 'background-color': surfaceBg, color: modalText, 'border-color': borderColor },
         footer: { 'background-color': surfaceBg2, color: modalText, 'border-color': borderColor },
         title: { color: modalText },
         notice: { color: modalText2 },
@@ -452,6 +450,51 @@ function buildShopifyOptions(dark: boolean) {
         count: { 'font-size': '16px' },
       },
       googleFonts: ['Raleway'],
+    },
+    // `lineItem` is its own top-level component (a sibling of `cart`, not
+    // nested inside it) — confirmed against real working configs in
+    // Shopify's community forum. A previous revision nested this under
+    // cart.styles.lineItems, which isn't a real key and silently did
+    // nothing, leaving each cart row's quantity stepper on the SDK's
+    // unstyled default (white input, illegible in dark mode).
+    lineItem: {
+      styles: {
+        title: { color: modalText },
+        itemTitle: { color: modalText }, // some SDK builds use this key instead of `title`
+        variantTitle: { color: modalText2 },
+        price: { color: modalText },
+        fullPrice: { color: modalText },
+        discount: { color: modalText2 },
+        discountIcon: { fill: modalText2 },
+        quantity: { color: modalText },
+        quantityIncrement: {
+          color: `${modalText} !important`,
+          'border-color': borderColor,
+          'background-color': `${surfaceBg2} !important`,
+        },
+        quantityDecrement: {
+          color: `${modalText} !important`,
+          'border-color': borderColor,
+          'background-color': `${surfaceBg2} !important`,
+        },
+        quantityInput: {
+          color: `${modalText} !important`,
+          'border-color': borderColor,
+          'background-color': `${surfaceBg2} !important`,
+        },
+      },
+    },
+    // `modal` is the pop-up wrapper itself and is a separate top-level
+    // component from `modalProduct` (which styles the product content
+    // inside it) — a previous revision nested this inside modalProduct,
+    // where it likely had no effect. This key name is a best-effort guess
+    // following the self-named pattern seen in `cart.styles.cart` and
+    // `toggle.styles.toggle`; it hasn't been confirmed against a working
+    // example the way the lineItem keys above have.
+    modal: {
+      styles: {
+        modal: { 'background-color': surfaceBg },
+      },
     },
   };
 }
