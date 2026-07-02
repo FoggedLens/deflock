@@ -523,52 +523,80 @@ declare global {
   interface Window { ShopifyBuy: any }
 }
 
-// The cart drawer and product modal are singletons the SDK attaches outside
-// `shopifyContainer` (not as children of it), tied to the client for the
-// lifetime of the page. Destroying and recreating the collection component
-// on every theme change only rebuilds the product grid — the cart/modal
-// singletons are untouched and stay stuck on whatever theme was active the
-// first time they were created. Keeping a reference and calling
-// updateConfig() instead pushes new styles into all of them in place.
+// The client/checkout is built exactly once and reused for the lifetime of
+// the page. Rebuilding it on every theme or collection change risked
+// re-triggering whatever caused the earlier "empty cart on page load" bug —
+// now on every toggle instead of just once per load.
+let shopifyUIPromise: Promise<any> | null = null;
+let shopifyUI: any = null;
 let shopifyComponent: any = null;
+let shopifyRenderToken = 0;
 
-function renderShopify(id: string) {
-  const container = shopifyContainer.value;
-  if (!container || !window.ShopifyBuy?.UI) return;
-
-  const options = buildShopifyOptions(isDark.value);
-
-  if (shopifyComponent?.updateConfig) {
-    shopifyComponent.updateConfig({
-      id,
-      node: container,
-      moneyFormat: '%24%7B%7Bamount%7D%7D',
-      options,
-    });
-    shopifyReady.value = true;
-    return;
-  }
-
-  shopifyReady.value = false;
+function getShopifyUI(): Promise<any> {
+  if (shopifyUIPromise) return shopifyUIPromise;
   const client = window.ShopifyBuy.buildClient({
     domain: 'agora.markets',
     storefrontAccessToken: '78991208f7fea14aa4ac02a58f8025dd',
   });
-  window.ShopifyBuy.UI.onReady(client).then((ui: any) => {
+  shopifyUIPromise = window.ShopifyBuy.UI.onReady(client).then((ui: any) => {
+    shopifyUI = ui;
+    return ui;
+  });
+  return shopifyUIPromise;
+}
+
+// The cart drawer and product modal are singletons the SDK attaches outside
+// `shopifyContainer` (not as children of it). Destroys every component
+// instance the SDK created (collection, plus whatever cart/toggle it
+// auto-spawned) so a rebuild always starts from a clean slate — updateConfig()
+// was tried here previously but doesn't reliably clear already-mounted DOM,
+// which caused old collections/themes to linger alongside new ones.
+function destroyShopifyComponents() {
+  if (!shopifyUI?.components) return;
+  Object.values(shopifyUI.components).forEach((instances: any) => {
+    (instances as any[]).forEach((component) => {
+      try {
+        component?.destroy?.();
+      } catch {
+        // Component may already be detached; safe to ignore.
+      }
+    });
+  });
+  shopifyComponent = null;
+}
+
+function renderShopify(id: string) {
+  const container = shopifyContainer.value;
+  if (!container) return;
+
+  // Guards against overlapping renders (e.g. the theme value settling in
+  // two quick ticks). If a newer render starts before this one's async
+  // onReady() resolves, the stale callback below becomes a no-op instead
+  // of creating a second, duplicate set of product tiles.
+  const myToken = ++shopifyRenderToken;
+  shopifyReady.value = false;
+
+  getShopifyUI().then((ui: any) => {
+    if (myToken !== shopifyRenderToken) return;
+
+    destroyShopifyComponents();
+    container.innerHTML = '';
+
     shopifyComponent = ui.createComponent('collection', {
       id,
       node: container,
       moneyFormat: '%24%7B%7Bamount%7D%7D',
-      options,
+      options: buildShopifyOptions(isDark.value),
     });
     shopifyReady.value = true;
   });
 }
 
-// Push new styles into the existing component whenever the Vuetify theme
-// flips, instead of tearing down and rebuilding the whole widget.
+// Rebuild the widget whenever the Vuetify theme flips, so the cart drawer
+// and product modal singletons pick up the new theme immediately instead
+// of requiring a page refresh.
 watch(isDark, () => {
-  renderShopify(collectionId.value);
+  if (window.ShopifyBuy?.UI) renderShopify(collectionId.value);
 });
 
 function loadShopifySDK() {
@@ -582,6 +610,7 @@ function loadShopifySDK() {
   script.onload = () => renderShopify(collectionId.value);
   document.head.appendChild(script);
 }
+
 
 // ── Printables ──────────────────────────────────────────────────────────────────
 
