@@ -24,7 +24,11 @@
         <!-- ── Shop tab ─────────────────────────────────────────────────────── -->
         <v-window-item value="shop" eager>
 
-          <v-row justify="center" class="mt-4 mb-2">
+          <p class="mt-4 mb-4 text-center text-medium-emphasis">
+            T-shirts, stickers, yard signs, and more — proceeds support the anti-surveillance movement.
+          </p>
+
+          <v-row justify="center" class="mb-6">
             <v-col cols="12" sm="8" md="5" lg="4">
               <v-select
                 v-model="collectionId"
@@ -46,10 +50,6 @@
               </v-select>
             </v-col>
           </v-row>
-
-          <p class="mb-6 text-center text-medium-emphasis">
-            T-shirts, stickers, yard signs, and more — proceeds support the anti-surveillance movement.
-          </p>
 
           <!-- Skeleton while Shopify SDK initialises -->
           <v-row v-if="!shopifyReady" class="mt-2">
@@ -298,17 +298,22 @@ const COLLECTIONS: Record<string, Record<string, string>> = {
   },
 };
 
-// Modal text uses a light-on-dark or dark-on-light palette depending on the
-// active Vuetify theme. The product grid tiles always render on the SDK's own
-// dark card surface so their text stays white regardless of theme.
+// Every surface the Shopify SDK renders (product tiles, the product modal,
+// and the cart drawer) gets an explicit background + text color pulled from
+// this palette, since the SDK has no awareness of the host page's theme and
+// otherwise falls back to its own static (light) defaults.
 function buildShopifyOptions(dark: boolean) {
-  const modalText  = dark ? '#e0e0e0' : '#4c4c4c';
-  const modalText2 = dark ? '#b0b0b0' : '#6b6b6b';
+  const surfaceBg   = dark ? '#1e1e1e' : '#ffffff';
+  const surfaceBg2  = dark ? '#2a2a2a' : '#f5f5f5'; // footer/header accent surface
+  const modalText   = dark ? '#e0e0e0' : '#2c2c2c';
+  const modalText2  = dark ? '#b0b0b0' : '#6b6b6b';
+  const borderColor = dark ? '#3a3a3a' : '#e0e0e0';
 
   return {
     product: {
       styles: {
         product: {
+          'background-color': surfaceBg,
           '@media (min-width: 601px)': {
             'max-width': 'calc(33% - 20px)',
             'margin-left': '20px',
@@ -316,7 +321,7 @@ function buildShopifyOptions(dark: boolean) {
             width: 'calc(33% - 20px)',
           },
         },
-        title: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: '#ffffff' },
+        title: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: modalText },
         button: {
           'font-family': 'Raleway, sans-serif',
           'font-weight': 'bold',
@@ -332,10 +337,10 @@ function buildShopifyOptions(dark: boolean) {
           'padding-right': '20px',
         },
         quantityInput: { 'font-size': '16px', 'padding-top': '16px', 'padding-bottom': '16px' },
-        price: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: '#ffffff' },
-        compareAt: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: '#ffffff' },
-        unitPrice: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: '#ffffff' },
-        description: { 'font-family': 'Raleway, sans-serif' },
+        price: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: modalText },
+        compareAt: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: modalText2 },
+        unitPrice: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: modalText2 },
+        description: { 'font-family': 'Raleway, sans-serif', color: modalText2 },
       },
       buttonDestination: 'modal',
       contents: { button: false, options: false },
@@ -354,7 +359,11 @@ function buildShopifyOptions(dark: boolean) {
     modalProduct: {
       contents: { img: false, imgWithCarousel: true, button: false, buttonWithQuantity: true },
       styles: {
-        product: { '@media (min-width: 601px)': { 'max-width': '100%', 'margin-left': '0px', 'margin-bottom': '0px' } },
+        modal: { 'background-color': surfaceBg },
+        product: {
+          'background-color': surfaceBg,
+          '@media (min-width: 601px)': { 'max-width': '100%', 'margin-left': '0px', 'margin-bottom': '0px' },
+        },
         button: {
           'font-family': 'Raleway, sans-serif',
           'font-weight': 'bold',
@@ -388,6 +397,13 @@ function buildShopifyOptions(dark: boolean) {
     },
     cart: {
       styles: {
+        cart: { 'background-color': surfaceBg },
+        header: { 'background-color': surfaceBg, color: modalText, 'border-color': borderColor },
+        lineItems: { 'background-color': surfaceBg, color: modalText, 'border-color': borderColor },
+        footer: { 'background-color': surfaceBg2, color: modalText, 'border-color': borderColor },
+        title: { color: modalText },
+        notice: { color: modalText2 },
+        currency: { color: modalText },
         button: {
           'font-family': 'Raleway, sans-serif',
           'font-weight': 'bold',
@@ -493,9 +509,17 @@ declare global {
   interface Window { ShopifyBuy: any }
 }
 
+// Guards against overlapping initShopify calls. If the collection or theme
+// changes again before a previous onReady() promise resolves, the stale
+// callback below becomes a no-op instead of racing the newer one and
+// leaving the container half-rendered (some product images missing).
+let shopifyRenderToken = 0;
+
 function initShopify(id: string) {
   const container = shopifyContainer.value;
   if (!container) return;
+
+  const myToken = ++shopifyRenderToken;
 
   shopifyReady.value = false;
   container.innerHTML = '';
@@ -505,6 +529,8 @@ function initShopify(id: string) {
     storefrontAccessToken: '78991208f7fea14aa4ac02a58f8025dd',
   });
   window.ShopifyBuy.UI.onReady(client).then((ui: any) => {
+    if (myToken !== shopifyRenderToken) return; // a newer render superseded this one
+
     ui.createComponent('collection', {
       id,
       node: container,
