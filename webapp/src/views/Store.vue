@@ -47,6 +47,9 @@
                   </v-list-subheader>
                   <v-list-item v-else v-bind="props" />
                 </template>
+                <template #selection="{ item }">
+                  {{ item.raw.title }}
+                </template>
               </v-select>
             </v-col>
           </v-row>
