@@ -23,7 +23,8 @@
 
         <!-- ── Shop tab ─────────────────────────────────────────────────────── -->
         <v-window-item value="shop" eager>
-          <v-row justify="center" class="mt-4 mb-4">
+
+          <v-row justify="center" class="mt-4 mb-2">
             <v-col cols="12" sm="8" md="5" lg="4">
               <v-select
                 v-model="collectionId"
@@ -46,9 +47,31 @@
             </v-col>
           </v-row>
 
-          <div class="d-flex justify-center mb-8">
+          <p class="mb-6 text-center text-medium-emphasis">
+            T-shirts, stickers, yard signs, and more — proceeds support the anti-surveillance movement.
+          </p>
+
+          <!-- Skeleton while Shopify SDK initialises -->
+          <v-row v-if="!shopifyReady" class="mt-2">
+            <v-col
+              v-for="n in 6"
+              :key="n"
+              cols="12"
+              md="6"
+              lg="4"
+            >
+              <v-skeleton-loader type="image, list-item-two-line, actions" elevation="2" />
+            </v-col>
+          </v-row>
+
+          <v-card
+            v-show="shopifyReady"
+            elevation="2"
+            class="pa-4 mb-8"
+          >
             <div ref="shopifyContainer" style="width: 100%" />
-          </div>
+          </v-card>
+
         </v-window-item>
 
         <!-- ── Printables tab ───────────────────────────────────────────────── -->
@@ -231,6 +254,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import type { Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useTheme } from 'vuetify';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
 
@@ -268,130 +292,144 @@ const COLLECTIONS: Record<string, Record<string, string>> = {
   'Tech Accessories': {
     'Phone Cases':    '519708147994',
     'Laptop Sleeves': '519708213530',
-  }, 
+  },
   'Featured': {
-    'No ALPRs':       '520528560410'},
+    'No ALPRs':       '520528560410',
+  },
 };
 
-const SHOPIFY_OPTIONS = {
-  product: {
-    styles: {
-      product: {
-        '@media (min-width: 601px)': {
-          'max-width': 'calc(33% - 20px)',
-          'margin-left': '20px',
-          'margin-bottom': '50px',
-          width: 'calc(33% - 20px)',
+// Modal text uses a light-on-dark or dark-on-light palette depending on the
+// active Vuetify theme. The product grid tiles always render on the SDK's own
+// dark card surface so their text stays white regardless of theme.
+function buildShopifyOptions(dark: boolean) {
+  const modalText  = dark ? '#e0e0e0' : '#4c4c4c';
+  const modalText2 = dark ? '#b0b0b0' : '#6b6b6b';
+
+  return {
+    product: {
+      styles: {
+        product: {
+          '@media (min-width: 601px)': {
+            'max-width': 'calc(33% - 20px)',
+            'margin-left': '20px',
+            'margin-bottom': '50px',
+            width: 'calc(33% - 20px)',
+          },
+        },
+        title: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: '#ffffff' },
+        button: {
+          'font-family': 'Raleway, sans-serif',
+          'font-weight': 'bold',
+          'font-size': '16px',
+          'padding-top': '16px',
+          'padding-bottom': '16px',
+          ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
+          'background-color': 'rgb(18, 151, 195)',
+          color: '#ffffff',
+          ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
+          'border-radius': '4px',
+          'padding-left': '20px',
+          'padding-right': '20px',
+        },
+        quantityInput: { 'font-size': '16px', 'padding-top': '16px', 'padding-bottom': '16px' },
+        price: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: '#ffffff' },
+        compareAt: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: '#ffffff' },
+        unitPrice: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: '#ffffff' },
+        description: { 'font-family': 'Raleway, sans-serif' },
+      },
+      buttonDestination: 'modal',
+      contents: { button: false, options: false },
+      isButton: true,
+      text: { button: 'View Item' },
+      googleFonts: ['Raleway'],
+    },
+    productSet: {
+      styles: {
+        products: { '@media (min-width: 601px)': { 'margin-left': '-20px' } },
+      },
+      text: {
+        nextPageButton: 'Load more',
+      },
+    },
+    modalProduct: {
+      contents: { img: false, imgWithCarousel: true, button: false, buttonWithQuantity: true },
+      styles: {
+        product: { '@media (min-width: 601px)': { 'max-width': '100%', 'margin-left': '0px', 'margin-bottom': '0px' } },
+        button: {
+          'font-family': 'Raleway, sans-serif',
+          'font-weight': 'bold',
+          'font-size': '16px',
+          'padding-top': '16px',
+          'padding-bottom': '16px',
+          ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
+          'background-color': 'rgb(18, 151, 195)',
+          color: '#ffffff',
+          ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
+          'border-radius': '4px',
+          'padding-left': '20px',
+          'padding-right': '20px',
+        },
+        quantityInput: { 'font-size': '16px', 'padding-top': '16px', 'padding-bottom': '16px' },
+        title:       { 'font-family': 'Raleway, sans-serif', 'font-weight': 'bold',   'font-size': '26px',   color: modalText },
+        price:       { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '18px',   color: modalText },
+        compareAt:   { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '15.3px', color: modalText2 },
+        unitPrice:   { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '15.3px', color: modalText2 },
+        description: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '14px',   color: modalText2 },
+      },
+      googleFonts: ['Raleway'],
+      text: { button: 'Add to cart' },
+    },
+    option: {
+      styles: {
+        label:  { 'font-family': 'Raleway, sans-serif' },
+        select: { 'font-family': 'Raleway, sans-serif' },
+      },
+      googleFonts: ['Raleway'],
+    },
+    cart: {
+      styles: {
+        button: {
+          'font-family': 'Raleway, sans-serif',
+          'font-weight': 'bold',
+          'font-size': '16px',
+          'padding-top': '16px',
+          'padding-bottom': '16px',
+          ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
+          'background-color': 'rgb(18, 151, 195)',
+          color: '#ffffff',
+          ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
+          'border-radius': '4px',
         },
       },
-      title: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: '#ffffff' },
-      button: {
-        'font-family': 'Raleway, sans-serif',
-        'font-weight': 'bold',
-        'font-size': '16px',
-        'padding-top': '16px',
-        'padding-bottom': '16px',
-        ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
-        'background-color': 'rgb(18, 151, 195)',
-        color: '#ffffff',
-        ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
-        'border-radius': '0px',
-        'padding-left': '20px',
-        'padding-right': '20px',
+      text: {
+        total: 'Subtotal',
+        notice: 'Shipping and discount codes are added at checkout - powered by Agora Markets',
+        button: 'Checkout',
+        noteDescription: 'Additional Information for the deflock.org team',
       },
-      quantityInput: { 'font-size': '16px', 'padding-top': '16px', 'padding-bottom': '16px' },
-      price: { 'font-family': 'Raleway, sans-serif', 'font-size': '17px', color: '#ffffff' },
-      compareAt: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: '#ffffff' },
-      unitPrice: { 'font-family': 'Raleway, sans-serif', 'font-size': '14.45px', color: '#ffffff' },
-      description: { 'font-family': 'Raleway, sans-serif' },
+      googleFonts: ['Raleway'],
     },
-    buttonDestination: 'modal',
-    contents: { button: false, options: false },
-    isButton: true,
-    text: { button: 'View Item' },
-    googleFonts: ['Raleway'],
-  },
-  productSet: {
-    styles: {
-      products: { '@media (min-width: 601px)': { 'margin-left': '-20px' } },
-    },
-    text: {
-      nextPageButton: 'Load more',
-    },
-  },
-  modalProduct: {
-    contents: { img: false, imgWithCarousel: true, button: false, buttonWithQuantity: true },
-    styles: {
-      product: { '@media (min-width: 601px)': { 'max-width': '100%', 'margin-left': '0px', 'margin-bottom': '0px' } },
-      button: {
-        'font-family': 'Raleway, sans-serif',
-        'font-weight': 'bold',
-        'font-size': '16px',
-        'padding-top': '16px',
-        'padding-bottom': '16px',
-        ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
-        'background-color': 'rgb(18, 151, 195)',
-        color: '#ffffff',
-        ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
-        'border-radius': '0px',
-        'padding-left': '20px',
-        'padding-right': '20px',
+    toggle: {
+      styles: {
+        toggle: {
+          'font-family': 'Raleway, sans-serif',
+          'font-weight': 'bold',
+          'background-color': 'rgb(18, 151, 195)',
+          color: '#ffffff',
+          ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
+          ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
+        },
+        count: { 'font-size': '16px' },
       },
-      quantityInput: { 'font-size': '16px', 'padding-top': '16px', 'padding-bottom': '16px' },
-      title: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'bold', 'font-size': '26px', color: '#4c4c4c' },
-      price: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '18px', color: '#4c4c4c' },
-      compareAt: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '15.3px', color: '#4c4c4c' },
-      unitPrice: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '15.3px', color: '#4c4c4c' },
-      description: { 'font-family': 'Raleway, sans-serif', 'font-weight': 'normal', 'font-size': '14px', color: '#4c4c4c' },
+      googleFonts: ['Raleway'],
     },
-    googleFonts: ['Raleway'],
-    text: { button: 'Add to cart' },
-  },
-  option: {
-    styles: {
-      label: { 'font-family': 'Raleway, sans-serif' },
-      select: { 'font-family': 'Raleway, sans-serif' },
-    },
-    googleFonts: ['Raleway'],
-  },
-  cart: {
-    styles: {
-      button: {
-        'font-family': 'Raleway, sans-serif',
-        'font-weight': 'bold',
-        'font-size': '16px',
-        'padding-top': '16px',
-        'padding-bottom': '16px',
-        ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
-        'background-color': 'rgb(18, 151, 195)',
-        color: '#ffffff',
-        ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
-        'border-radius': '0px',
-      },
-    },
-    text: {
-      total: 'Subtotal',
-      notice: 'Shipping and discount codes are added at checkout - powered by Agora Markets',
-      button: 'Checkout',
-      noteDescription: 'Additional Information for the deflock.org team',
-    },
-    googleFonts: ['Raleway'],
-  },
-  toggle: {
-    styles: {
-      toggle: {
-        'font-family': 'Raleway, sans-serif',
-        'font-weight': 'bold',
-        'background-color': 'rgb(18, 151, 195)',
-        color: '#ffffff',
-        ':hover': { 'background-color': '#0081ac', color: '#ffffff' },
-        ':focus': { 'background-color': '#0081ac', color: '#ffffff' },
-      },
-      count: { 'font-size': '16px' },
-    },
-    googleFonts: ['Raleway'],
-  },
-};
+  };
+}
+
+// ── Theme ───────────────────────────────────────────────────────────────────────
+
+const theme = useTheme();
+const isDark = computed(() => theme.global.current.value.dark);
 
 // ── Tabs ────────────────────────────────────────────────────────────────────────
 
@@ -424,9 +462,9 @@ const collectionSelectItems = computed<CollectionSelectItem[]>(() => {
 
 const collectionId = ref((route.query.category as string) || ALL_COLLECTION_ID);
 const shopifyContainer = ref<HTMLElement | null>(null);
+const shopifyReady = ref(false);
 
 // Sync tab + category to URL so back/forward/refresh restores state.
-// Guard prevents re-pushing when the ref update came FROM the router.
 watch([activeTab, collectionId], ([tab, category]) => {
   const currentTab = (route.query.tab as string) || 'shop';
   const currentCategory = (route.query.category as string) || ALL_COLLECTION_ID;
@@ -459,6 +497,7 @@ function initShopify(id: string) {
   const container = shopifyContainer.value;
   if (!container) return;
 
+  shopifyReady.value = false;
   container.innerHTML = '';
 
   const client = window.ShopifyBuy.buildClient({
@@ -470,11 +509,19 @@ function initShopify(id: string) {
       id,
       node: container,
       moneyFormat: '%24%7B%7Bamount%7D%7D',
-      options: SHOPIFY_OPTIONS,
+      options: buildShopifyOptions(isDark.value),
     });
+    // The SDK renders synchronously into the node before this callback resolves,
+    // so flipping the flag here reliably hides the skeleton at the right moment.
+    shopifyReady.value = true;
   });
-
 }
+
+// Re-render the Shopify embed whenever the Vuetify theme flips so the modal
+// text colours stay readable in both light and dark mode.
+watch(isDark, () => {
+  if (window.ShopifyBuy?.UI) initShopify(collectionId.value);
+});
 
 function loadShopifySDK() {
   if (window.ShopifyBuy?.UI) {
@@ -552,9 +599,6 @@ const getTypeIcon = (type: string): string =>
 const formatDate = (dateString: string) =>
   new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
-// Watch the container ref so we initialise only once the DOM element exists.
-// The `eager` prop on the window item makes it available immediately, but
-// watching is more robust than relying on onMounted timing.
 watch(shopifyContainer, (el) => {
   if (el) loadShopifySDK();
 }, { once: true });
