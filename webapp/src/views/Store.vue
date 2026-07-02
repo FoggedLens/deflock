@@ -523,27 +523,21 @@ declare global {
   interface Window { ShopifyBuy: any }
 }
 
-// The client/checkout is built exactly once and reused for the lifetime of
-// the page, so re-rendering (theme or collection change) doesn't risk
-// re-triggering the "empty cart on page load" issue on every toggle.
-let shopifyUIPromise: Promise<any> | null = null;
 let shopifyRenderToken = 0;
-
-function getShopifyUI(): Promise<any> {
-  if (shopifyUIPromise) return shopifyUIPromise;
-  const client = window.ShopifyBuy.buildClient({
-    domain: 'agora.markets',
-    storefrontAccessToken: '78991208f7fea14aa4ac02a58f8025dd',
-  });
-  shopifyUIPromise = window.ShopifyBuy.UI.onReady(client);
-  return shopifyUIPromise;
-}
 
 // Plain clear-and-recreate, matching the only pattern BuyButton.js
 // documents: ui.createComponent(type, config) with a node to render into.
 // There is no documented destroy()/updateConfig() API — a prior revision
 // guessed at both and produced empty renders, since createComponent() with
 // a previously-used node confused the SDK's internal state.
+//
+// A fresh client + ui is built on every render rather than cached and
+// reused. Caching was tried to reduce how often buildClient() runs (out of
+// concern for the earlier "empty cart on page load" bug), but reusing the
+// same ui instance across multiple createComponent() calls broke the
+// product grid on theme change — same category of problem as the
+// destroy()/updateConfig() guesswork, just from a different angle. This is
+// the version that was confirmed working for live grid theme-switching.
 //
 // Per Shopify's own docs, creating a product/collection component also
 // auto-creates a separate cart and "cart toggle" component tied to that
@@ -554,7 +548,7 @@ function getShopifyUI(): Promise<any> {
 // next page load.
 function renderShopify(id: string) {
   const container = shopifyContainer.value;
-  if (!container) return;
+  if (!container || !window.ShopifyBuy?.UI) return;
 
   // Guards against overlapping renders (e.g. the theme value settling in
   // two quick ticks). If a newer render starts before this one's async
@@ -563,7 +557,11 @@ function renderShopify(id: string) {
   const myToken = ++shopifyRenderToken;
   shopifyReady.value = false;
 
-  getShopifyUI().then((ui: any) => {
+  const client = window.ShopifyBuy.buildClient({
+    domain: 'agora.markets',
+    storefrontAccessToken: '78991208f7fea14aa4ac02a58f8025dd',
+  });
+  window.ShopifyBuy.UI.onReady(client).then((ui: any) => {
     if (myToken !== shopifyRenderToken) return;
 
     container.innerHTML = '';
