@@ -524,12 +524,9 @@ declare global {
 }
 
 // The client/checkout is built exactly once and reused for the lifetime of
-// the page. Rebuilding it on every theme or collection change risked
-// re-triggering whatever caused the earlier "empty cart on page load" bug —
-// now on every toggle instead of just once per load.
+// the page, so re-rendering (theme or collection change) doesn't risk
+// re-triggering the "empty cart on page load" issue on every toggle.
 let shopifyUIPromise: Promise<any> | null = null;
-let shopifyUI: any = null;
-let shopifyComponent: any = null;
 let shopifyRenderToken = 0;
 
 function getShopifyUI(): Promise<any> {
@@ -538,33 +535,23 @@ function getShopifyUI(): Promise<any> {
     domain: 'agora.markets',
     storefrontAccessToken: '78991208f7fea14aa4ac02a58f8025dd',
   });
-  shopifyUIPromise = window.ShopifyBuy.UI.onReady(client).then((ui: any) => {
-    shopifyUI = ui;
-    return ui;
-  });
+  shopifyUIPromise = window.ShopifyBuy.UI.onReady(client);
   return shopifyUIPromise;
 }
 
-// The cart drawer and product modal are singletons the SDK attaches outside
-// `shopifyContainer` (not as children of it). Destroys every component
-// instance the SDK created (collection, plus whatever cart/toggle it
-// auto-spawned) so a rebuild always starts from a clean slate — updateConfig()
-// was tried here previously but doesn't reliably clear already-mounted DOM,
-// which caused old collections/themes to linger alongside new ones.
-function destroyShopifyComponents() {
-  if (!shopifyUI?.components) return;
-  Object.values(shopifyUI.components).forEach((instances: any) => {
-    (instances as any[]).forEach((component) => {
-      try {
-        component?.destroy?.();
-      } catch {
-        // Component may already be detached; safe to ignore.
-      }
-    });
-  });
-  shopifyComponent = null;
-}
-
+// Plain clear-and-recreate, matching the only pattern BuyButton.js
+// documents: ui.createComponent(type, config) with a node to render into.
+// There is no documented destroy()/updateConfig() API — a prior revision
+// guessed at both and produced empty renders, since createComponent() with
+// a previously-used node confused the SDK's internal state.
+//
+// Per Shopify's own docs, creating a product/collection component also
+// auto-creates a separate cart and "cart toggle" component tied to that
+// call — they are not children of `container` and there is no documented
+// way to re-theme them without a full page reload. That's an accepted,
+// known limitation (Option A): the product grid re-themes live on every
+// toggle; the cart drawer and product modal pick up the new theme on the
+// next page load.
 function renderShopify(id: string) {
   const container = shopifyContainer.value;
   if (!container) return;
@@ -579,10 +566,8 @@ function renderShopify(id: string) {
   getShopifyUI().then((ui: any) => {
     if (myToken !== shopifyRenderToken) return;
 
-    destroyShopifyComponents();
     container.innerHTML = '';
-
-    shopifyComponent = ui.createComponent('collection', {
+    ui.createComponent('collection', {
       id,
       node: container,
       moneyFormat: '%24%7B%7Bamount%7D%7D',
@@ -592,9 +577,6 @@ function renderShopify(id: string) {
   });
 }
 
-// Rebuild the widget whenever the Vuetify theme flips, so the cart drawer
-// and product modal singletons pick up the new theme immediately instead
-// of requiring a page refresh.
 watch(isDark, () => {
   if (window.ShopifyBuy?.UI) renderShopify(collectionId.value);
 });
@@ -610,6 +592,7 @@ function loadShopifySDK() {
   script.onload = () => renderShopify(collectionId.value);
   document.head.appendChild(script);
 }
+
 
 
 // ── Printables ──────────────────────────────────────────────────────────────────
