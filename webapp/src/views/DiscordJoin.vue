@@ -1,6 +1,6 @@
 <template>
   <DefaultLayout>
-    <v-container class="narrow-text text-center">
+    <v-container class="narrow-text text-center mt-12">
       <v-btn color="primary" size="large" rounded @click="showDialog = true">
         <v-img class="mr-2" contain width="24" height="24" :src="isDark ? '/icon-discord-white.svg' : '/icon-discord.svg'" />
         Join DeFlock Discord
