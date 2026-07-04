@@ -184,12 +184,21 @@ const router = createRouter({
       }
     },
     {
+      path: '/discord',
+      name: 'discord',
+      component: () => import('../views/DiscordJoin.vue'),
+      meta: {
+        title: 'Join our Discord | DeFlock'
+      }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('../views/404.vue'),
       meta: {
         title: 'Not Found | DeFlock'
       }
+
     }
   ]
 })
