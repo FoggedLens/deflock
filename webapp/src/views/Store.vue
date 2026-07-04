@@ -24,12 +24,12 @@
         <!-- ── Shop tab ─────────────────────────────────────────────────────── -->
         <v-window-item value="shop" eager>
 
-          <p class="mt-4 mb-4 text-center text-medium-emphasis">
+          <p class="mb-6 text-center text-medium-emphasis">
             T-shirts, stickers, yard signs, and more — proceeds support the anti-surveillance movement.
           </p>
 
           <v-row justify="center" class="mb-6">
-            <v-col cols="12" sm="8" md="5" lg="4">
+            <v-col cols="12" md="6" lg="4">
               <v-select
                 v-model="collectionId"
                 :items="collectionSelectItems"
@@ -39,6 +39,7 @@
                 label="Browse by category"
                 variant="outlined"
                 prepend-inner-icon="mdi-tag-outline"
+                clearable
                 hide-details
               >
                 <template #item="{ props, item }">
@@ -562,6 +563,13 @@ watch(() => route.query, (query) => {
 });
 
 watch(collectionId, (id) => {
+  // The category select is clearable to match the Downloads filter's UX,
+  // but the Shopify embed always needs a valid collection id — clearing
+  // falls back to "All Products" rather than passing null through.
+  if (!id) {
+    collectionId.value = ALL_COLLECTION_ID;
+    return;
+  }
   if (window.ShopifyBuy?.UI) renderShopify(id);
 });
 
