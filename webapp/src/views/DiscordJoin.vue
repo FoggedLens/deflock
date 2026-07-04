@@ -1,12 +1,12 @@
 <template>
   <DefaultLayout>
     <v-container class="narrow-text text-center">
-      <h1 class="mb-4">Join the DeFlock Discord</h1>
       <v-btn color="primary" size="large" rounded @click="showDialog = true">
-        <v-icon start>mdi-discord</v-icon>
+        <v-img class="mr-2" contain width="24" height="24" :src="isDark ? '/icon-discord-white.svg' : '/icon-discord.svg'" />
         Join Discord
       </v-btn>
     </v-container>
+
 
     <DiscordWarningDialog
       v-model="showDialog"
@@ -17,7 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useTheme } from 'vuetify';
 import { useHead } from '@unhead/vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import DiscordWarningDialog from '@/components/DiscordWarningDialog.vue';
@@ -26,7 +27,11 @@ useHead({
   meta: [{ name: 'robots', content: 'noindex, nofollow' }]
 });
 
+const theme = useTheme();
+const isDark = computed(() => theme.name.value === 'dark');
+
 const discordUrl = 'https://discord.gg/aV7v4R3sKT';
+
 const showDialog = ref(true);
 
 function handleProceed(url: string) {
