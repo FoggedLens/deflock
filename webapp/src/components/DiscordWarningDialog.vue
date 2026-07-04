@@ -7,8 +7,12 @@
           <p class="mb-3 text-body-1">
             <strong>You're about to join Discord</strong>
           </p>
+          <p class="mb-3 text-body-2">
+            DeFlock's Discord is a space for individuals and groups to meet and collaborate to campaign against mass surveillance infrastructure.
+          </p>
           <v-alert color="warning" variant="outlined" class="mb-4">
             <b>Law enforcement</b> and <b>Flock employees</b> actively monitor the Discord server. Please act accordingly.
+
           </v-alert>
           <p class="text-caption text-medium-emphasis mb-2">
             If you understand the risks and wish to continue, click <strong>Proceed</strong> below.

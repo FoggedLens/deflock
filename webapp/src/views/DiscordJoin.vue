@@ -1,8 +1,12 @@
 <template>
   <DefaultLayout>
-    <div class="loading-container">
-      (Intentionally blank)
-    </div>
+    <v-container class="narrow-text text-center">
+      <h1 class="mb-4">Join the DeFlock Discord</h1>
+      <v-btn color="primary" size="large" rounded @click="showDialog = true">
+        <v-icon start>mdi-discord</v-icon>
+        Join Discord
+      </v-btn>
+    </v-container>
 
     <DiscordWarningDialog
       v-model="showDialog"
@@ -29,14 +33,3 @@ function handleProceed(url: string) {
   window.open(url, '_blank');
 }
 </script>
-
-<style scoped>
-.loading-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  font-size: 1.1rem;
-  color: var(--df-text-color);
-}
-</style>
