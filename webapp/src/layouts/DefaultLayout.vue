@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="page-wrapper">
     <slot name="header" />
 
     <!-- Main content -->
@@ -22,3 +22,20 @@ defineProps({
   },
 })
 </script>
+
+<style scoped>
+/* Sticky-footer layout: keeps the footer pinned to the bottom of the
+   viewport on short pages (without being fixed/floating), while still
+   allowing it to scroll off-screen naturally on taller pages. */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page-wrapper main {
+
+  flex: 1 0 auto;
+}
+</style>
+
