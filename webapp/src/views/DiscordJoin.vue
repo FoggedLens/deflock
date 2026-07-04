@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout>
     <div class="loading-container">
-      Loading...
+      (Intentionally blank)
     </div>
 
     <DiscordWarningDialog
