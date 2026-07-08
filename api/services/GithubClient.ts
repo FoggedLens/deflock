@@ -17,10 +17,18 @@ export type Sponsor = Static<typeof SponsorSchema>;
 
 export const SponsorsResponseSchema = Type.Array(SponsorSchema);
 
+// Pass the username as a GraphQL variable rather than interpolating it into the
+// query string, so a value containing quotes or other GraphQL syntax cannot
+// break out of the string literal and alter the query.
+export const buildSponsorsQuery = (username: string): { query: string; variables: { login: string } } => ({
+  query: `query($login: String!) { user(login: $login) { sponsorshipsAsMaintainer(first: 100) { nodes { sponsor { login name avatarUrl url } } } } }`,
+  variables: { login: username },
+});
+
 export class GithubClient {
   async getSponsors(username: string): Promise<Sponsor[]> {
-    const query = `query { user(login: "${username}") { sponsorshipsAsMaintainer(first: 100) { nodes { sponsor { login name avatarUrl url } } } } }`;
-    const body = JSON.stringify({ query, variables: '' });
+    const { query, variables } = buildSponsorsQuery(username);
+    const body = JSON.stringify({ query, variables });
     const response = await fetch(graphQLEndpoint, {
       method: 'POST',
       headers: {

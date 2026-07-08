@@ -208,7 +208,8 @@ const start = async () => {
       querystring: {
         type: 'object',
         properties: {
-          username: { type: 'string', default: 'frillweeman' },
+          // GitHub usernames are 1-39 chars of letters, digits, and hyphens.
+          username: { type: 'string', pattern: '^[A-Za-z0-9-]{1,39}$', default: 'frillweeman' },
         },
       },
       response: {
