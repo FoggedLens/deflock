@@ -1,0 +1,105 @@
+{
+  "data_format": 1,
+  "data_url": "https://deflock.org/taginfo.json",
+  "project": {
+    "name": "DeFlock",
+    "description": "Crowdsourced map of automated license plate readers (ALPRs) and other public surveillance cameras.",
+    "project_url": "https://deflock.org",
+    "doc_url": "https://deflock.org/what-is-an-alpr",
+    "icon_url": "https://deflock.org/deflock-logo.svg",
+    "contact_name": "DeFlock",
+    "contact_email": "contact@deflock.org"
+  },
+  "tags": [
+    {
+      "key": "man_made",
+      "value": "surveillance",
+      "object_types": ["node"],
+      "description": "Base tag identifying the node as a surveillance device."
+    },
+    {
+      "key": "surveillance:type",
+      "value": "ALPR",
+      "object_types": ["node"],
+      "description": "Identifies the surveillance device as an Automated License Plate Reader."
+    },
+    {
+      "key": "surveillance",
+      "value": "public",
+      "object_types": ["node"],
+      "description": "Indicates the device surveils a publicly accessible area."
+    },
+    {
+      "key": "camera:type",
+      "value": "fixed",
+      "object_types": ["node"],
+      "description": "The camera has a fixed field of view rather than pan/tilt/zoom."
+    },
+    {
+      "key": "surveillance:zone",
+      "value": "traffic",
+      "object_types": ["node"],
+      "description": "The camera monitors road traffic."
+    },
+    {
+      "key": "camera:direction",
+      "object_types": ["node"],
+      "description": "Compass direction, in degrees, that the camera faces."
+    },
+    {
+      "key": "camera:mount",
+      "object_types": ["node"],
+      "description": "How or where the camera is mounted (for example on a pole or mast)."
+    },
+    {
+      "key": "electricity",
+      "object_types": ["node"],
+      "description": "Power source for the camera."
+    },
+    {
+      "key": "direction",
+      "object_types": ["node"],
+      "description": "Compass direction the camera faces; preserved when present."
+    },
+    {
+      "key": "operator",
+      "object_types": ["node"],
+      "description": "Organization that operates the camera."
+    },
+    {
+      "key": "surveillance:operator",
+      "object_types": ["node"],
+      "description": "Organization that operates the surveillance camera."
+    },
+    {
+      "key": "manufacturer",
+      "object_types": ["node"],
+      "description": "Manufacturer of the camera hardware."
+    },
+    {
+      "key": "surveillance:manufacturer",
+      "object_types": ["node"],
+      "description": "Manufacturer of the surveillance camera."
+    },
+    {
+      "key": "brand",
+      "object_types": ["node"],
+      "description": "Brand of the camera."
+    },
+    {
+      "key": "surveillance:brand",
+      "object_types": ["node"],
+      "description": "Brand of the surveillance camera (for example Flock Safety or Motorola)."
+    },
+    {
+      "key": "wikimedia_commons",
+      "object_types": ["node"],
+      "description": "Wikimedia Commons file or category documenting the camera."
+    },
+    {
+      "key": "note",
+      "object_types": ["node"],
+      "description": "Freeform note about the ALPR."
+    }
+  ]
+}
