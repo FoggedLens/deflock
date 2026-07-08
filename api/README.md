@@ -4,7 +4,7 @@ A Fastify-based API service for DeFlock handling non-OSM related backend logic.
 
 ## Endpoints
 - `/geocode?query=...` — Geocode a location
-- `/sponsors/github?username=...` — Get GitHub sponsors
+- `/sponsors/github` — Get GitHub sponsors
 - `/healthcheck` — Health check
 
 ## Development
