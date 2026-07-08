@@ -205,22 +205,14 @@ const start = async () => {
 
   server.get('/sponsors/github', {
     schema: {
-      querystring: {
-        type: 'object',
-        properties: {
-          // GitHub usernames are 1-39 chars of letters, digits, and hyphens.
-          username: { type: 'string', pattern: '^[A-Za-z0-9-]{1,39}$', default: 'frillweeman' },
-        },
-      },
       response: {
         200: SponsorsResponseSchema,
         500: { type: 'object', properties: { error: { type: 'string' } } },
       },
     },
   }, async (request, reply) => {
-    const { username } = request.query as { username?: string };
     reply.header('Cache-Control', 'public, max-age=60, s-maxage=600');
-    const result = await githubClient.getSponsors(username || 'frillweeman');
+    const result = await githubClient.getSponsors();
     return result;
   });
 
