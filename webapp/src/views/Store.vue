@@ -285,7 +285,7 @@ const COLLECTIONS: Record<string, Record<string, string>> = {
     Stickers: '519582515482',
     Buttons:  '519582548250',
   },
-  'Community Awareness"': {
+  'Community Awareness': {
     'Yard Signs': '519582056730',
     'Flyers/Posters/Handouts': '521125593370',
   },
@@ -435,7 +435,7 @@ function buildShopifyOptions(dark: boolean) {
       },
       text: {
         total: 'Subtotal',
-        notice: 'Please be aware of local laws and ordinaces regarding public signage; many jurisdictions require a permit to do so. Please do not Place Signange on Private Property without permission. Shipping and discount codes are added at checkout - powered by Agora Markets',
+        notice: 'Please be aware of local laws and ordinances regarding public signage; many jurisdictions require a permit to do so. Please do not Place Signage on Private Property without permission. Shipping and discount codes are added at checkout - powered by Agora Markets',
         button: 'Checkout',
         noteDescription: 'Additional Information for the deflock.org team',
       },
