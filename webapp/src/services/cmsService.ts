@@ -45,8 +45,15 @@ export const cmsService = {
 	},
 	async getOtherSurveillanceDevices(): Promise<OtherSurveillanceDevice[]> {
 		try {
-			const response = await cmsApiService.get("/items/nonLprVendors");
-			return response.data.data as OtherSurveillanceDevice[];
+			const response = await cmsApiService.get(
+				"/items/otherSurveillanceDevices?fields=*,images.*"
+			);
+			return response.data.data.map((item: OtherSurveillanceDevice & { images?: { directus_files_id: string }[] }) => ({
+				...item,
+				urls: (item.images ?? []).map(({ directus_files_id }) => ({
+					url: `${CMS_BASE_URL}/assets/${directus_files_id}`,
+				})),
+			}));
 		} catch (error) {
 			console.error("Error fetching other surveillance devices:", error);
 			throw new Error("Failed to fetch other surveillance devices");
