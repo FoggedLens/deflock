@@ -55,6 +55,13 @@
             </v-col>
           </v-row>
 
+                   <v-row v-if="collectionDescription" justify="center" class="mb-6">
+            <v-col cols="12" md="8" lg="6" class="text-center">
+              <p class="text-body-2 text-medium-emphasis">{{ collectionDescription }}</p>
+            </v-col>
+          </v-row>
+ 
+
           <!-- Skeleton while Shopify SDK initialises -->
           <v-row v-if="!shopifyReady" class="mt-2">
             <v-col
@@ -540,6 +547,7 @@ const collectionSelectItems = computed<CollectionSelectItem[]>(() => {
 const collectionId = ref((route.query.category as string) || ALL_COLLECTION_ID);
 const shopifyContainer = ref<HTMLElement | null>(null);
 const shopifyReady = ref(false);
+const collectionDescription = ref('');
 
 // Sync tab + category to URL so back/forward/refresh restores state.
 watch([activeTab, collectionId], ([tab, category]) => {
@@ -571,8 +579,42 @@ watch(collectionId, (id) => {
     return;
   }
   if (window.ShopifyBuy?.UI) renderShopify(id);
+fetchCollectionDescription(id);
 });
 
+// Fetches the real collection description from Shopify's Storefront API —
+// entirely separate from the Buy Button SDK/iframe embed, so a failure or
+// missing description here can never affect the product grid itself.
+async function fetchCollectionDescription(id: string): Promise<void> {
+  try {
+    const gid = `gid://shopify/Collection/${id}`;
+    const response = await fetch('https://agora.markets/api/2024-10/graphql.json', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': '78991208f7fea14aa4ac02a58f8025dd',
+      },
+      body: JSON.stringify({
+        query: `
+          query CollectionDescription($id: ID!) {
+            collection(id: $id) {
+              description
+            }
+          }
+        `,
+        variables: { id: gid },
+      }),
+    });
+    if (!response.ok) {
+      collectionDescription.value = '';
+      return;
+    }
+    const json = await response.json();
+    collectionDescription.value = json?.data?.collection?.description ?? '';
+  } catch {
+    collectionDescription.value = '';
+  }
+}
 declare global {
   interface Window { ShopifyBuy: any }
 }
@@ -717,5 +759,6 @@ watch(shopifyContainer, (el) => {
 
 onMounted(() => {
   fetchPrintables();
+  fetchCollectionDescription(collectionId.value);
 });
 </script>
