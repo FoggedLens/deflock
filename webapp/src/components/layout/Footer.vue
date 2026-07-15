@@ -8,8 +8,9 @@
         </v-col>
         
         <!-- Info -->
-        <v-col cols="6" sm="4">
-          <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-info-heading">Info</v-list-subheader>
+        <v-col cols="12" sm="4">
+          <v-list-subheader class="mx-2 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-info-heading">Info</v-list-subheader>
+
           <v-list density="compact" aria-labelledby="footer-info-heading" role="list">
             <v-list-item role="listitem"
               v-for="link in internalLinks"
@@ -28,8 +29,9 @@
         </v-col>
 
         <!-- Contact Us -->
-        <v-col cols="6" sm="4">
-          <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-contact-heading">Contact Us</v-list-subheader>
+        <v-col cols="12" sm="4">
+          <v-list-subheader class="mx-2 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-contact-heading">Contact Us</v-list-subheader>
+
           <v-list density="compact" aria-labelledby="footer-contact-heading" role="list">
             <v-list-item role="listitem"
               v-for="link in contactLinks"
@@ -49,7 +51,8 @@
 
         <!-- Get Involved -->
         <v-col cols="12" sm="4">
-          <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-involved-heading">Get Involved</v-list-subheader>
+          <v-list-subheader class="mx-2 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-involved-heading">Get Involved</v-list-subheader>
+
           <v-list density="compact" aria-labelledby="footer-involved-heading" role="list">
             <v-list-item
               v-for="link in getInvolvedLinks"
