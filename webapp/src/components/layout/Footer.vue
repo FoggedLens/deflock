@@ -1,6 +1,7 @@
 <template>
   <v-footer>
-    <v-container>
+    <v-container fluid>
+
       <v-row align-items="center" justify="center">
 
         <v-col cols="12" class="mt-4">
