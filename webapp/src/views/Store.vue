@@ -25,7 +25,8 @@
         <v-window-item value="shop" eager>
 
           <p class="mb-6 text-center text-medium-emphasis">
-            T-shirts, stickers, yard signs, and more — proceeds support the anti-surveillance movement.
+            T-shirts, stickers, yard signs, and more — sold at (our) cost to help spread the word.<br>
+            Tips will be used to push back against mass surveillance.
           </p>
 
           <v-row justify="center" class="mb-6">
