@@ -130,31 +130,18 @@ const getInvolvedLinks = [
   line-height: 0.5rem;
 }
 
-/* auto-fit + minmax lets the browser decide how many columns fit based on
-   the actual rendered width, reflowing dynamically instead of snapping at
-   a fixed breakpoint (which could crowd/truncate a column's text right
-   before it wrapped to its own row). */
+/* Using max-content (rather than a fixed px value) as each track's minimum
+   means the grid measures the actual unwrapped width each column's content
+   needs, and only reflows a column onto its own row once there truly isn't
+   room to fit it at that natural width — so single-line labels like "Terms
+   of Service" never get clipped *or* wrap mid-word purely because a fixed
+   guessed threshold was too small. */
 .footer-links-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(max-content, 1fr));
   gap: 24px;
 }
-
-/* Grid items default to min-width: auto, which uses each item's intrinsic
-   (unwrapped) content width as a floor — that floor can exceed the
-   minmax() track size above, silently overflowing the track and clipping
-   text (e.g. the "e" in "Service") right at the container edge instead of
-   actually reflowing to a new row. Forcing min-width: 0 here lets the grid
-   track's own sizing win, and letting the title text wrap (overriding
-   Vuetify's default single-line ellipsis) means long labels fold onto a
-   second line instead of being cut off. */
-.footer-links-grid > div {
-  min-width: 0;
-}
-.footer-links-grid :deep(.v-list-item-title) {
-  white-space: normal;
-  overflow-wrap: break-word;
-}
 </style>
+
 
 
