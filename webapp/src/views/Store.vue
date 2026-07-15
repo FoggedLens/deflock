@@ -87,154 +87,30 @@
 
         </v-window-item>
 
-        <!-- ── Printables tab ───────────────────────────────────────────────── -->
+        <!-- ── Printables tab (embedded Google Drive folder) ───────────────── -->
         <v-window-item value="printables">
 
-          <!-- Skeleton while fetching -->
-          <v-row v-if="loading" class="mt-2">
-            <v-col
-              v-for="n in 4"
-              :key="n"
-              cols="12"
-              md="6"
-              lg="4"
-            >
-              <v-skeleton-loader type="image, list-item-two-line, actions" elevation="2" />
-            </v-col>
-          </v-row>
+          <p class="mb-6 text-center text-medium-emphasis">
+            Signs, stickers, zines, and more — free to download and print!
+          </p>
 
-          <v-alert
-            v-else-if="error"
-            type="error"
-            variant="tonal"
-            class="mb-6"
-            closable
-            @click:close="error = null"
-          >
-            <strong>Failed to load printables:</strong> {{ error }}
-          </v-alert>
+          <v-card elevation="2" class="printables-drive-card">
+            <iframe
+              class="printables-drive-frame"
+              src="https://drive.google.com/embeddedfolderview?id=1iTGWGJtiEt7KzpiHMRxf80Xzbdhz5_y8#grid"
+              title="DeFlock Printables — Google Drive folder"
+              loading="lazy"
+            />
+          </v-card>
 
-          <div v-else-if="printables.length > 0">
-            <p class="mb-6 text-center text-medium-emphasis">Signs, stickers, zines, and more — free to download and print!</p>
-
-            <v-row justify="center" class="mb-6">
-              <v-col cols="12" md="6" lg="4">
-                <v-select
-                  v-model="selectedType"
-                  :items="typeOptions"
-                  label="Filter by type"
-                  prepend-inner-icon="mdi-filter"
-                  variant="outlined"
-                  clearable
-                  hide-details
-                >
-                  <template #item="{ props, item }">
-                    <v-list-item v-bind="props">
-                      <template #prepend>
-                        <v-icon :color="getTypeColor(item.raw.value)">{{ getTypeIcon(item.raw.value) }}</v-icon>
-                      </template>
-                    </v-list-item>
-                  </template>
-                  <template #selection="{ item }">
-                    <div class="d-flex align-center">
-                      <v-icon :color="getTypeColor(item.raw.value)" class="mr-2">{{ getTypeIcon(item.raw.value) }}</v-icon>
-                      <span class="text-capitalize">{{ item.raw.title }}</span>
-                    </div>
-                  </template>
-                </v-select>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col
-                v-for="printable in filteredPrintables"
-                :key="printable.id"
-                cols="12"
-                md="6"
-                lg="4"
-              >
-                <v-card elevation="2" height="100%">
-                  <v-img
-                    :src="getImageUrl(printable.preview)"
-                    :alt="`${printable.title} preview`"
-                    aspect-ratio="1.414"
-                    class="mt-4 mx-2"
-                    contain
-                  >
-                    <template #placeholder>
-                      <div class="d-flex align-center justify-center fill-height">
-                        <v-progress-circular color="grey-lighten-4" indeterminate />
-                      </div>
-                    </template>
-                  </v-img>
-
-                  <v-card-text class="pb-2">
-                    <h3 class="text-h6 font-weight-bold mb-2">{{ printable.title }}</h3>
-
-                    <v-chip
-                      :color="getTypeColor(printable.type)"
-                      size="small"
-                      class="text-capitalize mb-2 font-weight-bold"
-                    >
-                      <v-icon start size="small">{{ getTypeIcon(printable.type) }}</v-icon>
-                      {{ deCamel(printable.type) }}
-                    </v-chip>
-
-                    <div class="d-flex align-center text-caption text-medium-emphasis mb-3">
-                      <v-icon size="small" class="mr-1">mdi-account</v-icon>
-                      by {{ printable.author }}
-                      <v-tooltip text="Licensed under CC BY-NC 4.0">
-                        <template #activator="{ props }">
-                          <v-icon v-bind="props" size="small" class="ml-1" color="grey">mdi-creative-commons</v-icon>
-                        </template>
-                      </v-tooltip>
-                      <v-spacer />
-                      <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
-                      {{ formatDate(printable.date_updated) }}
-                    </div>
-
-                    <v-divider class="mb-3" />
-
-                    <div class="d-flex ga-2">
-                      <v-btn
-                        v-if="printable.front"
-                        :href="getImageUrl(printable.front)"
-                        target="_blank"
-                        download
-                        variant="tonal"
-                        color="primary"
-                        size="small"
-                        prepend-icon="mdi-download"
-                        class="flex-fill"
-                      >
-                        <span v-if="printable.back">Front Side</span>
-                        <span v-else>Download</span>
-                      </v-btn>
-                      <v-btn
-                        v-if="printable.back"
-                        :href="getImageUrl(printable.back)"
-                        target="_blank"
-                        download
-                        variant="tonal"
-                        color="secondary"
-                        size="small"
-                        prepend-icon="mdi-download"
-                        class="flex-fill"
-                      >
-                        Back Side
-                      </v-btn>
-                    </div>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-            </v-row>
-          </div>
-
-          <div v-else class="text-center py-12">
-            <v-icon size="64" color="grey-lighten-1">mdi-inbox-outline</v-icon>
-            <h3 class="text-h5 mt-4 mb-2 text-medium-emphasis">No printables available</h3>
-            <p class="text-medium-emphasis">Check back later for new content!</p>
-          </div>
+          <p class="text-caption text-medium-emphasis text-center mt-3">
+            Can't see the folder above?
+            <a
+              href="https://drive.google.com/drive/folders/1iTGWGJtiEt7KzpiHMRxf80Xzbdhz5_y8"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Open it directly in Google Drive</a>.
+          </p>
 
         </v-window-item>
 
@@ -265,7 +141,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
-import type { Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTheme } from 'vuetify';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
@@ -692,76 +567,11 @@ function loadShopifySDK() {
 
 
 
-// ── Printables ──────────────────────────────────────────────────────────────────
-
-interface Printable {
-  id: number;
-  date_updated: string;
-  type: string;
-  author: string;
-  preview: string;
-  front: string | null;
-  back: string | null;
-  title: string;
-}
-
-interface CMSResponse {
-  data: Printable[];
-}
-
-const printables: Ref<Printable[]> = ref([]);
-const loading = ref(true);
-const error: Ref<string | null> = ref(null);
-const selectedType: Ref<string | null> = ref(null);
-
-const typeOptions = computed(() => {
-  const types = [...new Set(printables.value.map(p => p.type))];
-  return types.map(type => ({
-    title: type.charAt(0).toUpperCase() + type.slice(1),
-    value: type,
-  }));
-});
-
-const filteredPrintables = computed(() => {
-  if (!selectedType.value) return printables.value;
-  return printables.value.filter(p => p.type === selectedType.value);
-});
-
-const fetchPrintables = async (): Promise<void> => {
-  try {
-    loading.value = true;
-    error.value = null;
-    const response = await fetch('https://cms.deflock.me/items/Printables');
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data: CMSResponse = await response.json();
-    printables.value = data.data || [];
-  } catch (err) {
-    console.error('Error fetching printables:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to load printables';
-  } finally {
-    loading.value = false;
-  }
-};
-
-const deCamel = (str: string) => str.replace(/([a-z])([A-Z])/g, '$1 $2');
-
-const getImageUrl = (imageId: string) => imageId ? `https://cms.deflock.me/assets/${imageId}` : '';
-
-const getTypeColor = (type: string): string =>
-  ({ poster: 'primary', zine: 'success', yardSign: 'secondary', sticker: 'accent', bumperSticker: 'info' } as Record<string, string>)[type] ?? 'grey';
-
-const getTypeIcon = (type: string): string =>
-  ({ poster: 'mdi-post', zine: 'mdi-book-open-page-variant', yardSign: 'mdi-sign-real-estate', sticker: 'mdi-sticker-circle-outline', bumperSticker: 'mdi-rectangle-outline' } as Record<string, string>)[type] ?? 'mdi-file';
-
-const formatDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-
 watch(shopifyContainer, (el) => {
   if (el) loadShopifySDK();
 }, { once: true });
 
 onMounted(() => {
-  fetchPrintables();
   fetchCollectionDescription(collectionId.value);
 });
 </script>
@@ -775,6 +585,17 @@ onMounted(() => {
 }
 .collection-description-col :deep(p:last-child) {
   margin-bottom: 0;
+}
+
+.printables-drive-card {
+  overflow: hidden;
+}
+
+.printables-drive-frame {
+  display: block;
+  width: 100%;
+  height: 80vh;
+  border: none;
 }
 </style>
 
