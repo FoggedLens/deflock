@@ -56,9 +56,11 @@
             </v-col>
           </v-row>
 
-                   <v-row v-if="collectionDescription" justify="center" class="mb-6">
+          <v-row v-if="collectionDescription" justify="center" class="mb-6">
             <v-col cols="12" md="8" lg="6" class="text-center">
-              <p class="text-body-2 text-medium-emphasis">{{ collectionDescription }}</p>
+              <p class="text-body-2 text-medium-emphasis" style="white-space: pre-line;">
+                {{ collectionDescription }}
+              </p>
             </v-col>
           </v-row>
  
