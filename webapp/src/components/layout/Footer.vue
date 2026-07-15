@@ -136,16 +136,26 @@ const getInvolvedLinks = [
    either clipped text, wrapped it mid-word, or collapsed to one column
    depending on the minimum used. Flexbox with flex-wrap naturally sizes
    each item to its content and only wraps an item to the next line once
-   it genuinely doesn't fit — no guessed pixel thresholds required. */
+   it genuinely doesn't fit — no guessed pixel thresholds required.
+
+   Each column also grows (flex-grow: 1) up to a capped max-width, so as
+   the window widens the columns themselves expand to fill the extra
+   space continuously — rather than staying a fixed size and having
+   justify-content snap the *gaps* between a "hugging the edges" state and
+   a "bunched in the center" state. Once a column hits its max-width, any
+   further extra space is split evenly on the outside via the centered
+   justify-content, which reads as intentional whitespace rather than an
+   abrupt jump. */
 .footer-links-grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: center;
   gap: 24px 48px;
 }
 
 .footer-links-grid > div {
-  flex: 0 1 auto;
+  flex: 1 1 200px;
+  max-width: 320px;
 }
 /* Keep each link label on a single line so a column reflows to its own
    row instead of wrapping mid-word when space is tight. */
@@ -153,6 +163,7 @@ const getInvolvedLinks = [
   white-space: nowrap;
 }
 </style>
+
 
 
 
