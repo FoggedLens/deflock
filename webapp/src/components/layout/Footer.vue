@@ -138,24 +138,27 @@ const getInvolvedLinks = [
    each item to its content and only wraps an item to the next line once
    it genuinely doesn't fit — no guessed pixel thresholds required.
 
-   Each column also grows (flex-grow: 1) up to a capped max-width, so as
-   the window widens the columns themselves expand to fill the extra
-   space continuously — rather than staying a fixed size and having
-   justify-content snap the *gaps* between a "hugging the edges" state and
-   a "bunched in the center" state. Once a column hits its max-width, any
-   further extra space is split evenly on the outside via the centered
-   justify-content, which reads as intentional whitespace rather than an
-   abrupt jump. */
+   Columns are NOT stretched (flex-grow: 0) — each stays sized to its own
+   content. Letting them grow to fill space (a prior revision) made wider
+   columns pad out with empty space to the right of their left-aligned
+   text, which visually dragged the whole row's "center of mass" left of
+   the row's true center — an effect that got worse the more room there
+   was to stretch into, i.e. on wider screens.
+
+   Instead, `justify-content: space-evenly` distributes the *gaps* — both
+   between columns and on the outer edges — based on the container's
+   actual width. That gap recalculates continuously as the viewport
+   resizes, so spacing scales smoothly with no fixed max-width/threshold
+   needed and no snapping between layout states. */
 .footer-links-grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 24px 48px;
+  justify-content: space-evenly;
+  row-gap: 24px;
 }
 
 .footer-links-grid > div {
-  flex: 1 1 200px;
-  max-width: 320px;
+  flex: 0 0 auto;
 }
 /* Keep each link label on a single line so a column reflows to its own
    row instead of wrapping mid-word when space is tight. */
@@ -163,6 +166,7 @@ const getInvolvedLinks = [
   white-space: nowrap;
 }
 </style>
+
 
 
 
