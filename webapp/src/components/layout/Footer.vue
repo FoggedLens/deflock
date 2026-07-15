@@ -8,7 +8,7 @@
         </v-col>
         
         <!-- Info -->
-        <v-col cols="6" sm="3">
+        <v-col cols="6" sm="4">
           <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-info-heading">Info</v-list-subheader>
           <v-list density="compact" aria-labelledby="footer-info-heading" role="list">
             <v-list-item role="listitem"
@@ -28,7 +28,7 @@
         </v-col>
 
         <!-- Contact Us -->
-        <v-col cols="6" sm="3">
+        <v-col cols="6" sm="4">
           <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-contact-heading">Contact Us</v-list-subheader>
           <v-list density="compact" aria-labelledby="footer-contact-heading" role="list">
             <v-list-item role="listitem"
@@ -48,7 +48,7 @@
         </v-col>
 
         <!-- Get Involved -->
-        <v-col cols="6" sm="3">
+        <v-col cols="12" sm="4">
           <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-involved-heading">Get Involved</v-list-subheader>
           <v-list density="compact" aria-labelledby="footer-involved-heading" role="list">
             <v-list-item
@@ -67,12 +67,6 @@
               </v-list-item-title>
             </v-list-item>
           </v-list>
-        </v-col>
-
-        <!-- Official Socials -->
-        <v-col cols="6" sm="3">
-          <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-socials-heading">Official Socials</v-list-subheader>
-          <OfficialSocials />
         </v-col>
 
         <!-- Copyright -->
@@ -94,7 +88,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
-import OfficialSocials from './OfficialSocials.vue';
 const theme = useTheme();
 const isDark = computed(() => theme.name.value === 'dark');
 const currentYear = new Date().getFullYear();

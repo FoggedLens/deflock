@@ -1,5 +1,6 @@
 <template>
-  <div class="official-socials">
+  <v-sheet class="official-socials" color="surface">
+
     <p class="official-socials-disclaimer text-caption px-4 pt-2 pb-2 mb-0">
       These are DeFlock National's official social media links. Partner groups are
       listed at <router-link to="/groups">deflock.org/groups</router-link>. Other
@@ -31,8 +32,9 @@
         <v-list-item-title>{{ social.title }}</v-list-item-title>
       </v-list-item>
     </v-list>
-  </div>
+  </v-sheet>
 </template>
+
 
 <script setup lang="ts">
 const socials = [

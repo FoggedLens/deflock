@@ -38,8 +38,9 @@ const items = [
   { title: 'Home', icon: 'mdi-home', to: '/' },
   { title: 'Map', icon: 'mdi-map', href: 'https://maps.deflock.org' },
   { title: 'Learn', icon: 'mdi-school', to: '/what-is-an-alpr' },
-  { title: 'Store', icon: 'mdi-shopping', to: '/store' },
+  { title: 'Store', icon: 'mdi-shopping', to: '/store', isNew: true },
   { title: 'Donate', icon: 'mdi-cash-multiple', to: '/donate' },
+
 ]
 
 const resourceItems = [
@@ -107,7 +108,17 @@ watch(() => theme.global.name.value, (newTheme) => {
               :prepend-icon="item.icon"
             >
               {{ item.title }}
+              <v-chip
+                v-if="item.isNew"
+                size="x-small"
+                color="rgb(18, 151, 195)"
+                class="ml-2 font-weight-bold"
+                label
+              >
+                New!
+              </v-chip>
             </v-btn>
+
           </div>
 
           <v-spacer></v-spacer>
@@ -213,8 +224,18 @@ watch(() => theme.global.name.value, (newTheme) => {
           >
             <v-icon start>{{ item.icon }}</v-icon>
             {{ item.title }}
+            <v-chip
+              v-if="item.isNew"
+              size="x-small"
+              color="rgb(18, 151, 195)"
+              class="ml-2 font-weight-bold"
+              label
+            >
+              New!
+            </v-chip>
           </v-list-item>
         </v-list>
+
 
         <v-divider class="my-2" aria-hidden="true" role="presentation" />
 
