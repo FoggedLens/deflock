@@ -44,17 +44,18 @@ const items = [
 ]
 
 const resourceItems = [
+  { title: 'FAQ', icon: 'mdi-help-circle', to: '/what-is-an-alpr' },
   { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
   { title: 'City Council', icon: 'mdi-account-voice', to: '/council' },
-  { title: 'FAQ', icon: 'mdi-help-circle', to: '/what-is-an-alpr' },
 ]
 
 const getInvolvedItems = [
+  { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
   { title: 'Local Groups', icon: 'mdi-account-group', to: '/groups' },
   { title: 'Contact', icon: 'mdi-email-outline', to: '/contact' },
   { title: 'GitHub', icon: 'mdi-github', href: 'https://github.com/frillweeman/deflock'},
-  { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
 ];
+
 const drawer = ref(false)
 
 

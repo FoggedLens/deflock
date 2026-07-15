@@ -57,12 +57,11 @@
           </v-row>
 
           <v-row v-if="collectionDescription" justify="center" class="mb-6">
-            <v-col cols="12" md="8" lg="6" class="text-center">
-              <p class="text-body-2 text-medium-emphasis" style="white-space: pre-line;">
-                {{ collectionDescription }}
-              </p>
+            <v-col cols="12" md="8" lg="6" class="text-center collection-description-col">
+              <div class="text-body-2 text-medium-emphasis" v-html="collectionDescription" />
             </v-col>
           </v-row>
+
  
 
           <!-- Skeleton while Shopify SDK initialises -->
@@ -601,7 +600,7 @@ async function fetchCollectionDescription(id: string): Promise<void> {
         query: `
           query CollectionDescription($id: ID!) {
             collection(id: $id) {
-              description
+              descriptionHtml
             }
           }
         `,
@@ -613,7 +612,8 @@ async function fetchCollectionDescription(id: string): Promise<void> {
       return;
     }
     const json = await response.json();
-    collectionDescription.value = json?.data?.collection?.description ?? '';
+    collectionDescription.value = json?.data?.collection?.descriptionHtml ?? '';
+
   } catch {
     collectionDescription.value = '';
   }
@@ -765,3 +765,16 @@ onMounted(() => {
   fetchCollectionDescription(collectionId.value);
 });
 </script>
+
+<style scoped>
+/* Shopify's descriptionHtml comes back as raw <p>/<br>/etc. markup; reset
+   the default browser paragraph margins so multi-paragraph descriptions
+   don't end up with oversized gaps inside this centered column. */
+.collection-description-col :deep(p) {
+  margin: 0 0 0.75rem;
+}
+.collection-description-col :deep(p:last-child) {
+  margin-bottom: 0;
+}
+</style>
+
