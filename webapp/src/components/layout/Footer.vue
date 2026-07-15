@@ -7,70 +7,78 @@
           <v-img height="30" contain src="/deflock-logo-grey.svg" />
         </v-col>
         
-        <!-- Info -->
-        <v-col cols="12" sm="4">
-          <v-list-subheader class="mx-2 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-info-heading">Info</v-list-subheader>
+        <!-- Link sections: CSS grid with auto-fit/minmax so columns reflow
+             to a new row dynamically based on available width, rather than
+             snapping to a fixed breakpoint that can leave text truncated
+             (e.g. "Terms of Se…") right before it reorders. -->
+        <v-col cols="12">
+          <div class="footer-links-grid">
 
-          <v-list density="compact" aria-labelledby="footer-info-heading" role="list">
-            <v-list-item role="listitem"
-              v-for="link in internalLinks"
-              :key="link.title"
-              link
-              :to="link.to"
-              slim
-              :aria-label="link.alt"
-            >
-                <v-list-item-title class="d-flex align-center">
-                <v-icon class="custom-icon" start :icon="link.icon" :alt="link.alt" />
-                {{ link.title }}
-                </v-list-item-title>
-            </v-list-item>
-          </v-list>
+            <!-- Info -->
+            <div>
+              <v-list-subheader class="mx-2 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-info-heading">Info</v-list-subheader>
+              <v-list density="compact" aria-labelledby="footer-info-heading" role="list">
+                <v-list-item role="listitem"
+                  v-for="link in internalLinks"
+                  :key="link.title"
+                  link
+                  :to="link.to"
+                  slim
+                  :aria-label="link.alt"
+                >
+                    <v-list-item-title class="d-flex align-center">
+                    <v-icon class="custom-icon" start :icon="link.icon" :alt="link.alt" />
+                    {{ link.title }}
+                    </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </div>
+
+            <!-- Contact Us -->
+            <div>
+              <v-list-subheader class="mx-2 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-contact-heading">Contact Us</v-list-subheader>
+              <v-list density="compact" aria-labelledby="footer-contact-heading" role="list">
+                <v-list-item role="listitem"
+                  v-for="link in contactLinks"
+                  :key="link.title"
+                  link
+                  :to="link.to"
+                  slim
+                  :aria-label="link.alt"
+                >
+                    <v-list-item-title class="d-flex align-center">
+                    <v-icon class="custom-icon" start :icon="link.icon" :alt="link.alt" />
+                    {{ link.title }}
+                    </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </div>
+
+            <!-- Get Involved -->
+            <div>
+              <v-list-subheader class="mx-2 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-involved-heading">Get Involved</v-list-subheader>
+              <v-list density="compact" aria-labelledby="footer-involved-heading" role="list">
+                <v-list-item
+                  v-for="link in getInvolvedLinks"
+                  :key="link.title"
+                  link
+                  slim
+                  :href="link.href"
+                  :to="link.to"
+                  :target="link.href ? '_blank' : undefined"
+                  role="listitem"
+                >
+                  <v-list-item-title class="d-flex align-center justify-start">
+                    <v-icon start class="custom-icon" :icon="link.icon"></v-icon>
+                    {{ link.title }}
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </div>
+
+          </div>
         </v-col>
 
-        <!-- Contact Us -->
-        <v-col cols="12" sm="4">
-          <v-list-subheader class="mx-2 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-contact-heading">Contact Us</v-list-subheader>
-
-          <v-list density="compact" aria-labelledby="footer-contact-heading" role="list">
-            <v-list-item role="listitem"
-              v-for="link in contactLinks"
-              :key="link.title"
-              link
-              :to="link.to"
-              slim
-              :aria-label="link.alt"
-            >
-                <v-list-item-title class="d-flex align-center">
-                <v-icon class="custom-icon" start :icon="link.icon" :alt="link.alt" />
-                {{ link.title }}
-                </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-col>
-
-        <!-- Get Involved -->
-        <v-col cols="12" sm="4">
-          <v-list-subheader class="mx-2 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-involved-heading">Get Involved</v-list-subheader>
-
-          <v-list density="compact" aria-labelledby="footer-involved-heading" role="list">
-            <v-list-item
-              v-for="link in getInvolvedLinks"
-              :key="link.title"
-              link
-              slim
-              :href="link.href"
-              :to="link.to"
-              :target="link.href ? '_blank' : undefined"
-              role="listitem"
-            >
-              <v-list-item-title class="d-flex align-center justify-start">
-                <v-icon start class="custom-icon" :icon="link.icon"></v-icon>
-                {{ link.title }}
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-col>
 
         <!-- Copyright -->
         <v-col
@@ -121,4 +129,15 @@ const getInvolvedLinks = [
   font-size: 0.85rem;
   line-height: 0.5rem;
 }
+
+/* auto-fit + minmax lets the browser decide how many columns fit based on
+   the actual rendered width, reflowing dynamically instead of snapping at
+   a fixed breakpoint (which could crowd/truncate a column's text right
+   before it wrapped to its own row). */
+.footer-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 24px;
+}
 </style>
+
