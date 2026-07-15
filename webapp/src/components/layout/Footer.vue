@@ -7,8 +7,8 @@
           <v-img height="30" contain src="/deflock-logo-grey.svg" />
         </v-col>
         
-        <!-- Internal Links -->
-        <v-col cols="7" sm="3">
+        <!-- Info -->
+        <v-col cols="6" sm="3">
           <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-info-heading">Info</v-list-subheader>
           <v-list density="compact" aria-labelledby="footer-info-heading" role="list">
             <v-list-item role="listitem"
@@ -27,12 +27,32 @@
           </v-list>
         </v-col>
 
-        <!-- External Links -->
-        <v-col cols="5" sm="3">
+        <!-- Contact Us -->
+        <v-col cols="6" sm="3">
+          <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-contact-heading">Contact Us</v-list-subheader>
+          <v-list density="compact" aria-labelledby="footer-contact-heading" role="list">
+            <v-list-item role="listitem"
+              v-for="link in contactLinks"
+              :key="link.title"
+              link
+              :to="link.to"
+              slim
+              :aria-label="link.alt"
+            >
+                <v-list-item-title class="d-flex align-center">
+                <v-icon class="custom-icon" start :icon="link.icon" :alt="link.alt" />
+                {{ link.title }}
+                </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-col>
+
+        <!-- Get Involved -->
+        <v-col cols="6" sm="3">
           <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-involved-heading">Get Involved</v-list-subheader>
           <v-list density="compact" aria-labelledby="footer-involved-heading" role="list">
             <v-list-item
-              v-for="link in externalLinks"
+              v-for="link in getInvolvedLinks"
               :key="link.title"
               link
               slim
@@ -42,19 +62,23 @@
               role="listitem"
             >
               <v-list-item-title class="d-flex align-center justify-start">
-                <v-icon start v-if="link.icon" class="custom-icon" :icon="link.icon"></v-icon>
-                <img v-else-if="link.customIcon" class="mr-2 custom-icon" width="24" height="24" :src="isDark ? link.customIconDark : link.customIcon" :alt="link.alt" />
+                <v-icon start class="custom-icon" :icon="link.icon"></v-icon>
                 {{ link.title }}
               </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-col>
 
+        <!-- Official Socials -->
+        <v-col cols="6" sm="3">
+          <v-list-subheader class="mx-4 font-weight-black text-subtitle-1" :class="isDark ? 'text-grey-lighten-5' : 'text-black'" id="footer-socials-heading">Official Socials</v-list-subheader>
+          <OfficialSocials />
+        </v-col>
+
         <!-- Copyright -->
         <v-col
           class="text-center d-flex align-center justify-center text-grey-darken-1"
           cols="12"
-          sm="6"
         >
           <div class="copyright" :class="isDark ? 'text-grey-lighten-5' : 'text-black'">
             <p>&copy; {{ currentYear }} DeFlock. All Rights Reserved</p>
@@ -70,6 +94,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
+import OfficialSocials from './OfficialSocials.vue';
 const theme = useTheme();
 const isDark = computed(() => theme.name.value === 'dark');
 const currentYear = new Date().getFullYear();
@@ -78,14 +103,17 @@ const internalLinks = [
   { title: 'About', to: '/about', icon: 'mdi-information', alt: 'About' },
   { title: 'Privacy Policy', to: '/privacy', icon: 'mdi-shield-lock', alt: 'Privacy Policy' },
   { title: 'Terms of Service', to: '/terms', icon: 'mdi-file-document', alt: 'Terms of Service' },
-  { title: 'Press', to: '/press', icon: 'mdi-newspaper', alt: 'Press' },
 ];
 
-const externalLinks = [
-  { title: 'Discord', href: 'https://discord.gg/aV7v4R3sKT', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg', alt: 'Discord Logo' },
-  { title: 'Support Us', to: '/donate', icon: 'mdi-cash-multiple', alt: 'Support Us' },
-  { title: 'GitHub', href: 'https://github.com/FoggedLens/deflock', icon: 'mdi-github', alt: 'GitHub Logo' },
+const contactLinks = [
+  { title: 'Press', to: '/press', icon: 'mdi-newspaper', alt: 'Press' },
   { title: 'Contact', to: '/contact', icon: 'mdi-email', alt: 'Contact' },
+];
+
+const getInvolvedLinks = [
+  { title: 'Local Groups', to: '/groups', icon: 'mdi-account-group' },
+  { title: 'GitHub', href: 'https://github.com/FoggedLens/deflock', icon: 'mdi-github' },
+  { title: 'Submit Cameras', to: '/report', icon: 'mdi-map-marker-plus' },
 ]
 </script>
 

@@ -3,12 +3,13 @@ import { RouterView, useRouter } from 'vue-router'
 import { computed, ref, watch, onMounted } from 'vue'
 import { useTheme } from 'vuetify';
 import DiscordWarningDialog from '@/components/DiscordWarningDialog.vue';
+import OfficialSocials from '@/components/layout/OfficialSocials.vue';
 import { useDiscordIntercept } from '@/composables/useDiscordIntercept';
 
 const theme = useTheme();
 const router = useRouter();
-const isDark = computed(() => theme.name.value === 'dark');
 const isInIframe = computed(() => window.self !== window.top);
+
 const { showDialog, discordUrl, interceptDiscordLinks } = useDiscordIntercept();
 
 function toggleTheme() {
@@ -38,22 +39,23 @@ const items = [
   { title: 'Map', icon: 'mdi-map', href: 'https://maps.deflock.org' },
   { title: 'Learn', icon: 'mdi-school', to: '/what-is-an-alpr' },
   { title: 'Store', icon: 'mdi-shopping', to: '/store' },
+  { title: 'Donate', icon: 'mdi-cash-multiple', to: '/donate' },
 ]
 
-const contributeItems = [
-  { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
+const resourceItems = [
   { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
   { title: 'City Council', icon: 'mdi-account-voice', to: '/council' },
-  { title: 'Support Us', icon: 'mdi-cash-multiple', to: '/donate' },
+  { title: 'FAQ', icon: 'mdi-help-circle', to: '/what-is-an-alpr' },
 ]
 
-const metaItems = [
-  { title: 'Discord', customIcon: '/icon-discord.svg', customIconDark: '/icon-discord-white.svg', customIconGrey: '/icon-discord-grey.svg', href: 'https://discord.gg/aV7v4R3sKT'},
+const getInvolvedItems = [
   { title: 'Local Groups', icon: 'mdi-account-group', to: '/groups' },
   { title: 'Contact', icon: 'mdi-email-outline', to: '/contact' },
   { title: 'GitHub', icon: 'mdi-github', href: 'https://github.com/frillweeman/deflock'},
+  { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
 ];
 const drawer = ref(false)
+
 
 watch(() => theme.global.name.value, (newTheme) => {
   const root = document.documentElement;
@@ -110,7 +112,7 @@ watch(() => theme.global.name.value, (newTheme) => {
 
           <v-spacer></v-spacer>
 
-          <!-- Contribute section -->
+          <!-- Resources section -->
           <div class="d-flex align-center">
             <v-menu offset-y>
               <template v-slot:activator="{ props }">
@@ -120,12 +122,12 @@ watch(() => theme.global.name.value, (newTheme) => {
                   append-icon="mdi-chevron-down"
                   class="mx-1"
                 >
-                  Contribute
+                  Resources
                 </v-btn>
               </template>
               <v-list>
                 <v-list-item
-                  v-for="item in contributeItems"
+                  v-for="item in resourceItems"
                   :key="item.title"
                   :to="item.to"
                   link
@@ -152,7 +154,7 @@ watch(() => theme.global.name.value, (newTheme) => {
               </template>
               <v-list>
                 <v-list-item
-                  v-for="item in metaItems"
+                  v-for="item in getInvolvedItems"
                   :key="item.title"
                   :to="item.to"
                   :href="item.href"
@@ -160,22 +162,30 @@ watch(() => theme.global.name.value, (newTheme) => {
                   link
                 >
                   <template v-slot:prepend>
-                    <v-icon v-if="item.icon">{{ item.icon }}</v-icon>
-                    <v-img 
-                      v-else-if="item.customIcon"
-                      class="mr-8"
-                      contain 
-                      width="24" 
-                      height="24" 
-                      :src="isDark ? item.customIconDark : item.customIconGrey" 
-                    />
+                    <v-icon>{{ item.icon }}</v-icon>
                   </template>
                   <v-list-item-title>{{ item.title }}</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
+
+            <!-- Official Socials section -->
+            <v-menu offset-y>
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  variant="text"
+                  v-bind="props"
+                  append-icon="mdi-chevron-down"
+                  class="mx-1"
+                >
+                  Official Socials
+                </v-btn>
+              </template>
+              <OfficialSocials />
+            </v-menu>
           </div>
         </div>
+
 
         <v-spacer class="d-md-none" />
 
@@ -208,10 +218,10 @@ watch(() => theme.global.name.value, (newTheme) => {
 
         <v-divider class="my-2" aria-hidden="true" role="presentation" />
 
-        <v-list-subheader class="px-4">Contribute</v-list-subheader>
-        <v-list nav aria-label="Contribute Links">
+        <v-list-subheader class="px-4">Resources</v-list-subheader>
+        <v-list nav aria-label="Resource Links">
           <v-list-item
-            v-for="item in contributeItems"
+            v-for="item in resourceItems"
             :key="item.title"
             link
             :to="item.to"
@@ -225,9 +235,9 @@ watch(() => theme.global.name.value, (newTheme) => {
         <v-divider class="my-2" aria-hidden="true" role="presentation" />
           
         <v-list-subheader class="px-4">Get Involved</v-list-subheader>
-        <v-list nav aria-label="Meta Links">
+        <v-list nav aria-label="Get Involved Links">
           <v-list-item
-            v-for="item in metaItems"
+            v-for="item in getInvolvedItems"
             :key="item.title"
             link
             :to="item.to"
@@ -236,19 +246,16 @@ watch(() => theme.global.name.value, (newTheme) => {
             role="option"
           >
             <v-icon v-if="item.icon" start>{{ item.icon }}</v-icon>
-            <v-img
-              v-else-if="item.customIcon"
-              class="mr-2 custom-icon"
-              contain
-              width="24"
-              height="24"
-              :src="isDark ? item.customIconDark : item.customIcon"
-              style="vertical-align: middle;"
-            />
             <span style="vertical-align: middle;">{{ item.title }}</span>
           </v-list-item>
         </v-list>
+
+        <v-divider class="my-2" aria-hidden="true" role="presentation" />
+
+        <v-list-subheader class="px-4">Official Socials</v-list-subheader>
+        <OfficialSocials />
       </v-navigation-drawer>
+
     </template>
 
     <v-main>
