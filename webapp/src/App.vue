@@ -37,14 +37,14 @@ const items = [
   { title: 'Home', icon: 'mdi-home', to: '/' },
   { title: 'Map', icon: 'mdi-map', href: 'https://maps.deflock.org' },
   { title: 'Learn', icon: 'mdi-school', to: '/what-is-an-alpr' },
-  { title: 'News', icon: 'mdi-newspaper', href: 'https://footnote4a.org/', target: '_blank' },
+  { title: 'Store', icon: 'mdi-shopping', to: '/store' },
 ]
 
 const contributeItems = [
   { title: 'Submit Cameras', icon: 'mdi-map-marker-plus', to: '/report' },
-  { title: 'Hang Signs', icon: 'mdi-sign-direction', to: '/store' },
   { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
   { title: 'City Council', icon: 'mdi-account-voice', to: '/council' },
+  { title: 'Support Us', icon: 'mdi-cash-multiple', to: '/donate' },
 ]
 
 const metaItems = [
@@ -52,7 +52,6 @@ const metaItems = [
   { title: 'Local Groups', icon: 'mdi-account-group', to: '/groups' },
   { title: 'Contact', icon: 'mdi-email-outline', to: '/contact' },
   { title: 'GitHub', icon: 'mdi-github', href: 'https://github.com/frillweeman/deflock'},
-  { title: 'Support Us', icon: 'mdi-cash-multiple', to: '/donate'},
 ];
 const drawer = ref(false)
 
