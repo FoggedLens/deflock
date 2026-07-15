@@ -38,12 +38,12 @@ const items = [
   { title: 'Home', icon: 'mdi-home', to: '/' },
   { title: 'Map', icon: 'mdi-map', href: 'https://maps.deflock.org' },
   { title: 'Learn', icon: 'mdi-school', to: '/what-is-an-alpr' },
-  { title: 'Store', icon: 'mdi-shopping', to: '/store', isNew: true },
   { title: 'Donate', icon: 'mdi-cash-multiple', to: '/donate' },
 
 ]
 
 const resourceItems = [
+  { title: 'Store', icon: 'mdi-shopping', to: '/store', isNew: true },
   { title: 'FAQ', icon: 'mdi-help-circle', to: '/what-is-an-alpr' },
   { title: 'Public Records', icon: 'mdi-file-document', to: '/foia' },
   { title: 'City Council', icon: 'mdi-account-voice', to: '/council' },
@@ -147,12 +147,24 @@ watch(() => theme.global.name.value, (newTheme) => {
                   <template v-slot:prepend>
                     <v-icon>{{ item.icon }}</v-icon>
                   </template>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
+                  <v-list-item-title>
+                    {{ item.title }}
+                    <v-chip
+                      v-if="item.isNew"
+                      size="x-small"
+                      color="rgb(18, 151, 195)"
+                      class="ml-2 font-weight-bold"
+                      label
+                    >
+                      New!
+                    </v-chip>
+                  </v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
 
             <!-- Get Involved section -->
+
             <v-menu offset-y>
               <template v-slot:activator="{ props }">
                 <v-btn
@@ -251,6 +263,15 @@ watch(() => theme.global.name.value, (newTheme) => {
           >
             <v-icon v-if="item.icon" start>{{ item.icon }}</v-icon>
             <span style="vertical-align: middle;">{{ item.title }}</span>
+            <v-chip
+              v-if="item.isNew"
+              size="x-small"
+              color="rgb(18, 151, 195)"
+              class="ml-2 font-weight-bold"
+              label
+            >
+              New!
+            </v-chip>
           </v-list-item>
         </v-list>
           
