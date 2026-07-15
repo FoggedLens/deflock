@@ -130,18 +130,29 @@ const getInvolvedLinks = [
   line-height: 0.5rem;
 }
 
-/* Using max-content (rather than a fixed px value) as each track's minimum
-   means the grid measures the actual unwrapped width each column's content
-   needs, and only reflows a column onto its own row once there truly isn't
-   room to fit it at that natural width — so single-line labels like "Terms
-   of Service" never get clipped *or* wrap mid-word purely because a fixed
-   guessed threshold was too small. */
+/* Plain flexbox + wrap, rather than CSS grid's auto-fit/minmax: grid's
+   auto-fit track-counting algorithm doesn't properly support intrinsic
+   sizes (max-content) as a track minimum, which is why that approach
+   either clipped text, wrapped it mid-word, or collapsed to one column
+   depending on the minimum used. Flexbox with flex-wrap naturally sizes
+   each item to its content and only wraps an item to the next line once
+   it genuinely doesn't fit — no guessed pixel thresholds required. */
 .footer-links-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(max-content, 1fr));
-  gap: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px 48px;
+}
+.footer-links-grid > div {
+  flex: 0 1 auto;
+}
+/* Keep each link label on a single line so a column reflows to its own
+   row instead of wrapping mid-word when space is tight. */
+.footer-links-grid :deep(.v-list-item-title) {
+  white-space: nowrap;
 }
 </style>
+
 
 
 
