@@ -140,9 +140,10 @@ const getInvolvedLinks = [
 .footer-links-grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between;
   gap: 24px 48px;
 }
+
 .footer-links-grid > div {
   flex: 0 1 auto;
 }
