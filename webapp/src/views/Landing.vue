@@ -38,7 +38,20 @@
       </div>
     </v-alert>
     <div class="hero-background">
-      <v-container class="text-center py-8">
+      <!-- note on crypto -->
+      <div class="text-center pt-4 mb-0">
+        <v-btn
+          to="/blog/414"
+          size="small"
+          variant="flat"
+          color="white"
+          prepend-icon="mdi-bitcoin"
+          append-icon="mdi-arrow-right-thick"
+        >
+          A Note on Crypto
+        </v-btn>
+      </div>
+      <v-container class="text-center pb-8 pt-4">
         <v-row justify="center">
           <v-col cols="12" md="8">
             <h1 class="display-1 px-4 mb-4">Welcome to DeFlock</h1>
