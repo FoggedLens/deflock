@@ -13,13 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
-
-      - run: bun install
-        working-directory: ./api
-
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
@@ -33,8 +26,9 @@ jobs:
             --exclude node_modules \
             ./api/ ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/home/nullplate/deflock/api
 
-      - name: Restart services
+      - name: Install dependencies and restart service
         run: |
           ssh ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "
+            cd /home/nullplate/deflock/api && bun install --frozen-lockfile &&
             sudo systemctl restart deflock-api
           "

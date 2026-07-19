@@ -17,9 +17,8 @@ repo or behind an API here — it doesn't.
 - `webapp/` — Vue 3 + Vuetify + MapLibre GL frontend (the public site at deflock.org).
 - `api/` — Fastify/Bun backend for everything that *isn't* OSM map data: geocoding, GitHub
   sponsors, and the contact form (including AI-assisted triage into Zammad). See
-  `api/CLAUDE.md`.
-- `kb/` — knowledge base markdown consumed by the AI contact-screening classifier in `api/`.
-  See `kb/CLAUDE.md`.
+  `api/CLAUDE.md`. Includes `api/kb/` — knowledge base markdown consumed by the AI
+  contact-screening classifier. See `api/kb/CLAUDE.md`.
 - `cms/` — Directus CMS (content management for site content, e.g. blog).
 - `serverless/`, `terraform/` — AWS Lambda batch jobs (scheduled, not request-driven) for
   ALPR stats/counts and caching, provisioned via Terraform.

@@ -15,7 +15,7 @@ Handles everything for DeFlock that isn't OpenStreetMap map data: geocoding prox
   `openai` package). See `ZammadClient`, `NominatimClient`, `GithubClient`, `TurnstileClient`.
 - Config/data that isn't a secret is checked into git and read at startup, not hardcoded and
   not fetched at runtime — e.g. `data/zipcodes-us.json`, `prompts/contact-screening.md`, and
-  `../kb/*.md`. Editing these requires a server restart to take effect (loaded once at module
+  `kb/*.md`. Editing these requires a server restart to take effect (loaded once at module
   init).
 - OpenTelemetry (`telemetry.ts`) exports logs/metrics to Grafana Cloud via a local otelcol
   sidecar. Errors are bucketed by a substring-matching `classifyErrorMessage()` in `server.ts`

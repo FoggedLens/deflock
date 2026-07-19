@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-const KB_DIR = join(__dirname, '../../kb');
+const KB_DIR = join(__dirname, '../kb');
 
 export interface KbDocument {
   filename: string;
