@@ -10,14 +10,19 @@ declare module 'fastify' {
   }
 }
 
-function classifyError(error: FastifyError): string {
-  if (error.code === 'FST_ERR_VALIDATION') return 'validation_error';
-  const msg = error.message.toLowerCase();
+function classifyErrorMessage(message: string): string {
+  const msg = message.toLowerCase();
   if (msg.includes('geocode') || msg.includes('nominatim')) return 'upstream_error:nominatim';
   if (msg.includes('sponsors') || msg.includes('github')) return 'upstream_error:github';
-  if (msg.includes('zammad') || msg.includes('ticket')) return 'upstream_error:zammad';
+  if (msg.includes('openai') || msg.includes('screening')) return 'upstream_error:openai';
+  if (msg.includes('zammad') || msg.includes('ticket') || msg.includes('tag')) return 'upstream_error:zammad';
   if (msg.includes('turnstile') || msg.includes('siteverify')) return 'upstream_error:turnstile';
   return 'internal_error';
+}
+
+function classifyError(error: FastifyError): string {
+  if (error.code === 'FST_ERR_VALIDATION') return 'validation_error';
+  return classifyErrorMessage(error.message);
 }
 
 function classifyByStatus(statusCode: number): string {
@@ -33,6 +38,8 @@ import { classifyGeoQuery } from './services/GeoQueryClassifier';
 import { GithubClient, SponsorsResponseSchema } from './services/GithubClient';
 import { TurnstileClient } from './services/TurnstileClient';
 import { ZammadClient, ContactMessageBodySchema, ContactMessageBody } from './services/ZammadClient';
+import { AiScreeningClient } from './services/AiScreeningClient';
+import { screenContactSubmission, planZammadActions } from './services/ContactScreeningService';
 
 const start = async () => {
   const server: FastifyInstance = Fastify({
@@ -133,10 +140,38 @@ const start = async () => {
     description: 'Total number of HTTP requests, by route, method, and status code',
   });
 
+  const backgroundErrorCounter = meter.createCounter('background_job.errors.total', {
+    description: 'Total number of failures in fire-and-forget background jobs, by context',
+  });
+
+  const aiScreeningCounter = meter.createCounter('ai_screening.completed.total', {
+    description: 'Total number of contact submissions successfully screened by AI',
+  });
+
+  function logBackgroundError(context: string, error: unknown, attributes: Record<string, string> = {}) {
+    const message = error instanceof Error ? error.message : String(error);
+    // Always print locally, independent of whether the otelcol sidecar is up — background job
+    // failures otherwise have no visibility at all when the OTel pipeline isn't reachable
+    // (e.g. local dev without the collector running).
+    server.log.error({ context, ...attributes, error: message, stack: error instanceof Error ? error.stack : undefined }, 'Background job error');
+    otelLogger.emit({
+      severityNumber: SeverityNumber.ERROR,
+      severityText: 'ERROR',
+      body: message,
+      attributes: {
+        'error.type': classifyErrorMessage(message),
+        'background.context': context,
+        ...attributes,
+      },
+    });
+    backgroundErrorCounter.add(1, { 'background.context': context, 'error.type': classifyErrorMessage(message) });
+  }
+
   const nominatim = new NominatimClient();
   const githubClient = new GithubClient();
   const turnstileClient = new TurnstileClient();
   const zammadClient = new ZammadClient();
+  const aiScreeningClient = new AiScreeningClient();
 
   const shutdown = async () => {
     server.log.info("Shutting down");
@@ -226,7 +261,7 @@ const start = async () => {
       },
     },
   }, async (request, reply) => {
-    const { name, email, topic, subject, message, turnstileToken } = request.body as ContactMessageBody;
+    const { name, email, topic, subject, message, turnstileToken, aiScreeningOptOut } = request.body as ContactMessageBody;
 
     const remoteIp = request.ip;
     const valid = await turnstileClient.verify(turnstileToken, remoteIp);
@@ -234,8 +269,62 @@ const start = async () => {
       return reply.status(400).send({ error: 'Invalid captcha' });
     }
 
-    await zammadClient.createTicket({ name, email, topic, subject, message });
+    const ticket = await zammadClient.createTicket({ name, email, topic, subject, message });
+
+    if (aiScreeningOptOut) {
+      zammadClient.addTag(ticket.id, 'ai-opted-out')
+        .catch(err => logBackgroundError('ai_screening.opt_out_tag', err, { 'ticket.id': String(ticket.id) }));
+    } else {
+      const senderEmailDomain = email.split('@')[1] ?? '';
+      screenContactSubmission(
+        { ticketId: ticket.id, topic, subject, message, senderEmailDomain, replyTo: email },
+        { aiClient: aiScreeningClient, zammadClient },
+      )
+        .then(({ result }) => {
+          aiScreeningCounter.add(1, { 'contact.topic': topic, 'ai_category': result.ai_category });
+        })
+        .catch(err => {
+          logBackgroundError('ai_screening', err, { 'ticket.id': String(ticket.id) });
+          zammadClient.addTag(ticket.id, 'ai-screening-error')
+            .catch(tagErr => logBackgroundError('ai_screening.error_tag', tagErr, { 'ticket.id': String(ticket.id) }));
+        });
+    }
+
     return reply.status(201).send({});
+  });
+
+  server.post('/contact/message/dry-run', {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['topic', 'subject', 'message'],
+        properties: {
+          topic: {
+            type: 'string',
+            enum: ['website-support', 'app-support', 'local-groups', 'media', 'questions-comments'],
+          },
+          subject: { type: 'string', minLength: 1 },
+          message: { type: 'string', minLength: 1 },
+          email: { type: 'string' },
+        },
+      },
+      response: {
+        500: { type: 'object', properties: { error: { type: 'string' } } },
+      },
+    },
+  }, async (request, reply) => {
+    const { topic, subject, message, email } = request.body as {
+      topic: ContactMessageBody['topic'];
+      subject: string;
+      message: string;
+      email?: string;
+    };
+
+    const senderEmailDomain = email?.split('@')[1] ?? '';
+    const screening = await aiScreeningClient.screen({ topic, subject, message, senderEmailDomain });
+    const plannedActions = planZammadActions(screening);
+
+    return reply.status(200).send({ screening, plannedActions });
   });
 
   server.head('/healthcheck', async (request, reply) => {

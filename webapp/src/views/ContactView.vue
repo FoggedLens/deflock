@@ -36,6 +36,17 @@
             <a href="mailto:contact@deflock.org" class="text-decoration-none font-weight-bold">contact@deflock.org</a>.
           </v-alert>
 
+          <v-alert
+            type="info"
+            variant="tonal"
+            class="mb-6"
+            icon="mdi-robot-outline"
+          >
+            We use AI to classify messages sent through this form, but you can
+            <router-link to="/ai-email-classification">opt out</router-link>.
+            Do not include PII in this form.
+          </v-alert>
+
           <v-form ref="form" @submit.prevent="handleSubmit">
             <v-row>
               <v-col cols="12" sm="6">
@@ -96,6 +107,19 @@
                   rows="5"
                   auto-grow
                 ></v-textarea>
+              </v-col>
+              <v-col cols="12">
+                <v-checkbox
+                  v-model="aiScreeningOptOut"
+                  density="comfortable"
+                  hide-details
+                  label="Don't use AI to help triage my message"
+                ></v-checkbox>
+                <p class="text-caption text-medium-emphasis">
+                  By default, an AI assistant helps our team sort incoming messages and draft replies to
+                  common questions. A human always reviews everything before you hear back — nothing is
+                  ever sent automatically. You can opt out above.
+                </p>
               </v-col>
               <v-col cols="12">
                 <VueTurnstile
@@ -189,6 +213,7 @@ const form = ref<{ validate: () => Promise<{ valid: boolean }>; resetValidation:
 const turnstileRef = ref<InstanceType<typeof VueTurnstile> | null>(null);
 const turnstileToken = ref('');
 const turnstileError = ref(false);
+const aiScreeningOptOut = ref(false);
 
 const isSubmitting = ref(false);
 const isSuccess = ref(false);
@@ -230,6 +255,7 @@ const handleSubmit = async () => {
       subject: fields.subject,
       message: fields.message,
       turnstileToken: turnstileToken.value,
+      aiScreeningOptOut: aiScreeningOptOut.value,
     });
 
     isSuccess.value = true;
@@ -240,6 +266,7 @@ const handleSubmit = async () => {
     fields.topic = null;
     fields.subject = '';
     fields.message = '';
+    aiScreeningOptOut.value = false;
     await nextTick();
     form.value!.resetValidation();
     resetTurnstile();

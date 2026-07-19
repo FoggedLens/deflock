@@ -95,6 +95,7 @@ export interface ContactMessagePayload {
   subject: string;
   message: string;
   turnstileToken: string;
+  aiScreeningOptOut: boolean;
 }
 
 export const postContactMessage = async (payload: ContactMessagePayload) => {

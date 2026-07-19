@@ -104,6 +104,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/ai-email-classification',
+      name: 'ai-email-classification',
+      component: () => import('../views/AiEmailClassificationView.vue'),
+      meta: {
+        title: 'AI Email Classification | DeFlock'
+      }
+    },
+    {
       path: '/terms',
       name: 'terms',
       component: () => import('../views/TermsOfService.vue'),
