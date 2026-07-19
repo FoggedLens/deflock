@@ -377,6 +377,7 @@ function buildShopifyOptions(dark: boolean) {
       },
     },
     modalProduct: {
+      layout: 'vertical',
       contents: { img: false, imgWithCarousel: true, button: false, buttonWithQuantity: true },
       styles: {
         product: {
