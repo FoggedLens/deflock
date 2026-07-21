@@ -10,6 +10,16 @@
       </v-col>
     </v-row>
 
+    <v-row justify="center" class="mb-4">
+      <v-col cols="12" md="8">
+        <v-alert variant="tonal" type="info" density="comfortable">
+          Both methods save to <b>OpenStreetMap</b>, so you'll need a free account before you can
+          submit a camera.
+          <a href="https://www.openstreetmap.org/user/new" target="_blank">Sign up for an OpenStreetMap account</a>.
+        </v-alert>
+      </v-col>
+    </v-row>
+
     <!-- ALPR Identification Warning -->
     <v-row justify="center" class="mb-8">
       <v-col cols="12" class="text-center">

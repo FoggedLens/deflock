@@ -226,6 +226,11 @@
             </v-btn>
           </div>
           <p class="cta-note">Free download • No ads • Privacy focused</p>
+          <p class="cta-note">
+            Submitting a camera needs a free
+            <a href="https://www.openstreetmap.org/user/new" target="_blank">OpenStreetMap account</a>
+            — the app signs you in with it.
+          </p>
         </div>
       </v-container>
     </section>
@@ -819,6 +824,12 @@ const visibleScreenshots = computed(() =>
 .cta-note {
   font-size: 0.875rem;
   opacity: 0.7;
+}
+
+/* The section sits on a dark gradient, so the default link blue is unreadable. */
+.cta-note a {
+  color: inherit;
+  text-decoration: underline;
 }
 
 /* Responsive Design */
