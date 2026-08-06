@@ -23,6 +23,13 @@
       </v-col>
     </v-row>
 
+    <!-- Find Who to Contact -->
+    <v-row class="mb-8">
+      <v-col cols="12" md="10" lg="8" class="mx-auto">
+        <FindOfficials />
+      </v-col>
+    </v-row>
+
     <!-- Talking Points -->
     <v-row class="mb-8">
       <v-col cols="12" md="10" lg="8" class="mx-auto">
@@ -372,6 +379,7 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
+import FindOfficials from '@/components/FindOfficials.vue';
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 
 const sortMonthYearByDateDesc = (a: string, b: string) => {
