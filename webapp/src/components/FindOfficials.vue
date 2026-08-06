@@ -77,6 +77,7 @@
         </v-list-item>
 
         <v-list-item
+          v-if="!place.legislators.length"
           :href="stateLegislatorUrl"
           target="_blank"
           rel="noopener"
@@ -89,9 +90,80 @@
         </v-list-item>
       </v-list>
 
+      <div v-if="place.legislators.length" class="mt-4">
+        <h4 class="text-subtitle-1 font-weight-bold mb-3 d-flex align-center">
+          <v-icon color="primary" size="20" class="mr-2">mdi-domain</v-icon>
+          Your {{ place.state }} state legislators
+        </h4>
+
+        <v-row dense>
+          <v-col v-for="legislator in place.legislators" :key="legislator.openstatesUrl || legislator.name" cols="12" sm="6">
+            <v-card variant="tonal" rounded="lg" class="pa-3 d-flex align-center h-100">
+              <v-avatar size="56" color="surface" class="mr-3 flex-shrink-0">
+                <v-img
+                  v-if="legislator.image"
+                  :src="legislator.image"
+                  :alt="legislator.name"
+                  referrerpolicy="no-referrer"
+                  cover
+                >
+                  <template #error>
+                    <v-icon size="32">mdi-account</v-icon>
+                  </template>
+                </v-img>
+                <v-icon v-else size="32">mdi-account</v-icon>
+              </v-avatar>
+
+              <div class="flex-grow-1 overflow-hidden">
+                <div class="text-body-1 font-weight-bold">{{ legislator.name }}</div>
+                <div class="text-caption text-medium-emphasis">{{ describeSeat(legislator) }}</div>
+                <div class="mt-1 ml-n2">
+                  <v-btn
+                    v-if="legislator.email"
+                    :href="`mailto:${legislator.email}`"
+                    size="x-small"
+                    variant="text"
+                    color="primary"
+                    prepend-icon="mdi-email"
+                  >
+                    Email
+                  </v-btn>
+                  <v-btn
+                    v-if="legislator.phone"
+                    :href="`tel:${legislator.phone}`"
+                    size="x-small"
+                    variant="text"
+                    color="primary"
+                    prepend-icon="mdi-phone"
+                  >
+                    Call
+                  </v-btn>
+                </div>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <v-btn
+          v-if="emailAllUrl"
+          :href="emailAllUrl"
+          color="primary"
+          variant="tonal"
+          size="small"
+          prepend-icon="mdi-email-multiple"
+          class="mt-2"
+        >
+          Email all your legislators
+        </v-btn>
+
+        <p class="text-caption text-medium-emphasis mt-2 mb-0">
+          Legislator data and photos from <a href="https://openstates.org" target="_blank" rel="noopener">Open States</a>.
+        </p>
+      </div>
+
       <p class="text-caption text-medium-emphasis mt-3 mb-0">
-        Not sure what to say? Use the sample email in step 1 below. Lookups use OpenStreetMap
-        and Wikidata; your city name is the only thing sent, and nothing is stored.
+        Not sure what to say? Use the sample email in step 1 below. Lookups use OpenStreetMap,
+        Wikidata, and Open States; your city name is the only thing sent, and nothing is stored.
       </p>
     </div>
   </v-card>
@@ -99,7 +171,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { geocodeQuery } from '@/services/apiService';
+import { geocodeQuery, getOfficials, type Legislator } from '@/services/apiService';
 
 interface GeocodeResult {
   addresstype: string;
@@ -126,6 +198,7 @@ interface FoundPlace {
   lat: string;
   lon: string;
   websiteUrl: string | null;
+  legislators: Legislator[];
 }
 
 const query = ref('');
@@ -159,6 +232,36 @@ const stateLegislatorUrl = computed(() => {
 
 const municipalityOf = (result: GeocodeResult): string =>
   result.address?.city || result.address?.town || result.address?.village || result.name;
+
+const CHAMBER_LABELS: Record<string, string> = {
+  upper: 'Senate',
+  lower: 'House',
+  legislature: 'Legislature',
+};
+
+const describeSeat = (legislator: Legislator): string => {
+  const chamber = CHAMBER_LABELS[legislator.chamber] ?? legislator.chamber;
+  const seat = [chamber, legislator.district && `District ${legislator.district}`].filter(Boolean).join(', ');
+  return [legislator.party, seat].filter(Boolean).join(' · ');
+};
+
+const emailAllUrl = computed(() => {
+  if (!place.value) return '';
+  const emails = place.value.legislators.map((l) => l.email).filter(Boolean);
+  if (!emails.length) return '';
+  const subject = 'Constituent concerns about license plate readers (ALPRs)';
+  const body = `Hello,\n\nI'm a resident of ${place.value.municipality} and I'm concerned about the spread of automated license plate readers in our communities. I'd like to know your position on regulating ALPR surveillance, including limits on data retention and sharing.\n\nThank you,\n`;
+  return `mailto:${emails.join(',')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+});
+
+async function fetchLegislators(result: GeocodeResult): Promise<Legislator[]> {
+  try {
+    return await getOfficials(result.lat, result.lon);
+  } catch {
+    // 404 when the server has no Open States key; the legislator link renders instead
+    return [];
+  }
+}
 
 async function fetchOfficialWebsite(result: GeocodeResult): Promise<string | null> {
   if (!result.osm_type || !result.osm_id) return null;
@@ -217,13 +320,19 @@ async function search() {
     const municipality = municipalityOf(result);
     const state = result.address?.state ?? '';
 
+    const [websiteUrl, legislators] = await Promise.all([
+      fetchOfficialWebsite(result),
+      fetchLegislators(result),
+    ]);
+
     place.value = {
       municipality,
       state,
       label: state ? `${municipality}, ${state}` : municipality,
       lat: result.lat,
       lon: result.lon,
-      websiteUrl: await fetchOfficialWebsite(result),
+      websiteUrl,
+      legislators,
     };
   } catch {
     error.value = 'We couldn\'t find that location. Try "City, ST" or a 5-digit ZIP code.';
