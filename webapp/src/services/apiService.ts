@@ -88,6 +88,17 @@ export const geocodeQuery = async (query: string) => {
   return result;
 }
 
+export const geocodeMultiQuery = async (query: string, source?: string) => {
+  const params = new URLSearchParams({ query, ...(source ? { source } : {}) });
+  const result = (await apiService.get(`/geocode/multi?${params.toString()}`)).data;
+  return result;
+}
+
+export const reverseGeocodeQuery = async (lat: number, lon: number) => {
+  const result = (await apiService.get(`/geocode/reverse?lat=${lat}&lon=${lon}`)).data;
+  return result;
+}
+
 export interface ContactMessagePayload {
   name: string;
   email: string;

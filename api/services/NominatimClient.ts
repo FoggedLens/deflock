@@ -43,6 +43,30 @@ export const NominatimResultSchema = Type.Object({
 
 export type NominatimResult = Static<typeof NominatimResultSchema>;
 
+// Reverse results carry less than search results (no importance/place_rank),
+// so they get their own schema rather than loosening the search one
+export const ReverseResultSchema = Type.Object({
+  addresstype: Type.Optional(Type.String()),
+  display_name: Type.String(),
+  lat: Type.String(),
+  lon: Type.String(),
+  name: Type.Optional(Type.String()),
+  osm_id: Type.Optional(Type.Number()),
+  osm_type: Type.Optional(Type.String()),
+  address: Type.Optional(Type.Object({
+    city: Type.Optional(Type.String()),
+    town: Type.Optional(Type.String()),
+    village: Type.Optional(Type.String()),
+    county: Type.Optional(Type.String()),
+    state: Type.Optional(Type.String()),
+    postcode: Type.Optional(Type.String()),
+    country: Type.Optional(Type.String()),
+    country_code: Type.Optional(Type.String()),
+  })),
+});
+
+export type ReverseResult = Static<typeof ReverseResultSchema>;
+
 const cache: Cache = createCache({
   stores: [new DiskStore({
     path: '/tmp/nominatim-cache',
@@ -55,6 +79,48 @@ const cache: Cache = createCache({
 
 export class NominatimClient {
   baseUrl = 'https://nominatim.openstreetmap.org/search';
+  reverseBaseUrl = 'https://nominatim.openstreetmap.org/reverse';
+
+  /**
+   * Resolve coordinates to the city/town containing them. Coordinates are
+   * rounded to two decimals (~1 km) before use — enough to identify the
+   * municipality without a precise position reaching Nominatim.
+   */
+  async reverseGeocode(lat: number, lon: number): Promise<ReverseResult | null> {
+    const roundedLat = lat.toFixed(2);
+    const roundedLon = lon.toFixed(2);
+
+    const cacheKey = `reverse:${roundedLat},${roundedLon}`;
+    const cached = await cache.get(cacheKey);
+    if (cached) {
+      return cached as ReverseResult;
+    }
+
+    // zoom=10 asks for city-level results rather than an exact address
+    const url = `${this.reverseBaseUrl}?lat=${roundedLat}&lon=${roundedLon}&format=json&addressdetails=1&zoom=10`;
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'DeFlock/1.2' },
+    });
+    if (!response.ok) {
+      const body = await response.text();
+      otelLogger.emit({
+        severityNumber: SeverityNumber.ERROR,
+        severityText: 'ERROR',
+        body: `Nominatim reverse error: ${response.status}`,
+        attributes: {
+          'nominatim.status_code': response.status,
+          'nominatim.response_body': body,
+          'http.url': url,
+        },
+      });
+      throw new Error(`Failed to reverse geocode: ${response.status}`);
+    }
+    const json = await response.json();
+    // Nominatim reports "nothing here" (e.g. open ocean) as an error field on a 200
+    if (json.error) return null;
+    await cache.set(cacheKey, json);
+    return json;
+  }
 
   async geocodePhrase(query: string, includeGeoJson: boolean = false): Promise<NominatimResult[]> {
     // Short-circuit for ZIP codes — serve from local data, no Nominatim call needed

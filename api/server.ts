@@ -28,7 +28,7 @@ function classifyByStatus(statusCode: number): string {
   return 'internal_error';
 }
 import cors from '@fastify/cors';
-import { NominatimClient, NominatimResultSchema } from './services/NominatimClient';
+import { NominatimClient, NominatimResultSchema, ReverseResultSchema } from './services/NominatimClient';
 import { classifyGeoQuery } from './services/GeoQueryClassifier';
 import { GithubClient, SponsorsResponseSchema } from './services/GithubClient';
 import { TurnstileClient } from './services/TurnstileClient';
@@ -200,6 +200,32 @@ const start = async () => {
     };
     reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
     const result = await nominatim.geocodePhrase(query, false);
+    return result;
+  });
+
+  server.get('/geocode/reverse', {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          lat: { type: 'number', minimum: -90, maximum: 90 },
+          lon: { type: 'number', minimum: -180, maximum: 180 },
+        },
+        required: ['lat', 'lon'],
+      },
+      response: {
+        200: ReverseResultSchema,
+        404: { type: 'object', properties: { error: { type: 'string' } } },
+        500: { type: 'object', properties: { error: { type: 'string' } } },
+      },
+    },
+  }, async (request, reply) => {
+    const { lat, lon } = request.query as { lat: number, lon: number };
+    reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+    const result = await nominatim.reverseGeocode(lat, lon);
+    if (!result) {
+      return reply.status(404).send({ error: 'No results found' });
+    }
     return result;
   });
 

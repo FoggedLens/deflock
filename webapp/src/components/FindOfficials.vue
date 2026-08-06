@@ -17,15 +17,25 @@
 
     <v-form @submit.prevent="search">
       <div class="d-flex flex-column flex-sm-row ga-2 align-sm-start">
-        <v-text-field
-          v-model="query"
+        <v-combobox
+          v-model="committed"
+          v-model:search="query"
+          :items="suggestions"
+          :loading="suggesting || locating"
+          item-title="label"
+          return-object
+          no-filter
+          hide-no-data
           label="Your city or ZIP code"
           placeholder="Springfield, IL"
           variant="outlined"
           density="comfortable"
           hide-details="auto"
           class="flex-grow-1"
-          :disabled="loading"
+          :append-inner-icon="geolocationAvailable ? 'mdi-crosshairs-gps' : undefined"
+          @click:append-inner="useMyLocation"
+          @update:model-value="onInputCommit"
+          @keydown.enter="search"
         />
         <v-btn
           type="submit"
@@ -91,15 +101,16 @@
 
       <p class="text-caption text-medium-emphasis mt-3 mb-0">
         Not sure what to say? Use the sample email in step 1 below. Lookups use OpenStreetMap
-        and Wikidata; your city name is the only thing sent, and nothing is stored.
+        and Wikidata; only your city — or, with the location button, a position rounded to
+        about a kilometer — is ever sent, and nothing is stored.
       </p>
     </div>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { geocodeQuery } from '@/services/apiService';
+import { ref, computed, watch, onUnmounted } from 'vue';
+import { geocodeQuery, geocodeMultiQuery, reverseGeocodeQuery } from '@/services/apiService';
 
 interface GeocodeResult {
   addresstype: string;
@@ -128,10 +139,65 @@ interface FoundPlace {
   websiteUrl: string | null;
 }
 
+interface Suggestion {
+  label: string;
+  result: GeocodeResult;
+}
+
 const query = ref('');
+const committed = ref<Suggestion | string | null>(null);
 const loading = ref(false);
 const error = ref('');
 const place = ref<FoundPlace | null>(null);
+
+const suggestions = ref<Suggestion[]>([]);
+const suggesting = ref(false);
+const locating = ref(false);
+const geolocationAvailable = 'geolocation' in navigator;
+
+// Only place-like results make sense as suggestions for this box
+const SUGGESTIBLE_TYPES = ['city', 'town', 'village', 'hamlet', 'municipality', 'borough', 'suburb', 'postcode'];
+
+const suggestionLabel = (result: GeocodeResult): string =>
+  result.display_name.replace(/, United States$/, '');
+
+let suggestTimer: ReturnType<typeof setTimeout> | null = null;
+let suggestToken = 0;
+let lastResolvedLabel = '';
+
+// Nominatim's usage policy forbids per-keystroke autocomplete, so suggestions
+// only fire after a pause, and go through the API's 24h geocode cache
+watch(query, (value) => {
+  if (suggestTimer) clearTimeout(suggestTimer);
+  // Clear right away so a fast Enter can't select a suggestion from the
+  // previous query
+  suggestions.value = [];
+  const q = (value ?? '').trim();
+  if (q.length < 3 || q === lastResolvedLabel) {
+    suggesting.value = false;
+    return;
+  }
+  suggestTimer = setTimeout(async () => {
+    const token = ++suggestToken;
+    suggesting.value = true;
+    try {
+      const results: GeocodeResult[] = await geocodeMultiQuery(q, 'council');
+      if (token !== suggestToken) return;
+      suggestions.value = results
+        .filter((r) => SUGGESTIBLE_TYPES.includes(r.addresstype))
+        .slice(0, 5)
+        .map((r) => ({ label: suggestionLabel(r), result: r }));
+    } catch {
+      if (token === suggestToken) suggestions.value = [];
+    } finally {
+      if (token === suggestToken) suggesting.value = false;
+    }
+  }, 600);
+});
+
+onUnmounted(() => {
+  if (suggestTimer) clearTimeout(suggestTimer);
+});
 
 // Searching within the city's own domain lands directly on its council
 // roster page, which has the names and emails no open API provides
@@ -188,16 +254,13 @@ async function fetchOfficialWebsite(result: GeocodeResult): Promise<string | nul
   return null;
 }
 
-async function search() {
-  const q = query.value.trim();
-  if (!q) return;
-
+async function resolveResult(initial: GeocodeResult) {
   loading.value = true;
   error.value = '';
   place.value = null;
 
   try {
-    let result: GeocodeResult = await geocodeQuery(q);
+    let result = initial;
 
     if (['state', 'country'].includes(result.addresstype)) {
       error.value = 'That looks like a whole state — try a specific city or town, like "Springfield, IL".';
@@ -216,11 +279,15 @@ async function search() {
 
     const municipality = municipalityOf(result);
     const state = result.address?.state ?? '';
+    const label = state ? `${municipality}, ${state}` : municipality;
+
+    lastResolvedLabel = query.value.trim();
+    suggestions.value = [];
 
     place.value = {
       municipality,
       state,
-      label: state ? `${municipality}, ${state}` : municipality,
+      label,
       lat: result.lat,
       lon: result.lon,
       websiteUrl: await fetchOfficialWebsite(result),
@@ -230,6 +297,62 @@ async function search() {
   } finally {
     loading.value = false;
   }
+}
+
+async function search() {
+  const q = query.value.trim();
+  if (!q || loading.value) return;
+
+  loading.value = true;
+  error.value = '';
+  try {
+    const result: GeocodeResult = await geocodeQuery(q);
+    loading.value = false;
+    await resolveResult(result);
+  } catch {
+    loading.value = false;
+    place.value = null;
+    error.value = 'We couldn\'t find that location. Try "City, ST" or a 5-digit ZIP code.';
+  }
+}
+
+// The combobox also commits typed text as string model updates (on keystrokes
+// and blur); those must not trigger anything — free-text searches happen only
+// via Enter or the button. Only a suggestion picked from the menu resolves here.
+function onInputCommit(value: unknown) {
+  if (loading.value) return;
+  if (value && typeof value === 'object' && 'result' in value) {
+    resolveResult((value as Suggestion).result);
+  }
+}
+
+function useMyLocation() {
+  if (!geolocationAvailable || locating.value) return;
+  locating.value = true;
+  error.value = '';
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      try {
+        // Round to ~1 km before the coordinates leave the browser; the city
+        // is all we need, never the exact position
+        const lat = Number(position.coords.latitude.toFixed(2));
+        const lon = Number(position.coords.longitude.toFixed(2));
+        const result: GeocodeResult = await reverseGeocodeQuery(lat, lon);
+        query.value = suggestionLabel(result);
+        await resolveResult(result);
+      } catch {
+        error.value = 'We couldn\'t figure out your city — try typing it instead.';
+      } finally {
+        locating.value = false;
+      }
+    },
+    () => {
+      locating.value = false;
+      error.value = 'Location permission was denied — type your city instead.';
+    },
+    { timeout: 10000, maximumAge: 600000 }
+  );
 }
 </script>
 
