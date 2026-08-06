@@ -144,18 +144,6 @@
           </v-col>
         </v-row>
 
-        <v-btn
-          v-if="emailAllUrl"
-          :href="emailAllUrl"
-          color="primary"
-          variant="tonal"
-          size="small"
-          prepend-icon="mdi-email-multiple"
-          class="mt-2"
-        >
-          Email all your legislators
-        </v-btn>
-
         <p class="text-caption text-medium-emphasis mt-2 mb-0">
           Legislator data and photos from <a href="https://openstates.org" target="_blank" rel="noopener">Open States</a>.
         </p>
@@ -244,15 +232,6 @@ const describeSeat = (legislator: Legislator): string => {
   const seat = [chamber, legislator.district && `District ${legislator.district}`].filter(Boolean).join(', ');
   return [legislator.party, seat].filter(Boolean).join(' · ');
 };
-
-const emailAllUrl = computed(() => {
-  if (!place.value) return '';
-  const emails = place.value.legislators.map((l) => l.email).filter(Boolean);
-  if (!emails.length) return '';
-  const subject = 'Constituent concerns about license plate readers (ALPRs)';
-  const body = `Hello,\n\nI'm a resident of ${place.value.municipality} and I'm concerned about the spread of automated license plate readers in our communities. I'd like to know your position on regulating ALPR surveillance, including limits on data retention and sharing.\n\nThank you,\n`;
-  return `mailto:${emails.join(',')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-});
 
 async function fetchLegislators(result: GeocodeResult): Promise<Legislator[]> {
   try {
