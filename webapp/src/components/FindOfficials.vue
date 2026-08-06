@@ -36,7 +36,11 @@
           @click:append-inner="useMyLocation"
           @update:model-value="onInputCommit"
           @keydown.enter="search"
-        />
+        >
+          <template #item="{ props: itemProps, item }">
+            <v-list-item v-bind="itemProps" :subtitle="item.raw.subtitle || undefined" />
+          </template>
+        </v-combobox>
         <v-btn
           type="submit"
           color="primary"
@@ -70,7 +74,8 @@
           rounded="lg"
         >
           <v-list-item-title class="font-weight-bold">Official {{ place.municipality }} website</v-list-item-title>
-          <v-list-item-subtitle>Look for a "City Council", "Mayor", or "Contact" page to get names and email addresses</v-list-item-subtitle>
+          <v-list-item-subtitle v-if="place.kind === 'county'">Look for a "Board of Commissioners" or "Contact" page to get names and email addresses</v-list-item-subtitle>
+          <v-list-item-subtitle v-else>Look for a "City Council", "Mayor", or "Contact" page to get names and email addresses</v-list-item-subtitle>
         </v-list-item>
 
         <v-list-item
@@ -81,9 +86,9 @@
           append-icon="mdi-open-in-new"
           rounded="lg"
         >
-          <v-list-item-title class="font-weight-bold">Search for {{ place.municipality }} council members</v-list-item-title>
-          <v-list-item-subtitle v-if="cityWebsiteHost">Search {{ cityWebsiteHost }} for your council members' names and contact info</v-list-item-subtitle>
-          <v-list-item-subtitle v-else>Web search for your council members' names and contact info</v-list-item-subtitle>
+          <v-list-item-title class="font-weight-bold">Search for {{ place.municipality }} {{ officialsNoun }}</v-list-item-title>
+          <v-list-item-subtitle v-if="cityWebsiteHost">Search {{ cityWebsiteHost }} for your {{ officialsNoun }}' names and contact info</v-list-item-subtitle>
+          <v-list-item-subtitle v-else>Web search for your {{ officialsNoun }}' names and contact info</v-list-item-subtitle>
         </v-list-item>
 
         <v-list-item
@@ -134,6 +139,7 @@ interface FoundPlace {
   municipality: string;
   state: string;
   label: string;
+  kind: 'city' | 'county';
   lat: string;
   lon: string;
   websiteUrl: string | null;
@@ -141,6 +147,7 @@ interface FoundPlace {
 
 interface Suggestion {
   label: string;
+  subtitle: string;
   result: GeocodeResult;
 }
 
@@ -155,11 +162,26 @@ const suggesting = ref(false);
 const locating = ref(false);
 const geolocationAvailable = 'geolocation' in navigator;
 
-// Only place-like results make sense as suggestions for this box
-const SUGGESTIBLE_TYPES = ['city', 'town', 'village', 'hamlet', 'municipality', 'borough', 'suburb', 'postcode'];
+// Only place-like results make sense as suggestions for this box. Counties
+// count: county commissions approve sheriff ALPR contracts.
+const SUGGESTIBLE_TYPES = ['city', 'town', 'village', 'hamlet', 'municipality', 'borough', 'suburb', 'county', 'postcode'];
 
-const suggestionLabel = (result: GeocodeResult): string =>
-  result.display_name.replace(/, United States$/, '');
+// "Newnan, Georgia" as the line you pick, with the county as secondary
+// context underneath — the pattern location boxes generally follow
+function toSuggestion(result: GeocodeResult): Suggestion {
+  const state = result.address?.state ?? '';
+  if (result.addresstype === 'postcode') {
+    const city = [result.address?.city, state].filter(Boolean).join(', ');
+    return { label: city || result.name, subtitle: `ZIP ${result.name}`, result };
+  }
+  return {
+    label: [result.name, state].filter(Boolean).join(', '),
+    subtitle: result.addresstype === 'county' ? 'County' : result.address?.county ?? '',
+    result,
+  };
+}
+
+const suggestionLabel = (result: GeocodeResult): string => toSuggestion(result).label;
 
 let suggestTimer: ReturnType<typeof setTimeout> | null = null;
 let suggestToken = 0;
@@ -183,10 +205,17 @@ watch(query, (value) => {
     try {
       const results: GeocodeResult[] = await geocodeMultiQuery(q, 'council');
       if (token !== suggestToken) return;
+      const seen = new Set<string>();
       suggestions.value = results
         .filter((r) => SUGGESTIBLE_TYPES.includes(r.addresstype))
-        .slice(0, 5)
-        .map((r) => ({ label: suggestionLabel(r), result: r }));
+        .map(toSuggestion)
+        .filter((s) => {
+          const key = `${s.label}|${s.subtitle}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .slice(0, 5);
     } catch {
       if (token === suggestToken) suggestions.value = [];
     } finally {
@@ -210,11 +239,18 @@ const cityWebsiteHost = computed(() => {
   }
 });
 
+// Counties are governed by commissioners, not a city council — and sheriff
+// ALPR contracts run through the county commission. The municipality name
+// already ends in "County" for counties, so the noun stays bare.
+const officialsNoun = computed(() =>
+  place.value?.kind === 'county' ? 'commissioners' : 'city council members'
+);
+
 const councilSearchUrl = computed(() => {
   if (!place.value) return '';
   const terms = cityWebsiteHost.value
-    ? `city council members contact site:${cityWebsiteHost.value}`
-    : `${place.value.municipality} ${place.value.state} city council members contact`;
+    ? `${place.value.kind === 'county' ? 'county commissioners' : 'city council members'} contact site:${cityWebsiteHost.value}`
+    : `${place.value.municipality} ${place.value.state} ${officialsNoun.value} contact`;
   return `https://duckduckgo.com/?q=${encodeURIComponent(terms)}`;
 });
 
@@ -288,6 +324,7 @@ async function resolveResult(initial: GeocodeResult) {
       municipality,
       state,
       label,
+      kind: result.addresstype === 'county' ? 'county' : 'city',
       lat: result.lat,
       lon: result.lon,
       websiteUrl: await fetchOfficialWebsite(result),
