@@ -162,9 +162,14 @@ const suggesting = ref(false);
 const locating = ref(false);
 const geolocationAvailable = 'geolocation' in navigator;
 
-// Only place-like results make sense as suggestions for this box. Counties
-// count: county commissions approve sheriff ALPR contracts.
-const SUGGESTIBLE_TYPES = ['city', 'town', 'village', 'hamlet', 'municipality', 'borough', 'suburb', 'county', 'postcode'];
+// Result types that ARE a municipality (or county) in their own right —
+// safe to use directly for labels and the website lookup. Counties count:
+// county commissions approve sheriff ALPR contracts.
+const PLACE_TYPES = ['city', 'town', 'village', 'hamlet', 'municipality', 'borough', 'county'];
+
+// Suggestions additionally allow neighborhoods and ZIPs, which resolve to
+// their containing city on selection
+const SUGGESTIBLE_TYPES = [...PLACE_TYPES, 'suburb', 'postcode'];
 
 // "Newnan, Georgia" as the line you pick, with the county as secondary
 // context underneath — the pattern location boxes generally follow
@@ -262,6 +267,20 @@ const stateLegislatorUrl = computed(() => {
 const municipalityOf = (result: GeocodeResult): string =>
   result.address?.city || result.address?.town || result.address?.village || result.name;
 
+// OSM and Wikidata tags are crowd-edited, so only ever link http(s) URLs;
+// scheme-less values like "www.example.gov" are common in OSM and get https
+function normalizeWebsite(raw: string | undefined | null): string | null {
+  if (!raw) return null;
+  const candidate = /^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : `https://${raw}`;
+  try {
+    const url = new URL(candidate);
+    if (url.protocol === 'http:' || url.protocol === 'https:') return url.href;
+  } catch {
+    // fall through
+  }
+  return null;
+}
+
 async function fetchOfficialWebsite(result: GeocodeResult): Promise<string | null> {
   if (!result.osm_type || !result.osm_id) return null;
   try {
@@ -272,7 +291,7 @@ async function fetchOfficialWebsite(result: GeocodeResult): Promise<string | nul
     const tags: Record<string, string> =
       (await osmResponse.json()).elements?.[0]?.tags ?? {};
 
-    const tagged = tags['website'] || tags['contact:website'];
+    const tagged = normalizeWebsite(tags['website'] || tags['contact:website']);
     if (tagged) return tagged;
 
     if (tags['wikidata']) {
@@ -282,7 +301,7 @@ async function fetchOfficialWebsite(result: GeocodeResult): Promise<string | nul
       if (!wikidataResponse.ok) return null;
       const claims = (await wikidataResponse.json()).claims?.P856 ?? [];
       const claim = claims.find((c: any) => c.rank !== 'deprecated');
-      return claim?.mainsnak?.datavalue?.value ?? null;
+      return normalizeWebsite(claim?.mainsnak?.datavalue?.value);
     }
   } catch {
     // Website is a nice-to-have; the search links below still work without it
@@ -303,13 +322,18 @@ async function resolveResult(initial: GeocodeResult) {
       return;
     }
 
-    // A ZIP resolves to a postcode point with no municipality boundary, so
-    // geocode the city it belongs to for the website lookup
-    if (result.addresstype === 'postcode' && result.address?.city && result.address?.state) {
-      try {
-        result = await geocodeQuery(`${result.address.city}, ${result.address.state}`);
-      } catch {
-        // Keep the postcode result; the search links still work from it
+    // Anything that isn't itself a municipality — a ZIP centroid, a street
+    // address, a neighborhood — names its containing city in the address, so
+    // resolve that instead. Crucially, a road or building's own OSM website
+    // tag (a business, a transit agency) must never pass as the city's.
+    if (!PLACE_TYPES.includes(result.addresstype)) {
+      const containingCity = result.address?.city || result.address?.town || result.address?.village;
+      if (containingCity && result.address?.state) {
+        try {
+          result = await geocodeQuery(`${containingCity}, ${result.address.state}`);
+        } catch {
+          // Keep the original result; the search links still work from it
+        }
       }
     }
 
@@ -327,7 +351,8 @@ async function resolveResult(initial: GeocodeResult) {
       kind: result.addresstype === 'county' ? 'county' : 'city',
       lat: result.lat,
       lon: result.lon,
-      websiteUrl: await fetchOfficialWebsite(result),
+      // Only a municipality's own OSM element can vouch for its website
+      websiteUrl: PLACE_TYPES.includes(result.addresstype) ? await fetchOfficialWebsite(result) : null,
     };
   } catch {
     error.value = 'We couldn\'t find that location. Try "City, ST" or a 5-digit ZIP code.';
