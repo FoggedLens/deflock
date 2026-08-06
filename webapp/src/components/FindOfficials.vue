@@ -72,7 +72,8 @@
           rounded="lg"
         >
           <v-list-item-title class="font-weight-bold">Search for {{ place.municipality }} council members</v-list-item-title>
-          <v-list-item-subtitle>Web search for your council members' names and contact info</v-list-item-subtitle>
+          <v-list-item-subtitle v-if="cityWebsiteHost">Search {{ cityWebsiteHost }} for your council members' names and contact info</v-list-item-subtitle>
+          <v-list-item-subtitle v-else>Web search for your council members' names and contact info</v-list-item-subtitle>
         </v-list-item>
 
         <v-list-item
@@ -132,9 +133,22 @@ const loading = ref(false);
 const error = ref('');
 const place = ref<FoundPlace | null>(null);
 
+// Searching within the city's own domain lands directly on its council
+// roster page, which has the names and emails no open API provides
+const cityWebsiteHost = computed(() => {
+  if (!place.value?.websiteUrl) return '';
+  try {
+    return new URL(place.value.websiteUrl).hostname;
+  } catch {
+    return '';
+  }
+});
+
 const councilSearchUrl = computed(() => {
   if (!place.value) return '';
-  const terms = `${place.value.municipality} ${place.value.state} city council members contact`;
+  const terms = cityWebsiteHost.value
+    ? `city council members contact site:${cityWebsiteHost.value}`
+    : `${place.value.municipality} ${place.value.state} city council members contact`;
   return `https://duckduckgo.com/?q=${encodeURIComponent(terms)}`;
 });
 
