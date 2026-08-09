@@ -38,17 +38,17 @@
       </div>
     </v-alert>
     <div class="hero-background">
-      <!-- note on crypto -->
+      <!-- Good Morning America correction -->
       <div class="text-center pt-4 mb-0">
         <v-btn
-          to="/blog/414"
+          to="/blog/415"
           size="small"
           variant="flat"
           color="white"
-          prepend-icon="mdi-bitcoin"
+          prepend-icon="mdi-television-classic"
           append-icon="mdi-arrow-right-thick"
         >
-          A Note on Crypto
+          Setting the Record Straight
         </v-btn>
       </div>
       <v-container class="text-center pb-8 pt-4">
