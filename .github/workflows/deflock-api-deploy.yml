@@ -20,6 +20,10 @@ jobs:
       - run: bun install
         working-directory: ./api
 
+      - name: Run tests
+        run: bun test
+        working-directory: ./api
+
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
