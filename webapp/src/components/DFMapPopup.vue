@@ -1,8 +1,11 @@
 <template>
-  <v-sheet min-width="240">
+  <v-sheet min-width="240" role="dialog" aria-labelledby="df-map-popup-heading">
+    <h2 id="df-map-popup-heading" tabindex="-1" class="text-subtitle-1 font-weight-bold px-4 pt-3">
+      Camera details
+    </h2>
     <!--  TODO: if a field is unknown, prompt user to edit it -->
     <div class="position-relative">
-      <v-img v-if="imageUrl" cover width="100%" height="150px" :src="imageUrl" class="rounded mt-5" position="top" />
+      <v-img v-if="imageUrl" cover width="100%" height="150px" :src="imageUrl" :alt="cameraImageAlt" class="rounded mt-5" position="top" />
       <div v-if="imageUrl" class="position-absolute bottom-0 left-0 right-0 text-center text-white text-caption" style="background: rgba(0, 0, 0, 0.5);">
         {{ manufacturer }} {{ manufacturer.endsWith(' LPR') ? '' : ' LPR' }}
       </div>
@@ -84,6 +87,10 @@ onMounted(async () => {
 const imageUrl = computed(() => {
   return wikimediaImages.value?.thumbnail ?? vendorImageUrl.value;
 });
+
+const cameraImageAlt = computed(() => (
+  manufacturer.value === 'Unknown' ? 'Camera' : `${manufacturer.value} camera`
+));
 
 const abbreviatedOperator = computed(() => {
   const operatorTagKeys = [
