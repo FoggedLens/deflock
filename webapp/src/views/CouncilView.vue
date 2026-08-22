@@ -425,7 +425,7 @@ const headers = [
 const fetchRecentWins = async () => {
   loading.value = true;
   try {
-    const response = await fetch('https://cms.deflock.me/items/flockWins');
+    const response = await fetch('https://cms.deflock.me/items/flockWins?limit=-1');
     const result: CityRejection[] = (await response.json()).data;
 
     const sortedResult = result.sort((a, b) => sortMonthYearByDateDesc(a.monthYear, b.monthYear));

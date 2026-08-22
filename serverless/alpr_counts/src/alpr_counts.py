@@ -27,7 +27,7 @@ def fetch_alpr_surveillance_nodes(usOnly=True):
     raise RuntimeError(f"Failed to fetch data from Overpass API. Status code: {response.status_code}")
 
 def fetch_wins_count():
-  cms_url = "https://cms.deflock.me/items/flockWins"
+  cms_url = "https://cms.deflock.me/items/flockWins?limit=-1"
   headers = {'User-Agent': DF_USER_AGENT}
   
   response = requests.get(cms_url, headers=headers)
