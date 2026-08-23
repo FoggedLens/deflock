@@ -1,26 +1,6 @@
 <template>
 <DefaultLayout no-bottom-margin>
   <template #header>
-    <!-- Week of Action Banner -->
-    <v-alert
-      color="#FFC107"
-      class="week-of-action-banner mb-0"
-      density="compact"
-      rounded="0"
-      closable
-      close-icon="mdi-close"
-      style="position: sticky; top: 0; z-index: 1000; --v-alert-close-color: #000000;"
-    >
-      <div class="text-center font-weight-bold text-uppercase" style="color: #000000;">
-        Join DeFlock for a national week of action. Learn more:&nbsp;<a
-          href="https://noalprs.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          style="color: #000000; text-decoration: underline;"
-        >NoALPRs.com</a>
-      </div>
-    </v-alert>
-
     <!-- Service Alert Banner -->
     <v-alert
       v-show="serviceAlert?.active"
