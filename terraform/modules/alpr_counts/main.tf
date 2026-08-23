@@ -39,36 +39,24 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_write_attachment" {
   policy_arn = aws_iam_policy.lambda_s3_write_policy.arn
 }
 
-resource "null_resource" "pip_install" {
-  provisioner "local-exec" {
-    command = <<EOT
-      cd ${path.root}/../serverless/${var.module_name}/src
-      pip3.14 install -r requirements.txt -t .
-    EOT
-  }
-
-  triggers = {
-    # Re-run the provisioner if the file changes
-    file_hash = "${filemd5("${path.root}/../serverless/${var.module_name}/src/${var.module_name}.py")}"
-  }
-}
-
-data "archive_file" "python_lambda_package" {
-  type        = "zip"
-  source_dir  = "${path.root}/../serverless/${var.module_name}/src"
-  output_path = "${path.root}/../serverless/${var.module_name}/lambda.zip"
-
-  depends_on = [ null_resource.pip_install ]
+resource "aws_ecr_repository" "lambda_repository" {
+  name = "${var.module_name}-lambda"
 }
 
 resource "aws_lambda_function" "overpass_lambda" {
-  filename         = data.archive_file.python_lambda_package.output_path
-  function_name    = var.module_name
-  role             = aws_iam_role.lambda_role.arn
-  handler          = "${var.module_name}.lambda_handler"
-  runtime          = "python3.14"
-  source_code_hash = data.archive_file.python_lambda_package.output_base64sha256
-  timeout = 180
+  function_name = var.module_name
+  role          = aws_iam_role.lambda_role.arn
+  package_type  = "Image"
+  image_uri     = "${aws_ecr_repository.lambda_repository.repository_url}:latest"
+  timeout       = 180
+  architectures = ["arm64"]
+
+  environment {
+    variables = {
+      OUTPUT_BUCKET = var.deflock_stats_bucket
+      OUTPUT_KEY    = var.output_filename
+    }
+  }
 }
 
 resource "aws_cloudwatch_event_rule" "lambda_rule" {

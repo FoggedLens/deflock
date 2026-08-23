@@ -1,4 +1,5 @@
 import json
+import os
 import requests
 import boto3
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -76,8 +77,8 @@ def lambda_handler(event, context):
   }
 
   s3 = boto3.client('s3')
-  bucket = 'cdn.deflock.me'
-  key = 'alpr-counts.json'
+  bucket = os.environ['OUTPUT_BUCKET']
+  key = os.environ.get('OUTPUT_KEY', 'alpr-counts.json')
 
   s3.put_object(
     Bucket=bucket,

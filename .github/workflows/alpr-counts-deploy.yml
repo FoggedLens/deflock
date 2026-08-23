@@ -1,0 +1,37 @@
+name: ALPR Counts Deploy
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'serverless/alpr_counts/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        working-directory: serverless/alpr_counts/src
+        run: |
+          docker buildx build --platform linux/arm64 \
+            -t ${{ steps.login-ecr.outputs.registry }}/alpr_counts-lambda:latest --load .
+          docker push ${{ steps.login-ecr.outputs.registry }}/alpr_counts-lambda:latest
+
+      - name: Update Lambda function code
+        run: |
+          aws lambda update-function-code \
+            --function-name alpr_counts \
+            --image-uri ${{ steps.login-ecr.outputs.registry }}/alpr_counts-lambda:latest
