@@ -87,7 +87,7 @@
         </v-btn>
       </div>
     </v-slide-y-transition>
-    <p class="d-sr-only" aria-live="polite" aria-atomic="true">{{ statusMessage }}</p>
+    <p class="sr-only" aria-live="polite" aria-atomic="true">{{ statusMessage }}</p>
   </div>
 </template>
 
@@ -186,7 +186,7 @@ function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   cluster.options.alt = accessibleLabel;
 
   return L.divIcon({
-    html: `<div><span aria-hidden="true">${count}</span><span class="d-sr-only">${accessibleLabel}</span></div>`,
+    html: `<div><span aria-hidden="true">${count}</span><span class="sr-only">${accessibleLabel}</span></div>`,
     className: `marker-cluster marker-cluster-${size}`,
     iconSize: L.point(40, 40),
   });

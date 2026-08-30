@@ -1,9 +1,22 @@
 import type { BoundingBoxLiteral } from "../services/apiService";
 import type { ALPR } from "../types";
 
+type CameraTags = ALPR["tags"];
+
+export function getCameraManufacturer(tags: CameraTags): string | undefined {
+  return tags.manufacturer ||
+    tags["surveillance:manufacturer"] ||
+    tags.brand ||
+    tags["surveillance:brand"];
+}
+
+export function getCameraOperator(tags: CameraTags): string | undefined {
+  return tags.operator || tags["surveillance:operator"];
+}
+
 export function cameraAriaLabel(camera: ALPR): string {
-  const vendor = camera.tags.manufacturer || "unknown vendor";
-  const operator = camera.tags.operator || "unknown operator";
+  const vendor = getCameraManufacturer(camera.tags) || "unknown vendor";
+  const operator = getCameraOperator(camera.tags) || "unknown operator";
 
   return `Camera: ${vendor}; operated by ${operator}; coordinates ${camera.lat.toFixed(5)}, ${camera.lon.toFixed(5)}`;
 }

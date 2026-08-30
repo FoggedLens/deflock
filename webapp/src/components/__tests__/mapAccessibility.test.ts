@@ -5,6 +5,8 @@ import {
   cameraAriaLabel,
   clusterAriaLabel,
   filterCamerasInBounds,
+  getCameraManufacturer,
+  getCameraOperator,
   isActivationKey,
   paginateCameras,
 } from "../mapAccessibility";
@@ -33,6 +35,35 @@ describe("cameraAriaLabel", () => {
     expect(cameraAriaLabel(camera("camera-2", 0, 0))).toBe(
       "Camera: unknown vendor; operated by unknown operator; coordinates 0.00000, 0.00000",
     );
+  });
+
+  test("uses the same prefixed tag fallbacks as the camera popup", () => {
+    const alpr = camera("camera-3", 41.3083, -72.9279, {
+      "surveillance:manufacturer": "Motorola Solutions",
+      "surveillance:operator": "New Haven Police Department",
+    });
+
+    expect(cameraAriaLabel(alpr)).toBe(
+      "Camera: Motorola Solutions; operated by New Haven Police Department; coordinates 41.30830, -72.92790",
+    );
+  });
+});
+
+describe("camera tag resolution", () => {
+  test("preserves the popup's manufacturer and operator precedence", () => {
+    const tags = {
+      manufacturer: "Manufacturer",
+      "surveillance:manufacturer": "Surveillance manufacturer",
+      brand: "Brand",
+      "surveillance:brand": "Surveillance brand",
+      operator: "Operator",
+      "surveillance:operator": "Surveillance operator",
+    };
+
+    expect(getCameraManufacturer(tags)).toBe("Manufacturer");
+    expect(getCameraOperator(tags)).toBe("Operator");
+    expect(getCameraManufacturer({ brand: "Brand", "surveillance:brand": "Surveillance brand" })).toBe("Brand");
+    expect(getCameraManufacturer({ "surveillance:brand": "Surveillance brand" })).toBe("Surveillance brand");
   });
 });
 

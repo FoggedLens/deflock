@@ -60,6 +60,7 @@ import type { ALPR } from '@/types';
 import { VIcon, VList, VSheet, VListItem, VBtn, VImg, VListItemSubtitle, VDivider } from 'vuetify/components';
 import { useVendorStore } from '@/stores/vendorStore';
 import { md5 } from 'js-md5';
+import { getCameraManufacturer, getCameraOperator } from './mapAccessibility';
 
 const props = defineProps({
   alpr: {
@@ -68,13 +69,7 @@ const props = defineProps({
   }
 });
 
-const manufacturer = computed(() => (
-  props.alpr.tags.manufacturer || 
-    props.alpr.tags['surveillance:manufacturer'] || 
-    props.alpr.tags.brand || 
-    props.alpr.tags['surveillance:brand'] ||
-    'Unknown'
-));
+const manufacturer = computed(() => getCameraManufacturer(props.alpr.tags) || 'Unknown');
 
 const store = useVendorStore();
 const vendorImageUrl = ref<string | undefined | null>(undefined);
@@ -93,12 +88,8 @@ const cameraImageAlt = computed(() => (
 ));
 
 const abbreviatedOperator = computed(() => {
-  const operatorTagKeys = [
-    "operator",
-    "surveillance:operator"
-  ]
-  const operatorTagKey = operatorTagKeys.find(key => props.alpr.tags[key] !== undefined);
-  if (!operatorTagKey) {
+  const operator = getCameraOperator(props.alpr.tags);
+  if (!operator) {
     return undefined;
   }
 
@@ -108,7 +99,6 @@ const abbreviatedOperator = computed(() => {
     "Sheriffs Office": "SO",
   };
 
-  const operator = props.alpr.tags[operatorTagKey];
   for (const [full, abbr] of Object.entries(replacements)) {
     if (operator.includes(full)) {
       return operator.replace(full, abbr);
