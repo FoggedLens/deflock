@@ -1,13 +1,17 @@
-name: DeFlock API Deploy
+name: DeFlock API
 
 on:
   push:
     branches: [master]
     paths:
       - 'api/**'
+      - '.github/workflows/deflock-api-deploy.yml'
+  pull_request:
+    paths:
+      - 'api/**'
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,6 +26,21 @@ jobs:
 
       - name: Run tests
         run: bun test
+        working-directory: ./api
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - run: bun install
         working-directory: ./api
 
       - name: Configure SSH
