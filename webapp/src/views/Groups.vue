@@ -17,37 +17,40 @@
       <v-row>
         <v-col cols="12" sm="8" lg="6" class="mx-auto">
           <div v-if="chapters.length">
-            <div v-for="(state, idx) in statesWithChapters" :key="state" class="mb-8">
-              <h3 class="font-weight-bold text-h6 mb-0">{{ abbrevToState[state] }}</h3>
-              <v-divider class="mb-4" />
-              <v-list>
-                <template v-for="(chapter, idx) in chaptersByState[state]" :key="chapter.id">
-                  <v-list-item
-                    two-line
-                    class="chapter-list-item"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title class="font-weight-bold">
-                        {{ chapter.name }}
-                      </v-list-item-title>
-                      <v-list-item-subtitle class="font-weight-bold">
-                        {{ chapter.city }}
-                      </v-list-item-subtitle>
-                    </v-list-item-content>
-    
-                    <template #append>
-                      <v-list-item-action>
-                        <v-btn :href="chapter.website" target="_blank" rel="noopener" color="primary" variant="outlined" size="small">
-                          Visit Website
-                          <v-icon end>mdi-open-in-new</v-icon>
-                        </v-btn>
-                      </v-list-item-action>
-                    </template>
+            <div v-for="section in sections" :key="section.label" class="mb-8">
+              <h2 class="font-weight-bold text-h5 mb-4">{{ section.label }}</h2>
+              <div v-for="state in section.states" :key="state" class="mb-8">
+                <h3 class="font-weight-bold text-h6 mb-0">{{ abbrevToState[state] ?? state }}</h3>
+                <v-divider class="mb-4" />
+                <v-list>
+                  <template v-for="(chapter, idx) in chaptersByState[state]" :key="chapter.id">
+                    <v-list-item
+                      two-line
+                      class="chapter-list-item"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title class="font-weight-bold">
+                          {{ chapter.name }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle class="font-weight-bold">
+                          {{ chapter.city }}
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
 
-                  </v-list-item>
-                  <v-divider v-if="idx < chaptersByState[state].length - 1" />
-                </template>
-              </v-list>
+                      <template #append>
+                        <v-list-item-action>
+                          <v-btn :href="chapter.website" target="_blank" rel="noopener" color="primary" variant="outlined" size="small">
+                            Visit Website
+                            <v-icon end>mdi-open-in-new</v-icon>
+                          </v-btn>
+                        </v-list-item-action>
+                      </template>
+
+                    </v-list-item>
+                    <v-divider v-if="idx < chaptersByState[state].length - 1" />
+                  </template>
+                </v-list>
+              </div>
             </div>
 
             <v-divider class="mb-8" />
@@ -147,6 +150,11 @@
   const chapters = ref<Chapter[]>([])
   const isLoading = ref(true)
 
+  // A chapter's `state` is treated as a US state/territory if it matches one of the
+  // abbreviations above. Anything else (e.g. "Canada - Ontario") falls into "Elsewhere".
+  // CMS convention for non-US chapters: state = "Country - Region", so they sort sensibly.
+  const isUsState = (state: string) => state in abbrevToState
+
   const chaptersByState = computed(() => {
     const grouped: Record<string, Chapter[]> = {}
     chapters.value.forEach(chapter => {
@@ -156,8 +164,12 @@
     return grouped
   })
 
-  const statesWithChapters = computed(() => {
-    return Object.keys(chaptersByState.value).sort()
+  const sections = computed(() => {
+    const states = Object.keys(chaptersByState.value).sort()
+    return [
+      { label: 'US', states: states.filter(isUsState) },
+      { label: 'Elsewhere', states: states.filter(state => !isUsState(state)) },
+    ].filter(section => section.states.length > 0)
   })
 
   onMounted(() => {
