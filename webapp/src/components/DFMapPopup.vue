@@ -1,8 +1,11 @@
 <template>
-  <v-sheet min-width="240">
+  <v-sheet min-width="240" role="dialog" aria-labelledby="df-map-popup-heading">
+    <h2 id="df-map-popup-heading" tabindex="-1" class="text-subtitle-1 font-weight-bold px-4 pt-3">
+      Camera details
+    </h2>
     <!--  TODO: if a field is unknown, prompt user to edit it -->
     <div class="position-relative">
-      <v-img v-if="imageUrl" cover width="100%" height="150px" :src="imageUrl" class="rounded mt-5" position="top" />
+      <v-img v-if="imageUrl" cover width="100%" height="150px" :src="imageUrl" :alt="cameraImageAlt" class="rounded mt-5" position="top" />
       <div v-if="imageUrl" class="position-absolute bottom-0 left-0 right-0 text-center text-white text-caption" style="background: rgba(0, 0, 0, 0.5);">
         {{ manufacturer }} {{ manufacturer.endsWith(' LPR') ? '' : ' LPR' }}
       </div>
@@ -57,6 +60,7 @@ import type { ALPR } from '@/types';
 import { VIcon, VList, VSheet, VListItem, VBtn, VImg, VListItemSubtitle, VDivider } from 'vuetify/components';
 import { useVendorStore } from '@/stores/vendorStore';
 import { md5 } from 'js-md5';
+import { getCameraManufacturer, getCameraOperator } from './mapAccessibility';
 
 const props = defineProps({
   alpr: {
@@ -65,13 +69,7 @@ const props = defineProps({
   }
 });
 
-const manufacturer = computed(() => (
-  props.alpr.tags.manufacturer || 
-    props.alpr.tags['surveillance:manufacturer'] || 
-    props.alpr.tags.brand || 
-    props.alpr.tags['surveillance:brand'] ||
-    'Unknown'
-));
+const manufacturer = computed(() => getCameraManufacturer(props.alpr.tags) || 'Unknown');
 
 const store = useVendorStore();
 const vendorImageUrl = ref<string | undefined | null>(undefined);
@@ -85,13 +83,13 @@ const imageUrl = computed(() => {
   return wikimediaImages.value?.thumbnail ?? vendorImageUrl.value;
 });
 
+const cameraImageAlt = computed(() => (
+  manufacturer.value === 'Unknown' ? 'Camera' : `${manufacturer.value} camera`
+));
+
 const abbreviatedOperator = computed(() => {
-  const operatorTagKeys = [
-    "operator",
-    "surveillance:operator"
-  ]
-  const operatorTagKey = operatorTagKeys.find(key => props.alpr.tags[key] !== undefined);
-  if (!operatorTagKey) {
+  const operator = getCameraOperator(props.alpr.tags);
+  if (!operator) {
     return undefined;
   }
 
@@ -101,7 +99,6 @@ const abbreviatedOperator = computed(() => {
     "Sheriffs Office": "SO",
   };
 
-  const operator = props.alpr.tags[operatorTagKey];
   for (const [full, abbr] of Object.entries(replacements)) {
     if (operator.includes(full)) {
       return operator.replace(full, abbr);

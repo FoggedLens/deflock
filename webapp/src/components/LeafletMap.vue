@@ -1,13 +1,13 @@
 <template>
-  <div id="map" :style="{
+  <div id="map" role="region" aria-label="ALPR camera map" :style="{
     height: isIframe ? '100dvh' : 'calc(100dvh - 64px)',
     marginTop: isIframe ? '0' : '64px',
   }">
-    <div class="topleft">
+    <div class="topleft" role="region" aria-label="Map search and controls">
       <slot name="topleft"></slot>
     </div>
 
-    <div class="topright">
+    <div class="topright" role="region" aria-label="Map controls">
       <!-- Controls -->
       <div v-if="!isIframe" class="d-flex flex-column ga-2">
         <!-- Clustering Toggle Switch -->
@@ -20,6 +20,7 @@
               </span>
               <v-switch
                 v-model="clusteringEnabled"
+                aria-label="Toggle camera grouping"
                 :disabled="currentZoom < 12"
                 hide-details
                 density="compact"
@@ -35,7 +36,16 @@
           <v-card-text class="py-2 px-3">
             <div class="d-flex align-center justify-space-between">
               <v-icon size="small" class="mr-2">mdi-map-outline</v-icon>
-              <v-btn-toggle v-model="boundaryMode" mandatory density="compact" divided variant="outlined" color="primary">
+              <v-btn-toggle
+                v-model="boundaryMode"
+                role="radiogroup"
+                aria-label="City boundary display"
+                mandatory
+                density="compact"
+                divided
+                variant="outlined"
+                color="primary"
+              >
                 <v-btn value="mask" size="x-small">Mask</v-btn>
                 <v-btn value="off" size="x-small">Off</v-btn>
                 <v-btn value="boundary" size="x-small">Border</v-btn>
@@ -70,17 +80,19 @@
           variant="text" 
           color="white"
           class="ml-2"
+          aria-label="Dismiss grouping warning"
           @click="dismissZoomWarning"
         >
           <v-icon size="small">mdi-close</v-icon>
         </v-btn>
       </div>
     </v-slide-y-transition>
+    <p class="sr-only" aria-live="polite" aria-atomic="true">{{ statusMessage }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, h, createApp, watch, ref, type PropType, type Ref } from 'vue';
+import { onBeforeUnmount, onMounted, h, createApp, nextTick, watch, ref, type App, type PropType, type Ref } from 'vue';
 import L, { type LatLngTuple, type FeatureGroup, type MarkerClusterGroup, type Marker, type CircleMarker } from 'leaflet';
 import type { ALPR } from '@/types';
 import DFMapPopup from './DFMapPopup.vue';
@@ -91,12 +103,14 @@ import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import { useTheme } from 'vuetify';
+import { cameraAriaLabel, clusterAriaLabel, isActivationKey } from './mapAccessibility';
 
 const MARKER_COLOR = 'rgb(63,84,243)';
 const CLUSTER_DISABLE_ZOOM = 16; // Clustering disabled at zoom 16 and above
 
 // Internal State Management
 const markerMap = new Map<string, Marker | CircleMarker>();
+const keyboardEnabledMarkerElements = new WeakSet<Element>();
 const isInternalUpdate = ref(false);
 const isIframe = computed(() => window.self !== window.top);
 
@@ -104,6 +118,7 @@ const isIframe = computed(() => window.self !== window.top);
 const clusteringEnabled = ref(true);
 const currentZoom = ref(0);
 const zoomWarningDismissed = ref(false);
+const statusMessage = ref('');
 
 // City Boundaries Control
 type BoundaryMode = 'mask' | 'off' | 'boundary';
@@ -154,6 +169,38 @@ let map: L.Map;
 let circlesLayer: FeatureGroup;
 let clusterLayer: MarkerClusterGroup;
 let currentLocationLayer: FeatureGroup;
+let activePopupApp: App<Element> | null = null;
+let activePopup: L.Popup | null = null;
+let popupOpener: Marker | CircleMarker | null = null;
+let focusRestoreGeneration = 0;
+
+type MapPopupEvent = L.LeafletEvent & { popup: L.Popup };
+
+function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
+  const count = cluster.getChildCount();
+  const accessibleLabel = clusterAriaLabel(count);
+  const size = count < 10 ? 'small' : count < 100 ? 'medium' : 'large';
+
+  cluster.options.keyboard = true;
+  cluster.options.title = accessibleLabel;
+  cluster.options.alt = accessibleLabel;
+
+  return L.divIcon({
+    html: `<div><span aria-hidden="true">${count}</span><span class="sr-only">${accessibleLabel}</span></div>`,
+    className: `marker-cluster marker-cluster-${size}`,
+    iconSize: L.point(40, 40),
+  });
+}
+
+function handleClusterKeydown(event: KeyboardEvent): void {
+  if (!isActivationKey(event.key) || !(event.target instanceof Element)) return;
+
+  const clusterElement = event.target.closest<HTMLElement>('.marker-cluster');
+  if (!clusterElement || !map.getContainer().contains(clusterElement)) return;
+
+  event.preventDefault();
+  clusterElement.click();
+}
 
 // Marker Creation Utilities
 function createSVGMarkers(alpr: ALPR): string {
@@ -256,6 +303,8 @@ function cardinalToDegrees(cardinal: string): number {
 }
 
 function createMarker(alpr: ALPR): Marker | CircleMarker {
+  const accessibleLabel = cameraAriaLabel(alpr);
+
   if (hasPlottableOrientation(alpr.tags.direction || alpr.tags['camera:direction'])) {
     const icon = L.divIcon({
       className: 'leaflet-data-marker',
@@ -264,7 +313,12 @@ function createMarker(alpr: ALPR): Marker | CircleMarker {
       iconAnchor: [30, 30],
       popupAnchor: [0, 0],
     });
-    return L.marker([alpr.lat, alpr.lon], { icon });
+    return L.marker([alpr.lat, alpr.lon], {
+      icon,
+      keyboard: true,
+      title: accessibleLabel,
+      alt: accessibleLabel,
+    });
   }
 
   return L.circleMarker([alpr.lat, alpr.lon], {
@@ -279,36 +333,153 @@ function createMarker(alpr: ALPR): Marker | CircleMarker {
   });
 }
 
+function enableMarkerKeyboardBehavior(marker: Marker | CircleMarker, alpr: ALPR): void {
+  const applyAccessibility = () => {
+    const element = marker.getElement();
+    if (!element) return;
+
+    element.setAttribute('role', 'button');
+    element.setAttribute('tabindex', '0');
+    element.setAttribute('aria-label', cameraAriaLabel(alpr));
+
+    if (keyboardEnabledMarkerElements.has(element)) return;
+
+    element.addEventListener('keydown', (event: Event) => {
+      if (!(event instanceof KeyboardEvent)) return;
+      if (!isActivationKey(event.key)) return;
+
+      event.preventDefault();
+      marker.fire('click', { originalEvent: event });
+    });
+    keyboardEnabledMarkerElements.add(element);
+  };
+
+  marker.on('add', applyAccessibility);
+  applyAccessibility();
+}
+
 const theme = useTheme();
+
+function rememberPopupOpener(marker: Marker | CircleMarker): void {
+  focusRestoreGeneration += 1;
+  popupOpener = marker;
+}
+
+function cleanupPopup(restoreFocus: boolean): void {
+  const popupApp = activePopupApp;
+  activePopupApp = null;
+  activePopup = null;
+
+  popupApp?.unmount();
+
+  const openerMarker = popupOpener;
+  popupOpener = null;
+  const restoreGeneration = ++focusRestoreGeneration;
+
+  if (restoreFocus && openerMarker) {
+    const restoreWhenVisible = (remainingFrames: number) => {
+      if (restoreGeneration !== focusRestoreGeneration) return;
+
+      const visibleOpener = map.hasLayer(clusterLayer)
+        ? clusterLayer.getVisibleParent(openerMarker as Marker)
+        : openerMarker;
+      const openerElement = visibleOpener?.getElement() as (Element & { focus: () => void }) | null;
+      if (openerElement?.isConnected) {
+        openerElement.focus();
+        return;
+      }
+
+      if (remainingFrames > 0) {
+        requestAnimationFrame(() => restoreWhenVisible(remainingFrames - 1));
+      } else {
+        map.getContainer().focus();
+      }
+    };
+
+    requestAnimationFrame(() => restoreWhenVisible(120));
+  }
+}
+
+function mountPopup(event: MapPopupEvent, marker: Marker | CircleMarker, alpr: ALPR): void {
+  if (activePopupApp) cleanupPopup(false);
+
+  rememberPopupOpener(marker);
+  const popupContent = document.createElement('div');
+  const popupApp = createApp({
+    render() {
+      return h(DFMapPopup, {
+        alpr: {
+          id: alpr.id,
+          lat: alpr.lat,
+          lon: alpr.lon,
+          tags: alpr.tags,
+          type: alpr.type,
+        }
+      });
+    }
+  }).use(createVuetify({
+    theme: {
+      defaultTheme: theme.global.name.value,
+    },
+  }));
+
+  activePopupApp = popupApp;
+  activePopup = event.popup;
+  popupApp.mount(popupContent);
+  event.popup.setContent(popupContent);
+  statusMessage.value = '';
+
+  void nextTick(() => {
+    if (activePopup !== event.popup || !popupContent.isConnected) return;
+    statusMessage.value = `${cameraAriaLabel(alpr)}. Details opened.`;
+    popupContent.querySelector<HTMLElement>('#df-map-popup-heading')?.focus();
+  });
+}
 
 function bindPopup(marker: L.CircleMarker | L.Marker, alpr: ALPR): L.CircleMarker | L.Marker {
   marker.bindPopup('');
 
-  marker.on('popupopen', (e: any) => {
-    const popupContent = document.createElement('div');
-    createApp({
-      render() {
-        return h(DFMapPopup, {
-          alpr: {
-            id: alpr.id,
-            lat: alpr.lat,
-            lon: alpr.lon,
-            tags: alpr.tags,
-            type: alpr.type,
-          }
-        });
-      }
-    }).use(createVuetify({
-      theme: {
-        defaultTheme: theme.global.name.value,
-      },
-    })).mount(popupContent);
-
-    e.popup.setContent(popupContent);
+  marker.on('click', () => rememberPopupOpener(marker));
+  marker.on('popupopen', (event: MapPopupEvent) => {
+    mountPopup(event, marker, alpr);
+  });
+  marker.on('popupclose', (event: MapPopupEvent) => {
+    if (activePopup === event.popup) cleanupPopup(true);
   });
 
   return marker;
 }
+
+function openCamera(id: string): boolean {
+  const marker = markerMap.get(id);
+  if (!marker) return false;
+
+  map.setView(
+    marker.getLatLng(),
+    Math.max(map.getZoom(), CLUSTER_DISABLE_ZOOM),
+    { animate: false },
+  );
+
+  void nextTick(() => {
+    const activateWhenVisible = (remainingFrames: number) => {
+      const element = marker.getElement();
+      if (element?.isConnected) {
+        marker.fire('click');
+        return;
+      }
+
+      if (remainingFrames > 0) {
+        requestAnimationFrame(() => activateWhenVisible(remainingFrames - 1));
+      }
+    };
+
+    requestAnimationFrame(() => activateWhenVisible(120));
+  });
+
+  return true;
+}
+
+defineExpose({ openCamera });
 
 function hasPlottableOrientation(orientationDegrees: string) {
   if (!orientationDegrees) return false;
@@ -353,6 +524,7 @@ function initializeMap() {
     maxClusterRadius: 60,
     spiderfyOnEveryZoom: false,
     spiderfyOnMaxZoom: false,
+    iconCreateFunction: createClusterIcon,
   });
 
   circlesLayer = L.featureGroup();
@@ -362,6 +534,7 @@ function initializeMap() {
   currentZoom.value = props.zoom;
 
   map.addLayer(clusterLayer);
+  map.getContainer().addEventListener('keydown', handleClusterKeydown);
   registerMapEvents();
 
   if (props.geojson) {
@@ -389,6 +562,7 @@ function updateMarkers(newAlprs: ALPR[]): void {
       // Add new marker
       const marker = createMarker(alpr);
       bindPopup(marker, alpr);
+      enableMarkerKeyboardBehavior(marker, alpr);
       markerMap.set(alpr.id, marker);
       circlesLayer.addLayer(marker);
     }
@@ -491,6 +665,7 @@ function updateClusteringBehavior(): void {
     maxClusterRadius: 60,
     spiderfyOnEveryZoom: false,
     spiderfyOnMaxZoom: false,
+    iconCreateFunction: createClusterIcon,
   });
   
   // Transfer all markers to the new cluster layer
@@ -561,6 +736,8 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  cleanupPopup(false);
+  map?.getContainer().removeEventListener('keydown', handleClusterKeydown);
   map?.remove();
 });
 
