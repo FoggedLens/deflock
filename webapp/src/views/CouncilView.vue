@@ -242,7 +242,7 @@
           
           <v-data-table
             :headers="headers"
-            :items="citiesRejectingFlock"
+            :items="displayedCities"
             :loading="loading"
             :items-per-page="10"
             :items-per-page-options="[10, 25, 50]"
@@ -253,10 +253,26 @@
             item-value="cityState"
           >
             <template v-slot:header.cityState="{ column }">
-              <div class="d-flex align-center text-medium-emphasis">
+              <button
+                type="button"
+                class="sort-header-btn"
+                :class="{ 'sort-header-btn--active': stateSortDirection !== 'off' }"
+                :aria-pressed="stateSortDirection !== 'off'"
+                :aria-label="`Sort by state: ${stateSortDirection === 'off' ? 'not sorted' : stateSortDirection === 'asc' ? 'ascending' : 'descending'}`"
+                @click="cycleStateSort"
+              >
                 <v-icon icon="mdi-map-marker" size="18" class="mr-2" />
                 <span class="text-caption font-weight-medium">{{ column.title }}</span>
-              </div>
+                <v-icon
+                  :icon="
+                    stateSortDirection === 'asc' ? 'mdi-sort-alphabetical-ascending' :
+                    stateSortDirection === 'desc' ? 'mdi-sort-alphabetical-descending' :
+                    'mdi-sort'
+                  "
+                  size="16"
+                  class="ml-1"
+                />
+              </button>
             </template>
 
             <template v-slot:header.monthYear="{ column }">
@@ -372,7 +388,7 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import Hero from '@/components/layout/Hero.vue';
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 
 const sortMonthYearByDateDesc = (a: string, b: string) => {
   const [aMonth, aYear] = a.split(/\s/);
@@ -395,6 +411,33 @@ const lastUpdated = ref<string>('');
 const loading = ref<boolean>(false);
 const tableRef = ref<HTMLElement | null>(null);
 const hasLoaded = ref<boolean>(false);
+
+// Sort-by-state toggle for the Recent Victories table
+const stateSortDirection = ref<'off' | 'asc' | 'desc'>('off');
+ 
+const getStateCode = (cityState: string) => {
+  const match = cityState.trim().match(/,\s*([A-Z]{2})\s*$/);
+  return match ? match[1] : '';
+};
+ 
+const cycleStateSort = () => {
+  stateSortDirection.value =
+    stateSortDirection.value === 'off' ? 'asc' :
+    stateSortDirection.value === 'asc' ? 'desc' : 'off';
+};
+ 
+// Displayed list: sorted by state code 
+const displayedCities = computed(() => {
+  if (stateSortDirection.value === 'off') return citiesRejectingFlock.value;
+ 
+  const dir = stateSortDirection.value === 'asc' ? 1 : -1;
+ 
+  return [...citiesRejectingFlock.value].sort((a, b) => {
+    const stateCompare = getStateCode(a.cityState).localeCompare(getStateCode(b.cityState));
+    if (stateCompare !== 0) return stateCompare * dir;
+    return sortMonthYearByDateDesc(a.monthYear, b.monthYear);
+  });
+});
 
 // Intersection observer for lazy loading
 let observer: IntersectionObserver | null = null;
