@@ -17,6 +17,7 @@ function classifyError(error: FastifyError): string {
   if (msg.includes('sponsors') || msg.includes('github')) return 'upstream_error:github';
   if (msg.includes('zammad') || msg.includes('ticket')) return 'upstream_error:zammad';
   if (msg.includes('turnstile') || msg.includes('siteverify')) return 'upstream_error:turnstile';
+  if (msg.includes('legislators') || msg.includes('openstates')) return 'upstream_error:openstates';
   return 'internal_error';
 }
 
@@ -28,11 +29,12 @@ function classifyByStatus(statusCode: number): string {
   return 'internal_error';
 }
 import cors from '@fastify/cors';
-import { NominatimClient, NominatimResultSchema } from './services/NominatimClient';
+import { NominatimClient, NominatimResultSchema, ReverseResultSchema } from './services/NominatimClient';
 import { classifyGeoQuery } from './services/GeoQueryClassifier';
 import { GithubClient, SponsorsResponseSchema } from './services/GithubClient';
 import { TurnstileClient } from './services/TurnstileClient';
 import { ZammadClient, ContactMessageBodySchema, ContactMessageBody } from './services/ZammadClient';
+import { OpenStatesClient, LegislatorsResponseSchema } from './services/OpenStatesClient';
 
 const start = async () => {
   const server: FastifyInstance = Fastify({
@@ -137,6 +139,7 @@ const start = async () => {
   const githubClient = new GithubClient();
   const turnstileClient = new TurnstileClient();
   const zammadClient = new ZammadClient();
+  const openStatesClient = new OpenStatesClient();
 
   const shutdown = async () => {
     server.log.info("Shutting down");
@@ -203,6 +206,32 @@ const start = async () => {
     return result;
   });
 
+  server.get('/geocode/reverse', {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          lat: { type: 'number', minimum: -90, maximum: 90 },
+          lon: { type: 'number', minimum: -180, maximum: 180 },
+        },
+        required: ['lat', 'lon'],
+      },
+      response: {
+        200: ReverseResultSchema,
+        404: { type: 'object', properties: { error: { type: 'string' } } },
+        500: { type: 'object', properties: { error: { type: 'string' } } },
+      },
+    },
+  }, async (request, reply) => {
+    const { lat, lon } = request.query as { lat: number, lon: number };
+    reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+    const result = await nominatim.reverseGeocode(lat, lon);
+    if (!result) {
+      return reply.status(404).send({ error: 'No results found' });
+    }
+    return result;
+  });
+
   server.get('/sponsors/github', {
     schema: {
       response: {
@@ -214,6 +243,33 @@ const start = async () => {
     reply.header('Cache-Control', 'public, max-age=60, s-maxage=600');
     const result = await githubClient.getSponsors();
     return result;
+  });
+
+  server.get('/officials', {
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          lat: { type: 'number' },
+          lng: { type: 'number' },
+        },
+        required: ['lat', 'lng'],
+      },
+      response: {
+        200: LegislatorsResponseSchema,
+        404: { type: 'object', properties: { error: { type: 'string' } } },
+        500: { type: 'object', properties: { error: { type: 'string' } } },
+      },
+    },
+  }, async (request, reply) => {
+    // Feature is opt-in: without an Open States key the frontend falls back to links
+    if (!openStatesClient.isConfigured()) {
+      return reply.status(404).send({ error: 'Not available' });
+    }
+    const { lat, lng } = request.query as { lat: number, lng: number };
+    reply.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+    const legislators = await openStatesClient.legislatorsAtPoint(lat, lng);
+    return { legislators };
   });
 
   server.post('/contact/message', {

@@ -82,9 +82,38 @@ export const getCities = async () => {
   return response.data;
 }
 
+export interface Legislator {
+  name: string;
+  party: string;
+  chamber: string;
+  district: string;
+  image: string;
+  email: string;
+  phone: string;
+  openstatesUrl: string;
+}
+
+// 404s when the server has no Open States key configured; callers should
+// treat any failure as "no data" and fall back to links
+export const getOfficials = async (lat: string, lng: string): Promise<Legislator[]> => {
+  const response = await apiService.get(`/officials?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
+  return response.data.legislators;
+}
+
 export const geocodeQuery = async (query: string) => {
   const encodedQuery = encodeURIComponent(query);
   const result = (await apiService.get(`/geocode?query=${encodedQuery}`)).data;
+  return result;
+}
+
+export const geocodeMultiQuery = async (query: string, source?: string) => {
+  const params = new URLSearchParams({ query, ...(source ? { source } : {}) });
+  const result = (await apiService.get(`/geocode/multi?${params.toString()}`)).data;
+  return result;
+}
+
+export const reverseGeocodeQuery = async (lat: number, lon: number) => {
+  const result = (await apiService.get(`/geocode/reverse?lat=${lat}&lon=${lon}`)).data;
   return result;
 }
 
