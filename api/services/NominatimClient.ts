@@ -63,7 +63,8 @@ export class NominatimClient {
       return zipResult ? [zipResult] : [];
     }
 
-    const cacheKey = `geocode:${query}`;
+    // The geojson variant is a different response, so it needs its own key
+    const cacheKey = `geocode:${includeGeoJson ? 'geojson' : 'plain'}:${query}`;
     const cached = await cache.get(cacheKey);
     if (cached) {
       return cached as NominatimResult[];
