@@ -239,7 +239,12 @@
                 <p class="text-body-2 text-medium-emphasis mb-0">Communities across the country are rejecting ALPRs</p>
               </div>
             </div>
-          
+
+            <p class="text-caption text-medium-emphasis mb-4">
+              Information sourced from the Institute for Justice's ALPR Contract Cancellation Database. Learn more at
+              <a href="https://ij.org" target="_blank" rel="noopener">www.ij.org</a>.
+            </p>
+
           <v-data-table
             :headers="headers"
             :items="citiesRejectingFlock"
@@ -331,10 +336,6 @@
               </div>
             </template>
           </v-data-table>
-
-          <div v-if="lastUpdated" class="mt-4 text-caption text-medium-emphasis text-center">
-            Last updated: {{ formatDate(lastUpdated) }}
-          </div>
           </v-card>
         </div>
       </v-col>
@@ -389,9 +390,8 @@ interface CityRejection {
   outcome: string;
 }
 
-// Reactive data for CMS content
+// Reactive data for wins table
 const citiesRejectingFlock = ref<CityRejection[]>([]);
-const lastUpdated = ref<string>('');
 const loading = ref<boolean>(false);
 const tableRef = ref<HTMLElement | null>(null);
 const hasLoaded = ref<boolean>(false);
@@ -421,16 +421,21 @@ const headers = [
   }
 ];
 
-// Fetch recent wins from CMS
+// Fetch recent wins from the Institute for Justice's ALPR Contract Cancellation Database
 const fetchRecentWins = async () => {
   loading.value = true;
   try {
-    const response = await fetch('https://cms.deflock.me/items/flockWins?limit=-1');
-    const result: CityRejection[] = (await response.json()).data;
+    const response = await fetch('https://ij.org/wp-json/ij/v1/alpr-cancellations');
+    const { incidents } = await response.json();
 
-    const sortedResult = result.sort((a, b) => sortMonthYearByDateDesc(a.monthYear, b.monthYear));
-
-    citiesRejectingFlock.value = sortedResult;
+    citiesRejectingFlock.value = incidents
+      .map((incident: any) => ({
+        cityState: `${incident.city_county}, ${incident.state.name}`,
+        monthYear: incident.incident_date_display,
+        outcome: incident.type.name,
+        description: incident.description,
+      }))
+      .sort((a: CityRejection, b: CityRejection) => sortMonthYearByDateDesc(a.monthYear, b.monthYear));
   } catch (error) {
     console.error('Error fetching recent wins:', error);
     // Fallback to empty array if fetch fails
@@ -482,17 +487,6 @@ onUnmounted(() => {
     observer = null;
   }
 });
-
-// Format date helper function
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
 
 const videos = [
   {
