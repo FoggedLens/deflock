@@ -295,7 +295,8 @@
             <template v-slot:expanded-row="{ columns, item }">
               <tr>
                 <td :colspan="columns.length" class="pa-4">
-                  <div v-html="item.description" class="text-body-1" style="line-height: 1.6;"></div>
+                  <div v-html="item.description" class="text-body-1 mb-2" style="line-height: 1.6;"></div>
+                  <a :href="item.sourceUrl" target="_blank" rel="noopener" class="text-body-2">Original source</a>
                 </td>
               </tr>
             </template>
@@ -388,6 +389,7 @@ interface CityRejection {
   monthYear: string;
   description: string;
   outcome: string;
+  sourceUrl: string;
 }
 
 // Reactive data for wins table
@@ -434,6 +436,7 @@ const fetchRecentWins = async () => {
         monthYear: incident.incident_date_display,
         outcome: incident.type.name,
         description: incident.description,
+        sourceUrl: incident.source_url,
       }))
       .sort((a: CityRejection, b: CityRejection) => sortMonthYearByDateDesc(a.monthYear, b.monthYear));
   } catch (error) {
