@@ -28,19 +28,19 @@ def fetch_alpr_surveillance_nodes(usOnly=True):
     raise RuntimeError(f"Failed to fetch data from Overpass API. Status code: {response.status_code}")
 
 def fetch_wins_count():
-  cms_url = "https://cms.deflock.me/items/flockWins?limit=-1"
+  ij_url = "https://ij.org/wp-json/ij/v1/alpr-cancellations"
   headers = {'User-Agent': DF_USER_AGENT}
-  
-  response = requests.get(cms_url, headers=headers)
-  
+
+  response = requests.get(ij_url, headers=headers)
+
   if response.status_code == 200:
     response_json = response.json()
     try:
-      return len(response_json['data'])
+      return len(response_json['incidents'])
     except (KeyError, TypeError) as e:
-      raise RuntimeError("Could not find 'data' array in the response.")
+      raise RuntimeError("Could not find 'incidents' array in the response.")
   else:
-    raise RuntimeError(f"Failed to fetch data from CMS. Status code: {response.status_code}")
+    raise RuntimeError(f"Failed to fetch data from IJ. Status code: {response.status_code}")
 
 def lambda_handler(event, context):
   us_alprs = None
