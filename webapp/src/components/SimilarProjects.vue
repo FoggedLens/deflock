@@ -113,6 +113,12 @@ const similarProjects: SimilarProject[] = [
     imageUrl: "/similar-projects/flockhopper.webp"
   },
   {
+    name: "FlockDetour",
+    description: "Map of known ALPRs with routes that pass fewer of them, free in any browser, plus iPhone and Android apps.",
+    url: "https://flockdetour.com",
+    imageUrl: "/similar-projects/flockdetour.webp"
+  },
+  {
     name: "Upcoming Meetings",
     description: "Find upcoming public meetings related to ALPR deployments.",
     url: "https://alpr.watch/",
